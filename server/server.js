@@ -3,9 +3,8 @@ require("dotenv").config();
 const express = require("express");
 const session = require("express-session");
 const passport = require("passport");
-const GoogleStrategy = require("passport-google-oauth20").Strategy;
-// const { googleAuth, googleCallback, logout } = require('./controllers/userController');
 const app = express();
+
 const pool = require("./db/connect");
 
 require("./controllers/userController");
@@ -15,14 +14,12 @@ app.use(express.urlencoded({ extended: true }));
 
 
 
-
+// session to track logged-in user
 app.use(
-    // session to track logged-in user
+
   session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    // creates a session even if nothing is stored yet 
-    // change to false in production for efficiency
     saveUninitialized: true,
   })
 );

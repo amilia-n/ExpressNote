@@ -4,7 +4,8 @@ CREATE TABLE users (
   user_id SERIAL PRIMARY KEY,
   google_id VARCHAR(255) UNIQUE NOT NULL,
   email VARCHAR(255) UNIQUE NOT NULL,
-  display_name VARCHAR(255),                          
+  display_name VARCHAR(255),
+  password TEXT,                       
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
