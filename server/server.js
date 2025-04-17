@@ -3,41 +3,38 @@ require("dotenv").config();
 const express = require("express");
 const session = require("express-session");
 const passport = require("passport");
-const GoogleStrategy = require("passport-google-oauth20").Strategy;
-// const { googleAuth, googleCallback, logout } = require('./controllers/userController');
 const app = express();
+
+// Connect to database
 const pool = require("./db/connect");
 
-require("./controllers/userController");
-
+// Middleware setup
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Session middleware
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: true,
+}));
 
-
-
-app.use(
-    // session to track logged-in user
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    // creates a session even if nothing is stored yet 
-    // change to false in production for efficiency
-    saveUninitialized: true,
-  })
-);
+// Passport middleware
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Initialize passport configuration
+require("./controllers/userController");
 
+// Routes
 const authRoutes = require('./routes/authRoutes');
 app.use('/auth', authRoutes);
 
 app.get('/', (req, res) => res.send('Home Page'));
 
 app.get("/logout", (req, res) => {
-    req.logout(() => res.redirect("/"));
-  });
+  req.logout(() => res.redirect("/"));
+});
 
 app.get("/profile", (req, res) => {
   if (!req.user) return res.redirect("/");
