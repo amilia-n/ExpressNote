@@ -45,12 +45,25 @@ exports.updateNote = async (req, res) => {
 
 // Delete Note Route Handler
 exports.deleteNote = async (req, res) => {
-    const noteId = req.params.id;
-    try {
-      await pool.query('DELETE FROM notes WHERE note_id = $1 AND user_id = $2', [noteId, req.user.user_id]);
-      res.status(204).end();
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
-  };
-  
+  const noteId = req.params.id;
+  try {
+    await pool.query("DELETE FROM notes WHERE note_id = $1 AND user_id = $2", [
+      noteId,
+      req.user.user_id,
+    ]);
+    res.status(204).end();
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+// GET ALL Note Route Handler
+exports.getAllNotes = async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM notes WHERE user_id = $1", [
+      req.user.user_id,
+    ]);
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
