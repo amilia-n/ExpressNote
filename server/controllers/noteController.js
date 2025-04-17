@@ -42,3 +42,15 @@ exports.updateNote = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+// Delete Note Route Handler
+exports.deleteNote = async (req, res) => {
+    const noteId = req.params.id;
+    try {
+      await pool.query('DELETE FROM notes WHERE note_id = $1 AND user_id = $2', [noteId, req.user.user_id]);
+      res.status(204).end();
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  };
+  
