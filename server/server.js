@@ -27,6 +27,7 @@ app.use(passport.session());
 require("./controllers/userController");
 
 // Routes
+// AuthRoute + UserRoute
 const authRoutes = require('./routes/authRoutes');
 app.use('/auth', authRoutes);
 
@@ -40,6 +41,9 @@ app.get("/profile", (req, res) => {
   if (!req.user) return res.redirect("/");
   res.send(`Welcome ${req.user.displayName}`);
 });
+// NoteRoute
+const noteRoutes = require('./routes/noteRoutes');
+app.use('/notes', noteRoutes);
 
 const PORT = process.env.PORT || 3000;
 
