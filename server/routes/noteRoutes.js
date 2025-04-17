@@ -5,5 +5,6 @@ const noteController = require('../controllers/noteController');
 
 router.post('/', authenticateToken, noteController.createNote);
 router.get('/:id', authenticateToken, noteController.getNoteById);
+router.put('/:id', authenticateToken, noteController.updateNote);
 
 module.exports = router;
