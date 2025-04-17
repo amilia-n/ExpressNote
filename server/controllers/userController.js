@@ -11,9 +11,9 @@ const SALT_ROUNDS = 10;
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: '/auth/google/callback',
+  callbackURL: 'http://localhost:3000/auth/google/callback',
 }, async (accessToken, refreshToken, profile, done) => {
-  const { id, displayName, emails } = profile;
+  const { id, display_name, emails } = profile;
 
   try {
     const userRes = await pool.query('SELECT * FROM users WHERE google_id = $1', [id]);
@@ -21,7 +21,7 @@ passport.use(new GoogleStrategy({
 
     const newUser = await pool.query(
       'INSERT INTO users (google_id, display_name, email) VALUES ($1, $2, $3) RETURNING *',
-      [id, displayName, emails[0].value]
+      [id, display_name, emails[0].value]
     );
     return done(null, newUser.rows[0]);
   } catch (err) {
@@ -53,9 +53,9 @@ exports.logout = (req, res) => {
 };
 //LOCAL REGISTER
 exports.registerUser = async (req, res) => {
-  const { displayName, email, password } = req.body;
+  const { display_name, email, password } = req.body;
 
-  if (!displayName || !email || !password) {
+  if (!display_name || !email || !password) {
     return res.status(400).json({ error: "All fields are required." });
   }
 
@@ -75,7 +75,7 @@ exports.registerUser = async (req, res) => {
       `INSERT INTO users (display_name, email, password) 
        VALUES ($1, $2, $3) 
        RETURNING user_id, display_name, email`,
-      [displayName, email, hashedPassword]
+      [display_name, email, hashedPassword]
     );
 
     const user = newUser.rows[0];

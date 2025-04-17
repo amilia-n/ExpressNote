@@ -15,8 +15,14 @@ app.use(express.urlencoded({ extended: true }));
 // Session middleware
 app.use(session({
   secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: true,
+  resave: true,
+  saveUninitialized: false,
+  cookie: {
+    secure: false, // false only for development. process.env.NODE_ENV === 'production'
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    httpOnly: false //false for dev
+  },
+  rolling: true 
 }));
 
 // Passport middleware
@@ -39,7 +45,8 @@ app.get("/logout", (req, res) => {
 
 app.get("/profile", (req, res) => {
   if (!req.user) return res.redirect("/");
-  res.send(`Welcome ${req.user.displayName}`);
+  console.log('User object:', req.user);
+  res.send(`Welcome ${req.user.display_name}`);
 });
 // NoteRoute
 const noteRoutes = require('./routes/noteRoutes');
