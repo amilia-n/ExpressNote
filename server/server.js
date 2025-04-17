@@ -52,6 +52,10 @@ app.get("/profile", (req, res) => {
 const noteRoutes = require('./routes/noteRoutes');
 app.use('/notes', noteRoutes);
 
+// CardRoute
+const cardRoutes = require('./routes/cardRoutes');
+app.use('/cards', cardRoutes);
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
