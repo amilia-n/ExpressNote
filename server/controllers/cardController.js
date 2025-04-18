@@ -40,3 +40,15 @@ exports.generateFlashcards = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+exports.getFlashcardsByNote = async (req, res) => {
+    const { note_id } = req.params;
+    try {
+      const result = await pool.query(
+        'SELECT * FROM cards WHERE note_id = $1',
+        [note_id]
+      );
+      res.json(result.rows);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  };
