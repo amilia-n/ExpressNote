@@ -82,5 +82,5 @@ Postman Testing:
      }
    - Delete: DELETE http://localhost:3000/cards/:card_id
 
-To reset tables psql -U postgres -d express_note -c "TRUNCATE TABLE cards, notes, users RESTART IDENTITY CASCADE;"
+
 Visual Demo
