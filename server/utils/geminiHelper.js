@@ -39,7 +39,9 @@ const callGemini = async (content, noteId) => {
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    const text = response.text();
+    let text = response.text();
+    text = text.replaceAll("```", "");
+    text = text.replace("json", "");
     const parsed = JSON.parse(text);
     return parsed.flashcards;
   } catch (error) {
