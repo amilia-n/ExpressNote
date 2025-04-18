@@ -37,6 +37,13 @@ Route Structure:
     "content": "Your note content",
     "note_id": "ID of the note to associate flashcards with"
   }
+/cards/:note_id - GET: Retrieve all flashcards for a specific note
+/cards/:card_id - PUT: Update a specific flashcard
+  Body: {
+    "header": "Updated question",
+    "summary": "Updated answer",
+    "editable": true
+  }
 
 
 Postman Testing:
@@ -60,6 +67,13 @@ Postman Testing:
      Body: { 
        "content": "Your note content to generate flashcards from",
        "note_id": "ID of the note to associate with"
+     }
+   - Get By Note: GET http://localhost:3000/cards/:note_id
+   - Update: PUT http://localhost:3000/cards/:card_id
+     Body: {
+       "header": "Updated question",
+       "summary": "Updated answer",
+       "editable": true
      }
 
 To reset tables psql -U postgres -d express_note -c "TRUNCATE TABLE cards, notes, users RESTART IDENTITY CASCADE;"
