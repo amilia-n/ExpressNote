@@ -26,15 +26,22 @@ Route Structure:
 /auth/profile - Protected profile route
 
 /notes - Main note routes (Protected)
-/notes - GET: Retrieve all notes for authenticated user
 /notes - POST: Create a new note
 /notes/:id - GET: Retrieve a specific note
 /notes/:id - PUT: Update a specific note
 /notes/:id - DELETE: Delete a specific note
 
+/cards - Flashcard routes (Protected)
+/cards/generate - POST: Generate flashcards from note content
+  Body: {
+    "content": "Your note content",
+    "note_id": "ID of the note to associate flashcards with"
+  }
+
+
 Postman Testing:
 1. Register: POST http://localhost:3000/auth/register
-   Body: { "email": "test@email.com", "password": "password" }
+   Body: { "email": "test@email.com", "password": "password", "display_name": "mockuser1" }
 
 2. Login: POST http://localhost:3000/auth/login
    Body: { "email": "test@email.com", "password": "password" }
@@ -48,4 +55,12 @@ Postman Testing:
      Body: { "title": "Updated", "content": "Updated" }
    - Delete: DELETE http://localhost:3000/notes/:id
 
+4. Flashcards (add Authorization: Bearer <token> header):
+   - Generate: POST http://localhost:3000/cards/generate
+     Body: { 
+       "content": "Your note content to generate flashcards from",
+       "note_id": "ID of the note to associate with"
+     }
+
+To reset tables psql -U postgres -d express_note -c "TRUNCATE TABLE cards, notes, users RESTART IDENTITY CASCADE;"
 Visual Demo

@@ -20,7 +20,7 @@ app.use(session({
   cookie: {
     secure: false, // false only for development. process.env.NODE_ENV === 'production'
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    httpOnly: false //false for dev
+    httpOnly: false //true to hide cookie
   },
   rolling: true 
 }));
@@ -51,6 +51,10 @@ app.get("/profile", (req, res) => {
 // NoteRoute
 const noteRoutes = require('./routes/noteRoutes');
 app.use('/notes', noteRoutes);
+
+// CardRoute
+const cardRoutes = require('./routes/cardRoutes');
+app.use('/cards', cardRoutes);
 
 const PORT = process.env.PORT || 3000;
 
