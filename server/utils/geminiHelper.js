@@ -11,14 +11,14 @@ const flashcardPrompt = (content) => ({
   
   Each flashcard should include:
   - "header": a short, clear summary or topic title
-  - "info": bullet points breaking down the key details of that topic
+  - "summary": bullet points breaking down the key details of that topic
   
   Return the flashcards in this **exact JSON format**:
   {
     "flashcards": [
       {
         "header": "Header Title",
-        "info": "• Key detail 1\\n• Key detail 2\\n• Key detail 3"
+        "summary": "• Key detail 1\\n• Key detail 2\\n• Key detail 3"
       }
     ]
   }

@@ -20,7 +20,7 @@ app.use(session({
   cookie: {
     secure: false, // false only for development. process.env.NODE_ENV === 'production'
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    httpOnly: false //false for dev
+    httpOnly: false //true to hide cookie
   },
   rolling: true 
 }));

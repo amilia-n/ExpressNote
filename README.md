@@ -34,7 +34,7 @@ Route Structure:
 
 Postman Testing:
 1. Register: POST http://localhost:3000/auth/register
-   Body: { "email": "test@email.com", "password": "password" }
+   Body: { "email": "test@email.com", "password": "password", "display_name": "mockuser1" }
 
 2. Login: POST http://localhost:3000/auth/login
    Body: { "email": "test@email.com", "password": "password" }
@@ -48,4 +48,7 @@ Postman Testing:
      Body: { "title": "Updated", "content": "Updated" }
    - Delete: DELETE http://localhost:3000/notes/:id
 
+4. Flashcard: 
+
+To reset tables psql -U postgres -d express_note -c "TRUNCATE TABLE cards, notes, users RESTART IDENTITY CASCADE;"
 Visual Demo
