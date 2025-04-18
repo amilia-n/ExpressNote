@@ -89,3 +89,13 @@ exports.updateFlashcard = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+exports.deleteFlashcard = async (req, res) => {
+    const { card_id } = req.params;
+    try {
+      await pool.query('DELETE FROM cards WHERE card_id = $1', [card_id]);
+      res.status(204).end();
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  };

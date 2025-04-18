@@ -6,5 +6,6 @@ const authenticateToken = require('../middleware/authMiddleware');
 router.post('/generate', authenticateToken, cardController.generateFlashcards);
 router.get('/:note_id', authenticateToken, cardController.getFlashcardsByNote);
 router.put('/:card_id', authenticateToken, cardController.updateFlashcard);
+router.delete('/:card_id', authenticateToken, cardController.deleteFlashcard);
 
 module.exports = router;
