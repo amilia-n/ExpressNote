@@ -82,5 +82,15 @@ Postman Testing:
      }
    - Delete: DELETE http://localhost:3000/cards/:card_id
 
-To reset tables psql -U postgres -d express_note -c "TRUNCATE TABLE cards, notes, users RESTART IDENTITY CASCADE;"
+Testing Tools:
+Backend: Vitest + Axios
+*   npm install -D vitest
+*   npm install -D axios-mock-adapter
+      Mock Axios requests in unit/integration tests
+*   npm install -D node-mocks-http
+      Mock Express req/res/next for middleware/controllers
+*   npm install -D pg-mem
+      Mock PostgreSQL
+
+
 Visual Demo
