@@ -1,6 +1,6 @@
 Project Intro: Express Notes - A note-taking application with authentication
 
-Instruction for Setup:
+# Instruction for Setup:
 
 1. Clone repository
 2. Install dependencies: npm install
@@ -19,37 +19,62 @@ Instruction for Setup:
 
 Schema Breakdown: PostgreSQL database with users and notes tables
 
-Route Structure:
-/auth - Main authentication routes
-/auth/google - Initiates Google OAuth
-/auth/google/callback - Handles Google OAuth callback
-/auth/register - Local user registration
-/auth/login - Local user login
-/auth/logout - Handles user logout
-/auth/profile - Protected profile route
+# API Route Structure
 
-/notes - Main note routes (Protected)
-/notes - POST: Create a new note
-/notes/:id - GET: Retrieve a specific note
-/notes/:id - PUT: Update a specific note
-/notes/:id - DELETE: Delete a specific note
+## Authentication Routes (`/auth`)
 
-/cards - Flashcard routes (Protected)
-/cards/generate - POST: Generate flashcards from note content
-Body: {
-"content": "Your note content",
-"note_id": "ID of the note to associate flashcards with"
-}
-/cards/:note_id - GET: Retrieve all flashcards for a specific note
-/cards/:card_id - PUT: Update a specific flashcard
-Body: {
-"header": "Updated header",
-"summary": "Updated summary",
-"editable": true
-}
-/cards/:card_id - DELETE: Delete a specific flashcard
+- **GET** `/auth/google`  
+  Initiates Google OAuth
+- **GET** `/auth/google/callback`  
+  Handles Google OAuth callback
+- **POST** `/auth/register`  
+  Local user registration
+- **POST** `/auth/login`  
+  Local user login
+- **POST** `/auth/logout`  
+  Handles user logout
+- **GET** `/auth/profile`  
+  Protected profile route
 
-Postman Testing:
+## Note Routes (Protected) (`/notes`)
+
+- **POST** `/notes`  
+  Create a new note
+- **GET** `/notes/:id`  
+  Retrieve a specific note
+- **PUT** `/notes/:id`  
+  Update a specific note
+- **DELETE** `/notes/:id`  
+  Delete a specific note
+
+## Flashcard Routes (Protected) (`/cards`)
+
+- **POST** `/cards/generate`  
+  Generate flashcards from note content  
+  **Body:**
+  ```json
+  {
+    "content": "Your note content",
+    "note_id": "ID of the note to associate flashcards with"
+  }
+  ```
+- **GET** `/cards/:note_id`  
+  Retrieve all flashcards for a specific note
+- **PUT** `/cards/:card_id`  
+   Update a specific flashcard
+  **Body:**
+  ```json
+  {
+   "header": "Updated header",
+   "summary": "Updated summary",
+   "editable": true
+  }
+  ```
+- **DELETE** `/cards/:card_id`  
+  Delete a specific flashcard
+
+
+# Postman Testing:
 
 1. Register: POST http://localhost:3000/auth/register
    Body: { "email": "test@email.com", "password": "password", "display_name": "mockuser1" }
@@ -82,15 +107,14 @@ Postman Testing:
      }
    - Delete: DELETE http://localhost:3000/cards/:card_id
 
-Testing Tools:
-Backend: Vitest + Axios
-*   npm install -D vitest
-*   npm install -D axios-mock-adapter
-      Mock Axios requests in unit/integration tests
-*   npm install -D node-mocks-http
-      Mock Express req/res/next for middleware/controllers
-*   npm install -D pg-mem
-      Mock PostgreSQL
-
+# Testing Tools:
+## Backend: Vitest + Axios
+- npm install -D vitest
+- npm install -D axios-mock-adapter
+  Mock Axios requests in unit/integration tests
+- npm install -D node-mocks-http
+  Mock Express req/res/next for middleware/controllers
+- npm install -D pg-mem
+  Mock PostgreSQL
 
 Visual Demo

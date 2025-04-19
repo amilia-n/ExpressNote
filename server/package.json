@@ -5,10 +5,10 @@
   "scripts": {
     "start": "nodemon server.js",
     "dev": "nodemon server.js",
-    "test": "NODE_ENV=test vitest",
-    "test:unit": "NODE_ENV=test vitest unit",
-    "test:integration": "NODE_ENV=test vitest integration",
-    "test:coverage": "NODE_ENV=test vitest run --coverage"
+    "test": "vitest",
+    "test:unit": "vitest --dir tests/unit",
+    "test:integration": "vitest --dir tests/integration",
+    "coverage": "vitest run --coverage"
   },
   "author": "",
   "license": "ISC",
