@@ -1,0 +1,7 @@
+/*
+Test route handlers
+Test authentication middleware
+Test request body validation
+Test response formats
+Mock card controller
+*/
