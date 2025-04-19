@@ -1,3 +1,10 @@
+/*
+Test server initialization
+Test middleware setup
+Test route mounting
+Test error handling
+Mock Express app
+*/
 const request = require("supertest");
 const express = require("express");
 const { Pool } = require("pg");

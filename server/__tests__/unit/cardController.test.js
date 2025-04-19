@@ -1,0 +1,7 @@
+/*
+Test flashcard generation
+Test CRUD operations
+Test note association
+Test AI integration
+Mock Gemini API calls
+*/
