@@ -1,8 +1,4 @@
-import React, { useState } from "react";
-import { createEditor} from "slate";
-import { Slate, withReact, Editable } from "slate-react"
-
-export default function App() {
+export default function TextEditor() {
   const [editor] = useState(() => withReact(createEditor()));
   const initialValue = [
     {
@@ -11,9 +7,12 @@ export default function App() {
     }
   ];
   return (
-    <div className="App">
+    <div className="editor-container">
       <Slate editor={editor} initialValue={initialValue}>
-        <Editable />
+        <Editable 
+          className="editor-content"
+          placeholder="Start typing..."  
+        />
       </Slate>
     </div>
   );
