@@ -1,6 +1,5 @@
 import React from "react";
 import NoteEditor from "../components/NoteEditor";
-import "./Home.css";
 
 
 const Home = () => {
