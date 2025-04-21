@@ -1,23 +1,19 @@
-// container for Editors
-// import SlateEditor from './SlateEditor';
+import React, { useState } from "react";
+import TextEditor from "./TextEditor";
 
-// function Note({ noteId }) {
-//   const [noteData, setNoteData] = useState(null);
+export default function NoteContainer() {
+  const [content, setContent] = useState("");
 
-//   useEffect(() => {
-//   }, [noteId]);
+  const handleContentChange = (newContent) => {
+    setContent(newContent);
+  };
 
-//   const handleSave = updatedContent => {
-//   };
-
-//   return (
-//     <div className="note-container">
-//       <h2>{noteData?.title}</h2>
-//       <SlateEditor
-//         initialValue={noteData?.content}
-//         onChange={handleSave}
-//       />
-//       <button onClick={() => handleSave(/* ... */)}>Save</button>
-//     </div>
-//   );
-// }
+  return (
+    <div className="note-container">
+      <TextEditor 
+        initialValue={content}
+        onChange={handleContentChange}
+      />
+    </div>
+  );
+}
