@@ -122,5 +122,5 @@ Schema Breakdown: PostgreSQL database with users and notes tables
 - slate slate-react
 
 # Frontend (Dev) Path:
-App renders Home, Home renders NoteEditor
+App renders Home, Home renders NoteEditor, NoteEditor renders CodeEditor
 Visual Demo
