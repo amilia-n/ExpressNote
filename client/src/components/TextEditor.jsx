@@ -1,3 +1,8 @@
+import React, { useState } from "react";
+import { createEditor} from "slate";
+import { Slate, withReact, Editable } from "slate-react"
+import './TextEditor.css';
+
 export default function TextEditor() {
   const [editor] = useState(() => withReact(createEditor()));
   const initialValue = [
