@@ -1,5 +1,5 @@
 import React from "react";
-import NoteEditor from "../components/NoteEditor";
+import TextEditor from "../components/TextEditor";
 
 
 
@@ -7,7 +7,7 @@ const Home = () => {
 
 
   return (
-      <NoteEditor />
+      <TextEditor />
 
   );
 };

@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import { createEditor} from "slate";
-import { Slate, withReact, Editable } from "slate-react";
-// import CodeEditor from "./src/components/CodeEditor";
+import { Slate, withReact, Editable } from "slate-react"
 
-export default function NoteEditor() {
+export default function App() {
   const [editor] = useState(() => withReact(createEditor()));
   const initialValue = [
     {
@@ -12,11 +11,10 @@ export default function NoteEditor() {
     }
   ];
   return (
-    <div className="NoteEditor">
+    <div className="App">
       <Slate editor={editor} initialValue={initialValue}>
         <Editable />
       </Slate>
-      {/* <CodeEditor /> */}
     </div>
   );
 }
