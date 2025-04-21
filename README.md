@@ -120,4 +120,7 @@ Schema Breakdown: PostgreSQL database with users and notes tables
 # Frontend Tools:
 - codemirror @codemirror/view @codemirror/state
 - slate slate-react
+
+# Frontend (Dev) Path:
+App renders Home, Home renders NoteEditor
 Visual Demo
