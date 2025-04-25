@@ -20,8 +20,13 @@ export default function NoteContainer() {
   const [draggedEditor, setDraggedEditor] = useState(null);
 
   const handleContentChange = (newContent) => {
-    setContent(newContent);
-  };
+    const handleContentChange = useCallback((editorId, newContent) => {
+      setEditors(prev => prev.map(editor => 
+        editor.id === editorId ? { ...editor, content: newContent } : editor
+      ));
+      setSaveStatus('unsaved');
+    }, []);
+  
 
   return (
     <div className="note-container">
