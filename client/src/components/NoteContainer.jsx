@@ -97,13 +97,22 @@ const handleAddEditor = () => {
     onDragOver={handleDragOver}
     onDrop={handleDrop}
     >
-      <TextEditor 
+ {editors.map(editor => (
+        <div
+          key={editor.id}
+          draggable
+          onDragStart={(e) => handleDragStart(e, editor.id)}
+          className={`editor-wrapper ${editor.isMinimized ? 'minimized' : ''}`}
+        >
+          <TextEditor 
             content={editor.content}
             onChange={(content) => handleContentChange(editor.id, content)}
             position={editor.position}
             onMinimize={() => handleMinimizeEditor(editor.id)}
             onClose={() => handleCloseEditor(editor.id)}
           />
+        </div>
+      ))}
     </div>
   );
 }
