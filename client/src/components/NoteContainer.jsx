@@ -3,7 +3,21 @@ import TextEditor from "./TextEditor";
 import { debounce } from 'lodash';
 
 export default function NoteContainer() {
-  const [content, setContent] = useState("");
+  const [editors, setEditors] = useState([
+    { 
+      id: 'text-1', 
+      type: 'text', 
+      position: { x: 0, y: 0 }, 
+      content: [
+        {
+          type: "paragraph",
+          children: [{ text: "" }]
+        }
+      ]
+    }
+  ]);
+  const [saveStatus, setSaveStatus] = useState('saved');
+  const [draggedEditor, setDraggedEditor] = useState(null);
 
   const handleContentChange = (newContent) => {
     setContent(newContent);
