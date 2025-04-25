@@ -113,6 +113,7 @@ const handleAddEditor = () => {
           />
         </div>
       ))}
+      <div className="controls"></div>
     </div>
   );
 }
