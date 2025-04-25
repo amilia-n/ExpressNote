@@ -51,7 +51,7 @@ export default function NoteContainer() {
       ));
       setDraggedEditor(null);
     };
-    
+
 const handleAddEditor = () => {
     const newEditor = {
       id: `text-${Date.now()}`,
@@ -67,7 +67,15 @@ const handleAddEditor = () => {
     };
     setEditors(prev => [...prev, newEditor]);
   };
-
+  
+ const handleMinimizeEditor = (editorId) => {
+    setEditors(prev => prev.map(editor =>
+      editor.id === editorId
+        ? { ...editor, isMinimized: !editor.isMinimized }
+        : editor
+    ));
+  };
+  
     const saveToDatabase = async (data) => {
       try {
         // TODO: ADD API CALL TO SAVE
