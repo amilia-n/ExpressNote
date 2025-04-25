@@ -10,8 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@codemirror/state": "^6.5.2",
+    "@codemirror/view": "^6.36.5",
+    "codemirror": "^6.0.1",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "slate": "^0.112.0",
+    "slate-react": "^0.112.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",

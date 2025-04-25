@@ -117,4 +117,10 @@ Schema Breakdown: PostgreSQL database with users and notes tables
 - npm install -D pg-mem
   Mock PostgreSQL
 
+# Frontend Tools:
+- codemirror @codemirror/view @codemirror/state
+- slate slate-react
+
+# Frontend (Dev) Path:
+App renders Home, Home renders NoteEditor, NoteEditor renders CodeEditor
 Visual Demo
