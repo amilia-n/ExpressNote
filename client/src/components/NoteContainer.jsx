@@ -27,6 +27,7 @@ export default function NoteContainer() {
       ));
       setSaveStatus('unsaved');
     }, []);
+
     const handleDragStart = (e, editorId) => {
       setDraggedEditor(editorId);
       e.dataTransfer.setData('text/plain', editorId);
@@ -50,6 +51,22 @@ export default function NoteContainer() {
       ));
       setDraggedEditor(null);
     };
+    
+const handleAddEditor = () => {
+    const newEditor = {
+      id: `text-${Date.now()}`,
+      type: 'text',
+      position: { x: 20, y: 20 },
+      content: [
+        {
+          type: "paragraph",
+          children: [{ text: "" }]
+        }
+      ],
+      isMinimized: false
+    };
+    setEditors(prev => [...prev, newEditor]);
+  };
 
     const saveToDatabase = async (data) => {
       try {
