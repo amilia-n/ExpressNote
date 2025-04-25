@@ -79,7 +79,7 @@ const handleAddEditor = () => {
   const handleCloseEditor = (editorId) => {
     setEditors(prev => prev.filter(editor => editor.id !== editorId));
   };
-  
+
     const saveToDatabase = async (data) => {
       try {
         // TODO: ADD API CALL TO SAVE
@@ -88,7 +88,9 @@ const handleAddEditor = () => {
         setSaveStatus('error');
       }
     };
-
+  const handleSave = () => {
+    saveToDatabase(editors);
+  };
   return (
     <div className="note-container">
       <TextEditor 
