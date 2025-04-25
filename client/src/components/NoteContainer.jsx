@@ -13,7 +13,8 @@ export default function NoteContainer() {
           type: "paragraph",
           children: [{ text: "" }]
         }
-      ]
+      ],
+      isMinimized: false
     }
   ]);
   const [saveStatus, setSaveStatus] = useState('saved');
@@ -49,7 +50,15 @@ export default function NoteContainer() {
       ));
       setDraggedEditor(null);
     };
-  
+
+    const saveToDatabase = async (data) => {
+      try {
+        // TODO: ADD API CALL TO SAVE
+        setSaveStatus('saved');
+      } catch (error) {
+        setSaveStatus('error');
+      }
+    };
 
   return (
     <div className="note-container">
