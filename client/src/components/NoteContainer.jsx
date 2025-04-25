@@ -75,6 +75,10 @@ const handleAddEditor = () => {
         : editor
     ));
   };
+
+  const handleCloseEditor = (editorId) => {
+    setEditors(prev => prev.filter(editor => editor.id !== editorId));
+  };
   
     const saveToDatabase = async (data) => {
       try {
