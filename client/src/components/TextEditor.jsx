@@ -11,7 +11,7 @@ const initialValue = [
 ];
 ;
 
-export default function TextEditor({ content, onChange, position, onMinimize, onClose }) {
+export default function TextEditor({ content, onChange, position, onClose }) {
   const [editor] = useState(() => withReact(createEditor()));
 
   const editorValue = content || initialValue;
@@ -31,11 +31,8 @@ export default function TextEditor({ content, onChange, position, onMinimize, on
       }}
     >
       <div className="editor-header">
-        <span className="editor-title">Text Editor</span>
-        <div className="editor-controls">
-          <button className="editor-minimize" onClick={onMinimize}>−</button>
+        <span className="editor-title">HEADER</span>
           <button className="editor-close" onClick={onClose}>×</button>
-        </div>
       </div>
       <Slate 
         editor={editor} 

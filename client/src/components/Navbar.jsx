@@ -15,20 +15,17 @@ export default function Navbar() {
             }}
           />
 
-      <div className="ml-auto">
+      <div className="ml-auto" style={{ marginRight: '30px' }}>
         <div className="dropdown dropdown-end">
           <div
             tabIndex={0}
             role="button"
-            className="btn btn-ghost btn-circle avatar"
+            className="btn-ghost hover:bg-transparent transition-all duration-200"
           >
             <div className="w-10">
             <img
             src={user}
             alt="Default User Icon"
-            style={{
-                marginRight: "15px"
-            }}
           />
             </div>
           </div>

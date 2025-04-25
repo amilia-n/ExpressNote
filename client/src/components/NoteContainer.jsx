@@ -19,12 +19,10 @@ export default function NoteContainer() {
       position: { x: 20, y: 20 },
       content: initialEditorContent,
       title: "Untitled Note",
-      isMinimized: false,
     },
   ]);
   const [saveStatus, setSaveStatus] = useState("saved");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+
 
   const handleContentChange = useCallback((editorId, newContent) => {
     setEditors((prev) =>
@@ -52,14 +50,11 @@ export default function NoteContainer() {
       position: { x: 20, y: 20 },
       content: initialEditorContent,
       title: "Untitled Note",
-      isMinimized: false,
     };
     setEditors((prev) => [...prev, newEditor]);
   };
 
   const saveToDatabase = async (data) => {
-    setLoading(true);
-    setError(null);
     try {
       const noteData = {
         title: data.title,
@@ -152,21 +147,28 @@ export default function NoteContainer() {
     );
   };
 
-  const handleMinimizeEditor = (editorId) => {
-    setEditors((prev) =>
-      prev.map((editor) =>
-        editor.id === editorId
-          ? { ...editor, isMinimized: !editor.isMinimized }
-          : editor
-      )
-    );
-  };
+
 
   const handleCloseEditor = (editorId) => {
     setEditors((prev) => prev.filter((editor) => editor.id !== editorId));
   };
 
   return (
+    <div className="flex flex-col items-center">
+      <div className="flex gap-2 p-2 rounded-lg" style={{ margin: '50px 0 -60px 0' }}>
+        <button
+          className="btn btn-soft add-editor-button"
+          onClick={handleAddEditor}
+        >
+          Add Text Box
+        </button>
+        <button className="btn btn-soft btn-info">Add Code Box</button>
+        <button className="btn btn-soft btn-warning">Generate Flashcards</button>
+        <button className="btn btn-soft btn-primary">Add IMG</button>
+        <button className="btn btn-soft btn-error">Text Styling</button>
+        <button className="btn btn-soft btn-secondary">Fonts</button>
+        <button className="btn btn-soft btn-success" onClick={handleSave}>Save</button>
+      </div>
       <div
         className="note-container"
         onDragOver={handleDragOver}
@@ -177,31 +179,18 @@ export default function NoteContainer() {
             key={editor.id}
             draggable
             onDragStart={(e) => handleDragStart(e, editor.id)}
-            className={`editor-wrapper ${editor.isMinimized ? "minimized" : ""}`}
+            className={`editor-wrapper`}
           >
             <TextEditor
               content={editor.content}
               onChange={(content) => handleContentChange(editor.id, content)}
               position={editor.position}
-              onMinimize={() => handleMinimizeEditor(editor.id)}
               onClose={() => handleCloseEditor(editor.id)}
               title={editor.title}
               onTitleChange={(title) => handleTitleChange(editor.id, title)}
             />
           </div>
         ))}
-      <div className="controls">
-        <button className="add-editor-button" onClick={handleAddEditor}>
-          Add Editor
-        </button>
-        <button 
-          className={`save-button ${saveStatus}`} 
-          onClick={handleSave}
-          disabled={loading}
-        >
-          {loading ? 'Saving...' : saveStatus === "saved" ? "Saved" : "Save"}
-        </button>
-        {error && <div className="error-message">{error}</div>}
       </div>
     </div>
   );
