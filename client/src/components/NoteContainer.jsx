@@ -113,7 +113,14 @@ const handleAddEditor = () => {
           />
         </div>
       ))}
-      <div className="controls"></div>
+      <div className="controls">
+      <button 
+          className={`save-button ${saveStatus}`}
+          onClick={handleSave}
+        >
+          {saveStatus === 'saved' ? 'Saved' : 'Save'}
+        </button>
+      </div>
     </div>
   );
 }
