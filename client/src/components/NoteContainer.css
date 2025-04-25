@@ -28,3 +28,14 @@
 .save-button.error {
   background: #dc3545;
 }
+
+.error-message {
+  color: #dc3545;
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.save-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}

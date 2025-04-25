@@ -5,6 +5,21 @@
   min-width: 300px;
   min-height: 200px;
 }
+.editor-title-input {
+  background: none;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: #495057;
+  padding: 4px;
+  width: 200px;
+}
+
+.editor-title-input:focus {
+  outline: none;
+  background: #e9ecef;
+  border-radius: 4px;
+}
 
 .editor-content {
   min-height: 150px;
