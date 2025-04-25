@@ -1,0 +1,30 @@
+.note-container {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  background: #f5f5f5;
+  overflow: hidden;
+}
+
+.save-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 10px 20px;
+  border-radius: 5px;
+  border: none;
+  background: #007bff;
+  color: white;
+  cursor: pointer;
+}
+
+.save-button.saved {
+  background: #28a745;
+}
+.save-button.unsaved {
+  background: #ffc107;
+}
+
+.save-button.error {
+  background: #dc3545;
+}

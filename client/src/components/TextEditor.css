@@ -1,25 +1,13 @@
 .editor-container {
-    background-color: aquamarine;
-    width: 500px;  
-    height: 700px; 
-    margin: 20px auto;
-    padding: 20px;
-    border-radius: 4px;
-    align-content: center;
-    justify-items: center;
-    margin-top: 100px;
-  }
-  
-  .editor-content {
-    background-color:azure;
-    width: 400px;  
-    height: 500px; 
-    padding: 20px;
-    font-size: 16px;
-    line-height: 1.5;
-    border-radius: 25px;
-  }
- 
-  .editor-content p {
-    margin: 10px 0;
-  }
+  background-color: aqua;
+  border-radius: 5px;
+  padding: 10px;
+  min-width: 300px;
+  min-height: 200px;
+}
+
+.editor-content {
+  min-height: 150px;
+  padding: 10px;
+  outline: none;
+}
