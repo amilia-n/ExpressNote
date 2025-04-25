@@ -92,7 +92,11 @@ const handleAddEditor = () => {
     saveToDatabase(editors);
   };
   return (
-    <div className="note-container">
+    <div 
+    className="note-container"
+    onDragOver={handleDragOver}
+    onDrop={handleDrop}
+    >
       <TextEditor 
         initialValue={content}
         onChange={handleContentChange}
