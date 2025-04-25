@@ -3,14 +3,9 @@ import { createEditor} from "slate";
 import { Slate, withReact, Editable } from "slate-react"
 import './TextEditor.css';
 
-export default function TextEditor() {
+export default function TextEditor({ content, onChange, position }) {
   const [editor] = useState(() => withReact(createEditor()));
-  const initialValue = [
-    {
-      type: "paragraph",
-      children: [{ text: "Hello World" }]
-    }
-  ];
+  
   return (
     <div className="editor-container">
       <Slate editor={editor} initialValue={initialValue}>
