@@ -26,6 +26,29 @@ export default function NoteContainer() {
       ));
       setSaveStatus('unsaved');
     }, []);
+    const handleDragStart = (e, editorId) => {
+      setDraggedEditor(editorId);
+      e.dataTransfer.setData('text/plain', editorId);
+    };
+  
+    const handleDragOver = (e) => {
+      e.preventDefault();
+    };
+  
+    const handleDrop = (e) => {
+      e.preventDefault();
+      const editorId = e.dataTransfer.getData('text/plain');
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+  
+      setEditors(prev => prev.map(editor => 
+        editor.id === editorId 
+          ? { ...editor, position: { x, y } }
+          : editor
+      ));
+      setDraggedEditor(null);
+    };
   
 
   return (
