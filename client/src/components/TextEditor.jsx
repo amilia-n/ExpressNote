@@ -5,6 +5,10 @@ import './TextEditor.css';
 
 export default function TextEditor({ content, onChange, position }) {
   const [editor] = useState(() => withReact(createEditor()));
+
+  const handleChange = useCallback((newValue) => {
+    onChange(newValue);
+  }, [onChange]);
   
   return (
     <div className="editor-container">
