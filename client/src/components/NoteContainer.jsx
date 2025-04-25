@@ -98,9 +98,12 @@ const handleAddEditor = () => {
     onDrop={handleDrop}
     >
       <TextEditor 
-        initialValue={content}
-        onChange={handleContentChange}
-      />
+            content={editor.content}
+            onChange={(content) => handleContentChange(editor.id, content)}
+            position={editor.position}
+            onMinimize={() => handleMinimizeEditor(editor.id)}
+            onClose={() => handleCloseEditor(editor.id)}
+          />
     </div>
   );
 }
