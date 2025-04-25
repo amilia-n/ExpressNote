@@ -115,6 +115,12 @@ const handleAddEditor = () => {
       ))}
       <div className="controls">
       <button 
+          className="add-editor-button"
+          onClick={handleAddEditor}
+        >
+          Add Editor
+        </button>
+      <button 
           className={`save-button ${saveStatus}`}
           onClick={handleSave}
         >
