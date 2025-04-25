@@ -1,11 +1,10 @@
 import React from "react";
 import logo from "../assets/logo.png";
+import user from "../assets/user.png"
 
 export default function Navbar() {
   return (
     <div className="navbar shadow-sm h-20" style={{ backgroundColor: "#303030" }}>
-      <div className="flex-1">
-
           <img
             src={logo}
             alt="ExpressNote Logo"
@@ -16,19 +15,21 @@ export default function Navbar() {
             }}
           />
 
-      </div>
-      <div className="flex-none">
+      <div className="ml-auto">
         <div className="dropdown dropdown-end">
           <div
             tabIndex={0}
             role="button"
             className="btn btn-ghost btn-circle avatar"
           >
-            <div className="w-10 rounded-full">
-              <img
-                alt="Tailwind CSS Navbar component"
-                src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-              />
+            <div className="w-10">
+            <img
+            src={user}
+            alt="Default User Icon"
+            style={{
+                marginRight: "15px"
+            }}
+          />
             </div>
           </div>
           <ul
