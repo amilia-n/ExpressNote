@@ -1,9 +1,8 @@
 .note-container {
   width: 8.5in;
   height: 11in;
-  margin: 0 auto;
-  margin-top: 150px; 
-  overflow-y: auto;
+  margin: 200px auto 100px;
+  overflow-y: scroll;
   background-color: white;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   border-radius: 4px;
