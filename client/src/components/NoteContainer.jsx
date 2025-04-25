@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import TextEditor from "./TextEditor";
+import { debounce } from 'lodash';
 
 export default function NoteContainer() {
   const [content, setContent] = useState("");
