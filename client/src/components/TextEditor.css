@@ -1,9 +1,13 @@
 .editor-container {
-  background-color: aqua;
+  background-color: rgba(0, 255, 255, 0.334);
   border-radius: 5px;
   padding: 10px;
-  min-width: 300px;
-  min-height: 200px;
+  max-width: 4in;
+  overflow-x: wrap;
+}
+.editor-header {
+  display: flex;
+  justify-content: space-between;
 }
 
 .editor-content {
@@ -11,3 +15,18 @@
   padding: 10px;
   outline: none;
 }
+/* .editor-title-input {
+  background: none;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: #495057;
+  padding: 4px;
+  width: 200px;
+}
+
+.editor-title-input:focus {
+  outline: none;
+  background: #e9ecef;
+  border-radius: 4px;
+} */

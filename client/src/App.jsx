@@ -1,5 +1,6 @@
 import React from "react";
 import NoteContainer from "./components/NoteContainer";
+import Navbar from "./components/Navbar";
 // import ReactDOM from "react-dom/client";
 // import { BrowserRouter, Routes, Route } from "react-router-dom";
 // import Landing from "./pages/Landing";
@@ -11,14 +12,18 @@ import NoteContainer from "./components/NoteContainer";
 function App() {
   return (
     <div className="App">
-      <NoteContainer />
+      <Navbar />
+      <main className="flex-grow">
+        <NoteContainer />
+      </main>
     </div>
   );
 }
 
 export default App;
 
-{/* HIDDEN FOR DEVELOPMENT 
+{
+  /* HIDDEN FOR DEVELOPMENT 
       <> 
         <BrowserRouter>
         <Routes>
@@ -28,4 +33,5 @@ export default App;
           <Route path="*" element={<NoPage />} />
         </Routes>
       </BrowserRouter> 
-      </> */}
+      </> */
+}
