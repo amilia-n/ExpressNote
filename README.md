@@ -42,37 +42,26 @@ Schema Breakdown: PostgreSQL database with users and notes tables
   Create a new note
 - **GET** `/notes/:id`  
   Retrieve a specific note
-- **PUT** `/notes/:id`  
-  Update a specific note
 - **DELETE** `/notes/:id`  
   Delete a specific note
 
-## Flashcard Routes (Protected) (`/cards`)
+## Page Routes (`/pages`)
 
-- **POST** `/cards/generate`  
-  Generate flashcards from note content  
-  **Body:**
-  ```json
-  {
-    "content": "Your note content",
-    "note_id": "ID of the note to associate flashcards with"
-  }
-  ```
-- **GET** `/cards/:note_id`  
-  Retrieve all flashcards for a specific note
-- **PUT** `/cards/:card_id`  
-   Update a specific flashcard
-  **Body:**
-  ```json
-  {
-   "header": "Updated header",
-   "summary": "Updated summary",
-   "editable": true
-  }
-  ```
-- **DELETE** `/cards/:card_id`  
-  Delete a specific flashcard
+- **POST** `/notes/:noteId/pages`  
+  Add new page to note
+- **GET** `/notes/:noteId/pages/:pageId`  
+  Retrieve a specific page
+- **DELETE** `/notes/:id`  
+  Delete a specific note
 
+## Block Routes (`/blocks`)
+
+- **POST** `/notes/:noteId/pages/:pageId/blocks`  
+  Create a new note
+- **PUT** `/notes/:noteId/pages/:pageId/blocks`  
+  Update block content or position
+- **DELETE** `/notes/:noteId/pages/:pageId/blocks`  
+  Delete a block
 
 # Postman Testing:
 
@@ -83,29 +72,50 @@ Schema Breakdown: PostgreSQL database with users and notes tables
    Body: { "email": "test@email.com", "password": "password" }
 
 3. Notes (add Authorization: Bearer <token> header):
-
    - Create: POST http://localhost:3000/notes
-     Body: { "title": "Test", "content": "Content" }
+     body: { title }
+     returns: { note_id, title, created_at }
    - Get All: GET http://localhost:3000/notes
    - Get One: GET http://localhost:3000/notes/:id
-   - Update: PUT http://localhost:3000/notes/:id
-     Body: { "title": "Updated", "content": "Updated" }
+     returns: {
+        note_id,
+        title,
+        pages: [{
+          page_id,
+          position,
+          blocks: [{
+            block_id,
+            block_type,
+            content,
+            position,
+            x,
+            y
+          }]
+        }]
+     }
    - Delete: DELETE http://localhost:3000/notes/:id
 
-4. Flashcards (add Authorization: Bearer <token> header):
-   - Generate: POST http://localhost:3000/cards/generate
-     Body: {
-     "content": "Your note content to generate flashcards from",
-     "note_id": "ID of the note to associate with"
+4. Page
+   - Create: POST /notes/:noteId/pages
+     body: { position }
+
+5. Blocks
+   - Create: POST /notes/:noteId/pages/:pageId/blocks
+     body: {
+      block_type, // 'text', 'code', or 'image'
+      content,
+      position,
+      x,
+      y
      }
-   - Get By Note: GET http://localhost:3000/cards/:note_id
-   - Update: PUT http://localhost:3000/cards/:card_id
-     Body: {
-     "header": "Updated header",
-     "summary": "Updated summary",
-     "editable": true
+   - Update/Move: PUT /notes/:noteId/pages/:pageId/blocks/:blockId
+     body: {
+      (updated)content,
+      (updated)position,
+      (updated)x,
+      (updated)y
      }
-   - Delete: DELETE http://localhost:3000/cards/:card_id
+
 
 # Testing Tools:
 ## Backend: Vitest + Axios
