@@ -120,17 +120,20 @@ Schema Breakdown: PostgreSQL database with users and notes tables
 # Frontend Tools:
 - codemirror @codemirror/view @codemirror/state
 - slate slate-react
-
-# Frontend (Dev) Path:
-App renders Home, Home renders NoteEditor, NoteEditor renders CodeEditor
-Visual Demo
-
+- DaisyUI
+- react-grid-layout 
+- html2pdf.js
 
 # Documentation Note:
-- MAJOR CHANGES: 
+## MAJOR CHANGES: 
 - Remove AI rendering to implement during nice-to-have.
 - Remove flashcards table.
 - Schema update: note_id should save noteContainer with all TextEditor and CodeEditor (not each instance of TextEditor)
 - Each note is made of multiple content blocks. 
 - block_type will tell frontend whether to render a TextEditor, CodeEditor, or an Image Viewer.
+- ✨ Updated Concept: 
+(1) a Note → has many Pages (up to 10),
+(2) a Page → has many Blocks,
+(3) a Block → belongs to a Page
 - Implement a grid snapping + drag/drop rearranging, this will also help with loading block positions. 
+- Notes should be able to saved to local machine as pdf.
