@@ -48,16 +48,21 @@ app.get("/profile", (req, res) => {
   console.log('User object:', req.user);
   res.send(`Welcome ${req.user.display_name}`);
 });
+
 // NoteRoute
 const noteRoutes = require('./routes/noteRoutes');
 app.use('/notes', noteRoutes);
 
-// CardRoute
-// const cardRoutes = require('./routes/cardRoutes');
-// app.use('/cards', cardRoutes);
+// PageRoute
+const pageRoutes = require('./routes/pageRoutes');
+app.use('/notes/:noteId/pages', pageRoutes);
+
+// BlockRoute
+const blockRoutes = require('./routes/blockRoutes');
+app.use('/notes/:noteId/pages/:pageId/blocks', blockRoutes);
+
 
 const PORT = process.env.PORT || 3000;
-
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
