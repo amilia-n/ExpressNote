@@ -18,6 +18,7 @@
     "lodash": "^4.17.21",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-grid-layout": "^1.5.1",
     "react-router-dom": "^7.5.2",
     "slate": "^0.112.0",
     "slate-react": "^0.112.1",
