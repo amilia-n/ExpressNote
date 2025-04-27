@@ -3,18 +3,9 @@ const { blockQueries } = require('../db/queries');
 
 // Create Block
 exports.createBlock = async (req, res) => {
-    const { noteId, pageId } = req.params;
+    const { pageId } = req.params;
     const { block_type, content, position, x, y } = req.body;
     try {
-      const noteCheck = await pool.query(
-        "SELECT * FROM notes WHERE note_id = $1 AND user_id = $2",
-        [noteId, req.user.user_id]
-      );
-  
-      if (noteCheck.rows.length === 0) {
-        return res.status(404).json({ error: "Note not found" });
-      }
-  
       const result = await pool.query(
         blockQueries.createBlock,
         [pageId, block_type, content, position, x, y]
@@ -27,18 +18,9 @@ exports.createBlock = async (req, res) => {
 
 //Update Block
 exports.updateBlock = async (req, res) => {
-    const { noteId, pageId, blockId } = req.params;
+    const { pageId, blockId } = req.params;
     const { content, position, x, y } = req.body;
     try {
-      const noteCheck = await pool.query(
-        "SELECT * FROM notes WHERE note_id = $1 AND user_id = $2",
-        [noteId, req.user.user_id]
-      );
-  
-      if (noteCheck.rows.length === 0) {
-        return res.status(404).json({ error: "Note not found" });
-      }
-  
       const result = await pool.query(
         blockQueries.updateBlock,
         [content, position, x, y, blockId, pageId]
@@ -51,17 +33,8 @@ exports.updateBlock = async (req, res) => {
 
 // Delete Block
 exports.deleteBlock = async (req, res) => {
-    const { noteId, pageId, blockId } = req.params;
+    const { pageId, blockId } = req.params;
     try {
-      const noteCheck = await pool.query(
-        "SELECT * FROM notes WHERE note_id = $1 AND user_id = $2",
-        [noteId, req.user.user_id]
-      );
-  
-      if (noteCheck.rows.length === 0) {
-        return res.status(404).json({ error: "Note not found" });
-      }
-  
       await pool.query(blockQueries.deleteBlock, [blockId, pageId]);
       res.status(204).end();
     } catch (err) {
@@ -69,46 +42,22 @@ exports.deleteBlock = async (req, res) => {
     }
   };
 
-// Get All Blocks for a Page
+// Get Blocks by Page
 exports.getBlocksByPage = async (req, res) => {
-    const { noteId, pageId } = req.params;
+    const { pageId } = req.params;
     try {
-      const noteCheck = await pool.query(
-        "SELECT * FROM notes WHERE note_id = $1 AND user_id = $2",
-        [noteId, req.user.user_id]
-      );
-  
-      if (noteCheck.rows.length === 0) {
-        return res.status(404).json({ error: "Note not found" });
-      }
-  
-      const result = await pool.query(
-        blockQueries.getBlocksByPage,
-        [pageId]
-      );
+      const result = await pool.query(blockQueries.getBlocksByPage, [pageId]);
       res.json(result.rows);
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
   };
 
-// Get All Blocks for a Note
+// Get Blocks by Note
 exports.getBlocksByNote = async (req, res) => {
     const { noteId } = req.params;
     try {
-      const noteCheck = await pool.query(
-        "SELECT * FROM notes WHERE note_id = $1 AND user_id = $2",
-        [noteId, req.user.user_id]
-      );
-  
-      if (noteCheck.rows.length === 0) {
-        return res.status(404).json({ error: "Note not found" });
-      }
-  
-      const result = await pool.query(
-        blockQueries.getBlocksByNote,
-        [noteId]
-      );
+      const result = await pool.query(blockQueries.getBlocksByNote, [noteId]);
       res.json(result.rows);
     } catch (err) {
       res.status(500).json({ error: err.message });
