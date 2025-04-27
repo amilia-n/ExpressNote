@@ -1,4 +1,5 @@
 const pool = require("../db/connect");
+const { verifyNoteOwnership, verifyPageBelongsToNote } = require('../utils/validators');
 
 // Create Page Handler
 exports.createPage = async (req, res) => {
