@@ -14,7 +14,25 @@ exports.createNote = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-
+// Update Note Title
+exports.updateNoteTitle = async (req, res) => {
+  const noteId = req.params.id;
+  const { title } = req.body;
+  try {
+    const result = await pool.query(
+      noteQueries.updateNoteTitle,
+      [title, noteId, req.user.user_id]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Note not found" });
+    }
+    
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 // Retrieve Note 
 exports.getNoteById = async (req, res) => {
   const noteId = req.params.id;
