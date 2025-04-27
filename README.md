@@ -124,3 +124,13 @@ Schema Breakdown: PostgreSQL database with users and notes tables
 # Frontend (Dev) Path:
 App renders Home, Home renders NoteEditor, NoteEditor renders CodeEditor
 Visual Demo
+
+
+# Documentation Note:
+- MAJOR CHANGES: 
+- Remove AI rendering to implement during nice-to-have.
+- Remove flashcards table.
+- Schema update: note_id should save noteContainer with all TextEditor and CodeEditor (not each instance of TextEditor)
+- Each note is made of multiple content blocks. 
+- block_type will tell frontend whether to render a TextEditor, CodeEditor, or an Image Viewer.
+- Implement a grid snapping + drag/drop rearranging, this will also help with loading block positions. 
