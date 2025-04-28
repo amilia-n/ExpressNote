@@ -1,13 +1,15 @@
-const express = require('express');
+import express from 'express';
+import authenticateToken from '../middleware/authMiddleware.js';
+import { validateNoteOwnership, validatePageBelongsToNote } from '../middleware/validators.js';
+import * as pageController from '../controllers/pageController.js';
+
 const router = express.Router({ mergeParams: true }); 
-const authenticateToken = require('../middleware/authMiddleware');
-const { validateNoteOwnership, validatePageBelongsToNote } = require('../middleware/validators');
-const pageController = require('../controllers/pageController');
 
 router.post('/', authenticateToken, validateNoteOwnership, pageController.createPage);
-router.get('/', authenticateToken, validateNoteOwnership, pageController.getAllPages);
+router.get('/', authenticateToken, validateNoteOwnership, pageController.getPagesByNoteId);
 router.get('/:pageId', authenticateToken, validateNoteOwnership, validatePageBelongsToNote, pageController.getPageById);
+router.put('/:pageId/position', authenticateToken, validateNoteOwnership, validatePageBelongsToNote, pageController.updatePagePosition);
 router.put('/:pageId', authenticateToken, validateNoteOwnership, validatePageBelongsToNote, pageController.updatePagePosition);
 router.delete('/:pageId', authenticateToken, validateNoteOwnership, validatePageBelongsToNote, pageController.deletePage);
 
-module.exports = router;
+export default router;

@@ -1,7 +1,0 @@
-/*
-Test route handlers
-Test middleware integration
-Test request validation
-Test response formats
-Mock controller functions
-*/

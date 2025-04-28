@@ -1,7 +1,0 @@
-/*
-Test route handlers
-Test authentication middleware
-Test request parameters
-Test response formats
-Mock note controller
-*/

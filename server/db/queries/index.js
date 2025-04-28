@@ -67,7 +67,7 @@ const pageQueries = {
     DELETE FROM pages 
     WHERE page_id = $1 AND note_id = $2
   `,
-  getAllPages: `
+  getPagesByNoteId: `
   SELECT p.*, 
     json_agg(
       json_build_object(

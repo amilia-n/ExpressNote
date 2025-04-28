@@ -2,20 +2,20 @@
   "name": "server",
   "version": "1.0.0",
   "main": "server.js",
+  "type": "module",
   "scripts": {
     "start": "nodemon server.js",
     "dev": "nodemon server.js",
-    "test": "vitest",
-    "test:unit": "vitest --dir tests/unit",
-    "test:integration": "vitest --dir tests/integration",
-    "coverage": "vitest run --coverage"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:ui": "vitest --ui"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
     "@google/generative-ai": "^0.24.0",
-    "axios": "^1.8.4",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
@@ -27,10 +27,14 @@
     "pg": "^8.14.1"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "^3.1.2",
+    "@vitest/ui": "^3.1.2",
+    "axios": "^1.9.0",
     "axios-mock-adapter": "^2.1.0",
     "node-mocks-http": "^1.16.2",
     "nodemon": "^3.1.9",
     "pg-mem": "^3.0.5",
-    "vitest": "^3.1.1"
+    "supertest": "^7.1.0",
+    "vitest": "^3.1.2"
   }
 }

@@ -1,14 +1,20 @@
-const pool = require("../db/connect");
-const { blockQueries } = require('../db/queries');
+import pool from '../db/connect.js';
+import { blockQueries } from '../db/queries.js';
 
 // Create Block
-exports.createBlock = async (req, res) => {
-    const { pageId } = req.params;
-    const { block_type, content, position, x, y } = req.body;
-    try {
+export const createBlock = async (req, res) => {
+  try {
+    const { page_id, block_type, content, position, x, y } = req.body;
+
+    // Check if page exists
+    const pageCheck = await pool.query('SELECT * FROM pages WHERE page_id = $1', [page_id]);
+    if (pageCheck.rows.length === 0) {
+      return res.status(404).json({ error: 'Page not found' });
+    }
+
       const result = await pool.query(
         blockQueries.createBlock,
-        [pageId, block_type, content, position, x, y]
+      [page_id, block_type, content, position, x, y]
       );
       res.status(201).json(result.rows[0]);
     } catch (err) {
@@ -17,14 +23,20 @@ exports.createBlock = async (req, res) => {
   };
 
 //Update Block
-exports.updateBlock = async (req, res) => {
-    const { pageId, blockId } = req.params;
+export const updateBlock = async (req, res) => {
+  try {
+    const { blockId } = req.params;
     const { content, position, x, y } = req.body;
-    try {
+
       const result = await pool.query(
         blockQueries.updateBlock,
-        [content, position, x, y, blockId, pageId]
+      [content, position, x, y, blockId]
       );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Block not found' });
+    }
+
       res.json(result.rows[0]);
     } catch (err) {
       res.status(500).json({ error: err.message });
@@ -32,10 +44,15 @@ exports.updateBlock = async (req, res) => {
   };
 
 // Delete Block
-exports.deleteBlock = async (req, res) => {
-    const { pageId, blockId } = req.params;
-    try {
-      await pool.query(blockQueries.deleteBlock, [blockId, pageId]);
+export const deleteBlock = async (req, res) => {
+  try {
+    const { blockId } = req.params;
+    const result = await pool.query(blockQueries.deleteBlock, [blockId]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Block not found' });
+    }
+
       res.status(204).end();
     } catch (err) {
       res.status(500).json({ error: err.message });
@@ -43,9 +60,16 @@ exports.deleteBlock = async (req, res) => {
   };
 
 // Get Blocks by Page
-exports.getBlocksByPage = async (req, res) => {
+export const getBlocksByPage = async (req, res) => {
+  try {
     const { pageId } = req.params;
-    try {
+
+    // Check if page exists
+    const pageCheck = await pool.query('SELECT * FROM pages WHERE page_id = $1', [pageId]);
+    if (pageCheck.rows.length === 0) {
+      return res.status(404).json({ error: 'Page not found' });
+    }
+
       const result = await pool.query(blockQueries.getBlocksByPage, [pageId]);
       res.json(result.rows);
     } catch (err) {
@@ -54,12 +78,32 @@ exports.getBlocksByPage = async (req, res) => {
   };
 
 // Get Blocks by Note
-exports.getBlocksByNote = async (req, res) => {
+export const getBlocksByNote = async (req, res) => {
+  try {
     const { noteId } = req.params;
-    try {
+
+    // Check if note exists
+    const noteCheck = await pool.query('SELECT * FROM notes WHERE note_id = $1', [noteId]);
+    if (noteCheck.rows.length === 0) {
+      return res.status(404).json({ error: 'Note not found' });
+    }
+
       const result = await pool.query(blockQueries.getBlocksByNote, [noteId]);
       res.json(result.rows);
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
   };
+
+export const getBlockById = async (req, res) => {
+  try {
+    const { blockId } = req.params;
+    const result = await pool.query(blockQueries.getBlockById, [blockId]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Block not found' });
+    }
+    res.json(result.rows[0]);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

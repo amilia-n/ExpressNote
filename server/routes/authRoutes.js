@@ -1,15 +1,14 @@
-// Authentication routes for Google login
-
-const express = require('express');
-const router = express.Router();
-const {
+import express from 'express';
+import {
     googleAuth,
     googleCallback,
     logout,
     registerUser,
     loginUser,
-  } = require('../controllers/userController');
-const authenticateToken = require('../middleware/authMiddleware');
+  } from '../controllers/userController.js';
+import authenticateToken from '../middleware/authMiddleware.js';
+
+const router = express.Router();
 
 router.get('/google', googleAuth);
 
@@ -25,4 +24,4 @@ router.get('/profile', authenticateToken, (req, res) => {
     res.json({ message: 'This is your protected profile', user: req.user });
   });
   
-module.exports = router;
+export default router;

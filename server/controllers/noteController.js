@@ -1,70 +1,66 @@
-const pool = require("../db/connect");
-const { noteQueries } = require('../db/queries');
+import pool from '../db/connect.js';
+import { noteQueries } from '../db/queries.js';
 
 // Create Note Route Handler
-exports.createNote = async (req, res) => {
-  const { title } = req.body;
+export const createNote = async (req, res) => {
   try {
-    const result = await pool.query(
-      noteQueries.createNote,
-      [req.user.user_id, title]
-    );
+    const { title } = req.body;
+    const userId = req.user.user_id;
+    const result = await pool.query(noteQueries.createNote, [userId, title]);
     res.status(201).json(result.rows[0]);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
 
 // Retrieve Single Note 
-exports.getNoteById = async (req, res) => {
-  const noteId = req.params.id;
+export const getNoteById = async (req, res) => {
   try {
-    const result = await pool.query(
-      noteQueries.getNoteWithContent,
-      [noteId, req.user.user_id]
-    );
+    const { noteId } = req.params;
+    const result = await pool.query(noteQueries.getNoteById, [noteId]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Note not found' });
+    }
     res.json(result.rows[0]);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
 
 // Retrieve All Notes
-exports.getAllNotes = async (req, res) => {
+export const getAllNotes = async (req, res) => {
   try {
-    const result = await pool.query(
-      noteQueries.getAllNotes,
-      [req.user.user_id]
-    );
+    const userId = req.user.user_id;
+    const result = await pool.query(noteQueries.getAllNotes, [userId]);
     res.json(result.rows);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
 
 // Update Note Title
-exports.updateNoteTitle = async (req, res) => {
-  const noteId = req.params.id;
-  const { title } = req.body;
+export const updateNoteTitle = async (req, res) => {
   try {
-    const result = await pool.query(
-      noteQueries.updateNoteTitle,
-      [title, noteId, req.user.user_id]
-    );
+    const { noteId } = req.params;
+    const { title } = req.body;
+    const result = await pool.query(noteQueries.updateNoteTitle, [title, noteId]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Note not found' });
+    }
     res.json(result.rows[0]);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
 
 // Delete Note Route Handler
-exports.deleteNote = async (req, res) => {
-  const noteId = req.params.id;
+export const deleteNote = async (req, res) => {
   try {
-    await pool.query(noteQueries.deleteNote, [noteId, req.user.user_id]);
-    res.status(204).end();
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const { noteId } = req.params;
+    await pool.query(noteQueries.deleteNote, [noteId]);
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
 

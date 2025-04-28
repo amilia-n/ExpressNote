@@ -1,13 +1,14 @@
-const express = require('express');
+import express from 'express';
+import authenticateToken from '../middleware/authMiddleware.js';
+import { validateNoteOwnership } from '../middleware/validators.js';
+import * as noteController from '../controllers/noteController.js';
+
 const router = express.Router();
-const authenticateToken = require('../middleware/authMiddleware');
-const { validateNoteOwnership } = require('../middleware/validators');
-const noteController = require('../controllers/noteController');
 
 router.post('/', authenticateToken, noteController.createNote);
 router.get('/', authenticateToken, noteController.getAllNotes);
-router.get('/:id', authenticateToken, validateNoteOwnership, noteController.getNoteById);
-router.put('/:id', authenticateToken, validateNoteOwnership, noteController.updateNoteTitle);
-router.delete('/:id', authenticateToken, validateNoteOwnership, noteController.deleteNote);
+router.get('/:noteId', authenticateToken, validateNoteOwnership, noteController.getNoteById);
+router.put('/:noteId', authenticateToken, validateNoteOwnership, noteController.updateNoteTitle);
+router.delete('/:noteId', authenticateToken, validateNoteOwnership, noteController.deleteNote);
 
-module.exports = router;
+export default router;

@@ -1,29 +1,20 @@
-const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
 
-function authenticateToken(req, res, next) {
-  if (req.isAuthenticated()) {
-    return next();
-  }
+const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
-  const token = authHeader?.split(' ')[1];
+  const token = authHeader && authHeader.split(' ')[1];
 
   if (!token) {
-    return res.status(401).json({ 
-      message: 'Authentication required',
-      details: 'No valid authentication found. Please login or provide a valid token.'
-    });
+    return res.status(401).json({ error: 'No token provided' });
   }
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) {
-      return res.status(403).json({ 
-        message: 'Invalid token',
-        details: 'The provided token is invalid or expired.'
-      });
-    }
+  try {
+    const user = jwt.verify(token, process.env.JWT_SECRET);
     req.user = user;
     next();
-  });
-}
+  } catch (error) {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+};
 
-module.exports = authenticateToken;
+export default authenticateToken;

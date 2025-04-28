@@ -1,12 +1,16 @@
-require("dotenv").config();
+import dotenv from "dotenv";
+import express from "express";
+import session from "express-session";
+import passport from "passport";
+import pool from "./db/connect.js";
+import authRoutes from './routes/authRoutes.js';
+import noteRoutes from './routes/noteRoutes.js';
+import pageRoutes from './routes/pageRoutes.js';
+import blockRoutes from './routes/blockRoutes.js';
 
-const express = require("express");
-const session = require("express-session");
-const passport = require("passport");
+dotenv.config();
+
 const app = express();
-
-// Connect to database
-const pool = require("./db/connect");
 
 // Middleware setup
 app.use(express.json());
@@ -30,12 +34,13 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Initialize passport configuration
-require("./controllers/userController");
+import "./controllers/userController.js";
 
 // Routes
-// AuthRoute + UserRoute
-const authRoutes = require('./routes/authRoutes');
 app.use('/auth', authRoutes);
+app.use('/api/notes', noteRoutes);
+app.use('/api/pages', pageRoutes);
+app.use('/api/blocks', blockRoutes);
 
 app.get('/', (req, res) => res.send('Home Page'));
 
@@ -49,20 +54,11 @@ app.get("/profile", (req, res) => {
   res.send(`Welcome ${req.user.display_name}`);
 });
 
-// NoteRoute
-const noteRoutes = require('./routes/noteRoutes');
-app.use('/notes', noteRoutes);
+if (process.env.NODE_ENV !== 'test') {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+}
 
-// PageRoute
-const pageRoutes = require('./routes/pageRoutes');
-app.use('/notes/:noteId/pages', pageRoutes);
-
-// BlockRoute
-const blockRoutes = require('./routes/blockRoutes');
-app.use('/notes/:noteId/pages/:pageId/blocks', blockRoutes);
-
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+export default app;

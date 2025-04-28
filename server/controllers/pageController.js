@@ -1,59 +1,100 @@
-const pool = require("../db/connect");
-const { pageQueries } = require("../db/queries");
+import pool from '../db/connect.js';
+import { pageQueries } from '../db/queries.js';
 
 // Create Page Handler
-exports.createPage = async (req, res) => {
-    const noteId = req.params.noteId;
-    const { position } = req.body;
-    try {
-      const result = await pool.query(pageQueries.createPage, [noteId, position]);
-      res.status(201).json(result.rows[0]);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
+export const createPage = async (req, res) => {
+  try {
+    const { note_id, position } = req.body;
+
+    // Check if note exists
+    const noteCheck = await pool.query('SELECT * FROM notes WHERE note_id = $1', [note_id]);
+    if (noteCheck.rows.length === 0) {
+      return res.status(404).json({ error: 'Note not found' });
     }
-  };
+
+    const result = await pool.query(pageQueries.createPage, [note_id, position]);
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 // Handler for Block Position + Update Page
-exports.updatePagePosition = async (req, res) => {
-    const { noteId, pageId } = req.params;
+export const updatePagePosition = async (req, res) => {
+  try {
+    const { pageId } = req.params;
     const { position } = req.body;
-    try {
-      const result = await pool.query(pageQueries.updatePosition, [position, pageId, noteId]);
-      res.json(result.rows[0]);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
+
+    // Check if page exists
+    const pageCheck = await pool.query('SELECT * FROM pages WHERE page_id = $1', [pageId]);
+    if (pageCheck.rows.length === 0) {
+      return res.status(404).json({ error: 'Page not found' });
     }
-  };
+
+    const result = await pool.query(pageQueries.updatePagePosition, [position, pageId]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Page not found' });
+    }
+    res.json(result.rows[0]);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 // Get A Single Page by ID
-exports.getPageById = async (req, res) => {
-    const { noteId, pageId } = req.params;
-    try {
-      const result = await pool.query(pageQueries.getPageById, [pageId, noteId]);
-      res.json(result.rows[0]);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
+export const getPageById = async (req, res) => {
+  try {
+    const { pageId } = req.params;
+    const result = await pool.query(
+      'SELECT * FROM pages WHERE page_id = $1',
+      [pageId]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Page not found' });
     }
-  };
+    
+    return res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error getting page:', error);
+    return res.status(500).json({ error: 'Failed to get page' });
+  }
+};
 
 // Get All Pages
-exports.getAllPages = async (req, res) => {
-    const { noteId } = req.params;
-    try {
-      const result = await pool.query(pageQueries.getAllPages, [noteId]);
-      res.json(result.rows);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
+export const getPagesByNoteId = async (req, res) => {
+  try {
+    const noteId = req.query.note_id;
+    if (!noteId) {
+      return res.status(400).json({ error: 'Note ID is required' });
     }
-  };
+    const result = await pool.query(
+      'SELECT * FROM pages WHERE note_id = $1 ORDER BY position',
+      [noteId]
+    );
+    return res.json(result.rows);
+  } catch (error) {
+    console.error('Error getting pages:', error);
+    return res.status(500).json({ error: 'Failed to get pages' });
+  }
+};
 
 // Delete Page Handler
-exports.deletePage = async (req, res) => {
-    const { noteId, pageId } = req.params;
-    try {
-      await pool.query(pageQueries.deletePage, [pageId, noteId]);
-      res.status(204).end();
-    } catch (err) {
-      res.status(500).json({ error: err.message });
+export const deletePage = async (req, res) => {
+  try {
+    const { pageId } = req.params;
+    const result = await pool.query(
+      'DELETE FROM pages WHERE page_id = $1 RETURNING *',
+      [pageId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Page not found' });
     }
-  };
+
+    return res.status(204).end();
+  } catch (error) {
+    console.error('Error deleting page:', error);
+    return res.status(500).json({ error: 'Failed to delete page' });
+  }
+};
