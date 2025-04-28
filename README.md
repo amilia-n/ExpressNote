@@ -1,149 +1,165 @@
-Project Intro: Express Notes - A note-taking application with authentication
+# Express Notes
 
-# Instruction for Setup:
+A full-stack note-taking application with authentication, featuring a hierarchical structure of notes, pages, and blocks.
 
-1. Clone repository
-2. Install dependencies: npm install
-3. Create .env file with required variables
-4. Generate secrets using Node:
+## Features
 
+- Authentication (Local & Google OAuth)
+- Rich Content Blocks
+  - Text Editor
+  - Code Editor
+  - Image Viewer
+- Grid-based Layout for Formatting
+
+## Tech Stack
+
+### Backend
+- Node.js & Express
+- PostgreSQL
+- JWT Authentication
+- Google OAuth 2.0
+- Vitest for Testing
+
+### Frontend
+- React
+- CodeMirror (Code Editor)
+- Slate (Rich Text Editor)
+- DaisyUI
+- React Grid Layout
+- html2pdf.js
+
+## Setup Instructions
+
+1. Clone the repository
+2. Install dependencies:
    ```bash
-   # For JWT Secret
+   npm install
+   ```
+
+3. Create `.env` file with required variables:
+   ```
+   # Database
+   DB_HOST=localhost
+   DB_PORT=5432
+   DB_NAME=express_notes
+   DB_USER=your_username
+   DB_PASSWORD=your_password
+
+   # Authentication
+   JWT_SECRET=your_jwt_secret
+   SESSION_SECRET=your_session_secret
+   GOOGLE_CLIENT_ID=your_google_client_id
+   GOOGLE_CLIENT_SECRET=your_google_client_secret
+   ```
+
+4. Generate secrets:
+   ```bash
+   # JWT Secret
    node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 
-   # For Session Secret
+   # Session Secret
    node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
    ```
 
-5. Start server: npm start
+5. Start the server:
+   ```bash
+   npm start
+   ```
 
-Schema Breakdown: PostgreSQL database with users and notes tables
+## API Documentation
 
-# API Route Structure
+### Authentication Routes (`/api/auth`)
 
-## Authentication Routes (`/auth`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/auth/google` | Initiates Google OAuth |
+| GET | `/auth/google/callback` | Handles Google OAuth callback |
+| POST | `/auth/register` | Local user registration |
+| POST | `/auth/login` | Local user login |
+| POST | `/auth/logout` | Handles user logout |
+| GET | `/auth/profile` | Get user profile |
 
-- **GET** `/auth/google`  
-  Initiates Google OAuth
-- **GET** `/auth/google/callback`  
-  Handles Google OAuth callback
-- **POST** `/auth/register`  
-  Local user registration
-- **POST** `/auth/login`  
-  Local user login
-- **POST** `/auth/logout`  
-  Handles user logout
-- **GET** `/auth/profile`  
-  Protected profile route
+### Note Routes (`/api/notes`)
 
-## Note Routes (Protected) (`/notes`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/notes` | Create a new note |
+| GET | `/notes` | Get all notes |
+| GET | `/notes/:id` | Get a specific note |
+| PUT | `/notes/:id` | Update a note |
+| DELETE | `/notes/:id` | Delete a note |
 
-- **POST** `/notes`  
-  Create a new note
-- **GET** `/notes/:id`  
-  Retrieve a specific note
-- **DELETE** `/notes/:id`  
-  Delete a specific note
+### Page Routes (`/api/notes/:noteId/pages`)
 
-## Page Routes (`/pages`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/notes/:noteId/pages` | Create a new page |
+| GET | `/notes/:noteId/pages` | Get all pages for a note |
+| GET | `/notes/:noteId/pages/:pageId` | Get a specific page |
+| PUT | `/notes/:noteId/pages/:pageId` | Update a page |
+| DELETE | `/notes/:noteId/pages/:pageId` | Delete a page |
 
-- **POST** `/notes/:noteId/pages`  
-  Add new page to note
-- **GET** `/notes/:noteId/pages/:pageId`  
-  Retrieve a specific page
-- **DELETE** `/notes/:id`  
-  Delete a specific note
+### Block Routes (`/api/notes/:noteId/pages/:pageId/blocks`)
 
-## Block Routes (`/blocks`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/blocks` | Create a new block |
+| GET | `/blocks/:pageId` | Get all blocks for a page |
+| GET | `/blocks/:pageId/:blockId` | Get a specific block |
+| PUT | `/blocks/:blockId` | Update a block |
+| DELETE | `/blocks/:blockId` | Delete a block |
 
-- **POST** `/notes/:noteId/pages/:pageId/blocks`  
-  Create a new note
-- **PUT** `/notes/:noteId/pages/:pageId/blocks`  
-  Update block content or position
-- **DELETE** `/notes/:noteId/pages/:pageId/blocks`  
-  Delete a block
+## Testing
 
-# Postman Testing:
+The backend uses Vitest for testing with the following test suites:
 
-1. Register: POST http://localhost:3000/auth/register
-   Body: { "email": "test@email.com", "password": "password", "display_name": "mockuser1" }
+- **Server Tests**: Integration tests for API endpoints
+- **Auth Tests**: Authentication flow tests
+- **Controller Tests**: Unit tests for note, page, and block controllers
+- **Database Tests**: Database connection and query tests
 
-2. Login: POST http://localhost:3000/auth/login
-   Body: { "email": "test@email.com", "password": "password" }
+Run tests with:
+```bash
+npm run test
+```
 
-3. Notes (add Authorization: Bearer <token> header):
-   - Create: POST http://localhost:3000/notes
-     body: { title }
-     returns: { note_id, title, created_at }
-   - Get All: GET http://localhost:3000/notes
-   - Get One: GET http://localhost:3000/notes/:id
-     returns: {
-        note_id,
-        title,
-        pages: [{
-          page_id,
-          position,
-          blocks: [{
-            block_id,
-            block_type,
-            content,
-            position,
-            x,
-            y
-          }]
-        }]
-     }
-   - Delete: DELETE http://localhost:3000/notes/:id
+## Development Tools
 
-4. Page
-   - Create: POST /notes/:noteId/pages
-     body: { position }
+### Backend Testing
+- Vitest: Test runner
+- Axios Mock Adapter: Mock HTTP requests
+- Node Mocks HTTP: Mock Express middleware
+- pg-mem: Mock PostgreSQL database
 
-5. Blocks
-   - Create: POST /notes/:noteId/pages/:pageId/blocks
-     body: {
-      block_type, // 'text', 'code', or 'image'
-      content,
-      position,
-      x,
-      y
-     }
-   - Update/Move: PUT /notes/:noteId/pages/:pageId/blocks/:blockId
-     body: {
-      (updated)content,
-      (updated)position,
-      (updated)x,
-      (updated)y
-     }
+### Frontend Development
+- CodeMirror: Code editor component
+- Slate: Rich text editor
+- DaisyUI: UI components
+- React Grid Layout: Grid system
+- html2pdf.js: PDF export functionality
 
+## Project Structure
 
-# Testing Tools:
-## Backend: Vitest + Axios
-- npm install -D vitest
-- npm install -D axios-mock-adapter
-  Mock Axios requests in unit/integration tests
-- npm install -D node-mocks-http
-  Mock Express req/res/next for middleware/controllers
-- npm install -D pg-mem
-  Mock PostgreSQL
+```
+server/
+├── controllers/     # Route controllers
+├── db/             # Database configuration
+├── middleware/     # Express middleware
+├── routes/         # API routes
+├── __tests__/      # Test files
+│   ├── unit/      # Unit tests
+│   └── setup.js   # Test setup
+└── server.js       # Entry point
+```
 
-# Frontend Tools:
-- codemirror @codemirror/view @codemirror/state
-- slate slate-react
-- DaisyUI
-- react-grid-layout 
-- html2pdf.js
+## Contributing
 
-# Documentation Note:
-## MAJOR CHANGES: 
-- Remove AI rendering to implement during nice-to-have.
-- Remove flashcards table.
-- Schema update: note_id should save noteContainer with all TextEditor and CodeEditor (not each instance of TextEditor)
-- Each note is made of multiple content blocks. 
-- block_type will tell frontend whether to render a TextEditor, CodeEditor, or an Image Viewer.
-- ✨ Updated Concept: 
-(1) a Note → has many Pages (up to 10),
-(2) a Page → has many Blocks,
-(3) a Block → belongs to a Page
-- Implement a grid snapping + drag/drop rearranging, this will also help with loading block positions. 
-- Notes should be able to saved to local machine as pdf.
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+## License
+
+This project is licensed under the MIT License.
