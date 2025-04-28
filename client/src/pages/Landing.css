@@ -1,0 +1,50 @@
+.landing {
+  background-color: #303030;
+  flex-wrap: wrap;
+}
+.landing-logo {
+  margin: 0 50px 0 50px;
+  transition: opacity 0.0005s ease;
+}
+.inline-btn{
+    display: flex;
+    margin-top: 15px;
+    gap: 5px;
+}
+.login-button {
+  background-color: #68a063;
+  border-radius: 25px;
+}
+.login-button:hover {
+  background-color: #0a5a00;
+}
+.signup-button{
+    background-color: #68a063;
+    border-radius: 25px;
+}
+.signup-button:hover{
+    background-color: #0a5a00;
+}
+.landing-container {
+  margin: 0 50px 0 50px;
+  border-radius: 25px;
+}
+
+.landing-input:focus {
+  outline: none;
+}
+.google-btn {
+  background-color: #68a063;
+  border-radius: 25px;
+}
+.google-btn:hover {
+    background-color: #0a5a00;
+}
+@media (max-width: 1000px) {
+  .landing-container {
+    margin-top: -350px;
+  }
+  .landing-logo {
+    margin-top: -150px;
+  }
+}

@@ -1,32 +1,47 @@
 .editor-container {
-  background-color: rgba(0, 255, 255, 0.334);
-  border-radius: 5px;
+  background-color: rgba(0, 255, 255, 0.398);
+  border-radius: 25px;
   padding: 10px;
-  max-width: 4in;
-  overflow-x: wrap;
+  height: 100%; 
+  width: 100%; 
+  overflow: auto; 
 }
+
 .editor-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
+  padding: 5px;
+  /* margin:-4px -5px -8px 0; */
+  color: rgb(137, 137, 137);
+  position: relative;
 }
 
 .editor-content {
-  min-height: 150px;
-  padding: 10px;
+  height: calc(100% - 40px); 
+  padding: 5px;
   outline: none;
+  overflow-y: auto;
 }
-/* .editor-title-input {
+.toolbar-expand {
+  position: absolute;
+  top: 5px;
+  right: 5px;
   background: none;
   border: none;
-  font-size: 14px;
-  font-weight: 500;
-  color: #495057;
-  padding: 4px;
-  width: 200px;
+  cursor: pointer;
+  padding: 5px;
+  z-index: 10;
 }
 
-.editor-title-input:focus {
-  outline: none;
-  background: #e9ecef;
-  border-radius: 4px;
-} */
+.toolbar-expand:hover {
+  opacity: 0.8;
+}
+
+.editor-header > *:not(.toolbar-expand) {
+  transition: opacity 0.2s ;
+}
+
+.editor-header.collapsed > *:not(.toolbar-expand) {
+  opacity: 0;
+  pointer-events: none;
+}

@@ -3,8 +3,8 @@ import NoteContainer from "./components/NoteContainer";
 import Navbar from "./components/Navbar";
 // import ReactDOM from "react-dom/client";
 // import { BrowserRouter, Routes, Route } from "react-router-dom";
-// import Landing from "./pages/Landing";
-// import Home from "./pages/Home";
+import Landing from "./pages/Landing";
+import Home from "./pages/Home";
 // import UserProfile from "./pages/UserProfile";
 // import NoPage from "./pages/NoPage";
 // import "./App.css";
@@ -12,10 +12,13 @@ import Navbar from "./components/Navbar";
 function App() {
   return (
     <div className="App">
-      <Navbar />
+      {/* <Navbar />
       <main className="flex-grow">
         <NoteContainer />
-      </main>
+
+        <Home />
+      </main> */}
+    <Landing />
     </div>
   );
 }

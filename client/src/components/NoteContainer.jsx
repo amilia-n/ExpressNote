@@ -1,7 +1,19 @@
 import React, { useState, useCallback, useEffect } from "react";
+import { Responsive, WidthProvider } from "react-grid-layout";
+import "react-grid-layout/css/styles.css";
+import "react-resizable/css/styles.css";
 import TextEditor from "./TextEditor";
 import { debounce } from "lodash";
 import "./NoteContainer.css";
+
+const ResponsiveGridLayout = WidthProvider(Responsive);
+
+const layoutConfig = {
+  breakpoints: { lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 },
+  cols: { lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 },
+  rowHeight: 100,
+  margin: [10, 10],
+};
 
 const initialEditorContent = [
   {
@@ -16,7 +28,7 @@ export default function NoteContainer() {
       id: "text-1",
       noteId: null,
       type: "text",
-      position: { x: 20, y: 20 },
+      layout: { i: "text-1", x: 0, y: 0, w: 3, h: 2 },
       content: initialEditorContent,
       title: "Untitled Note",
     },
@@ -42,16 +54,11 @@ export default function NoteContainer() {
     setSaveStatus("unsaved");
   }, []);
 
-  const handleAddEditor = () => {
-    const newEditor = {
-      id: `text-${Date.now()}`,
-      noteId: null,
-      type: "text",
-      position: { x: 20, y: 20 },
-      content: initialEditorContent,
-      title: "Untitled Note",
-    };
-    setEditors((prev) => [...prev, newEditor]);
+
+
+  const handleTemplateDragStart = (e) => {
+    e.dataTransfer.setData("text/plain", "new-editor");
+    e.dataTransfer.effectAllowed = "copy";
   };
 
   const saveToDatabase = async (data) => {
@@ -125,73 +132,94 @@ export default function NoteContainer() {
     });
   };
 
-  const handleDragStart = (e, editorId) => {
-    e.dataTransfer.setData("text/plain", editorId);
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    const editorId = e.dataTransfer.getData("text/plain");
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    setEditors((prev) =>
-      prev.map((editor) =>
-        editor.id === editorId ? { ...editor, position: { x, y } } : editor
-      )
-    );
-  };
-
-
-
   const handleCloseEditor = (editorId) => {
     setEditors((prev) => prev.filter((editor) => editor.id !== editorId));
   };
 
   return (
-    <div className="flex flex-col items-center">
-      <div className="flex gap-2 p-2 rounded-lg" style={{ margin: '50px 0 -60px 0' }}>
-        <button
-          className="btn btn-soft add-editor-button"
-          onClick={handleAddEditor}
+    <div className="">
+      <div id="side-col">
+        <div
+          className="editor-template"
+          draggable
+          onDragStart={handleTemplateDragStart}
         >
-          Add Text Box
-        </button>
-        <button className="btn btn-soft btn-info">Add Code Box</button>
-        <button className="btn btn-soft btn-warning">Generate Flashcards</button>
-        <button className="btn btn-soft btn-primary">Add IMG</button>
-        <button className="btn btn-soft btn-error">Text Styling</button>
-        <button className="btn btn-soft btn-secondary">Fonts</button>
-        <button className="btn btn-soft btn-success" onClick={handleSave}>Save</button>
+          <div className="template-preview">
+            <h3>Text Editor</h3>
+            <p>Drag to add a new text editor</p>
+          </div>
+        </div>
       </div>
-      <div
-        className="note-container"
-        onDragOver={handleDragOver}
-        onDrop={handleDrop}
+      {/* <div
+          className="flex gap-2 p-2 rounded-lg"
+          style={{ margin: "50px 0 -60px 0" }}
+        >
+          <button
+            className="btn btn-soft add-editor-button"
+            onClick={handleAddEditor}
+          >
+            Add Text Box
+          </button>
+          <button className="btn btn-soft btn-info">Add Code Box</button>
+          <button className="btn btn-soft btn-warning">
+            Generate Flashcards
+          </button>
+          <button className="btn btn-soft btn-primary">Add IMG</button>
+          <button className="btn btn-soft btn-error">Text Styling</button>
+          <button className="btn btn-soft btn-secondary">Fonts</button>
+          <button className="btn btn-soft btn-success" onClick={handleSave}>
+            Save
+          </button>
+        </div> */}
+
+      <ResponsiveGridLayout
+        className="layout"
+        layouts={{ lg: editors.map((editor) => editor.layout) }}
+        breakpoints={layoutConfig.breakpoints}
+        cols={layoutConfig.cols}
+        rowHeight={layoutConfig.rowHeight}
+        margin={layoutConfig.margin}
+        onLayoutChange={(layout) => {
+          setEditors((prev) =>
+            prev.map((editor) => ({
+              ...editor,
+              layout: layout.find((l) => l.i === editor.id) || editor.layout,
+            }))
+          );
+        }}
+        onDrop={(layout, layoutItem, event) => {
+          if (event.dataTransfer.getData("text/plain") === "new-editor") {
+            const newEditor = {
+              id: `text-${Date.now()}`,
+              noteId: null,
+              type: "text",
+              layout: {
+                i: `text-${Date.now()}`,
+                x: layoutItem.x,
+                y: layoutItem.y,
+                w: 6,
+                h: 4,
+              },
+              content: initialEditorContent,
+              title: "Untitled Note",
+            };
+            setEditors((prev) => [...prev, newEditor]);
+          }
+        }}
+        isDroppable={true}
       >
         {editors.map((editor) => (
-          <div
-            key={editor.id}
-            draggable
-            onDragStart={(e) => handleDragStart(e, editor.id)}
-            className={`editor-wrapper`}
-          >
+          <div key={editor.id}>
             <TextEditor
               content={editor.content}
               onChange={(content) => handleContentChange(editor.id, content)}
-              position={editor.position}
               onClose={() => handleCloseEditor(editor.id)}
               title={editor.title}
               onTitleChange={(title) => handleTitleChange(editor.id, title)}
             />
           </div>
         ))}
-      </div>
+      </ResponsiveGridLayout>
     </div>
   );
 }
