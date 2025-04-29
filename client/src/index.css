@@ -4,6 +4,7 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
+
 body {
   margin: 0;
   padding: 0;

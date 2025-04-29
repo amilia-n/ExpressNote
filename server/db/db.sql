@@ -1,3 +1,5 @@
+CREATE DATABASE express_note;
+
 CREATE TABLE users (
   user_id SERIAL PRIMARY KEY,
   google_id VARCHAR(255) UNIQUE,
