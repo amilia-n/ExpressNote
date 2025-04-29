@@ -1,9 +1,9 @@
 # Express Notes
 
-![ExpressNote Interface](client/src/assets/NoteContainer.png)
 ![ExpressNote User Login](client/src/assets/Login.png)
+![ExpressNote Interface](client/src/assets/NoteContainer.png)
 
-A full-stack fully customizable note-taking application with text, code, and images.
+A full-stack PERN app: fully customizable note-taking application with rich text, code, and images.
 
 ## Features
 
