@@ -1,8 +1,9 @@
 # Express Notes
 
 ![ExpressNote Interface](client/src/assets/NoteContainer.png)
+![ExpressNote User Login](client/src/assets/Login.png)
 
-A full-stack note-taking application with authentication, featuring a hierarchical structure of notes, pages, and blocks.
+A full-stack fully customizable note-taking application with text, code, and images.
 
 ## Features
 
