@@ -1,5 +1,7 @@
 # Express Notes
 
+![ExpressNote Interface](NoteContainer.png)
+
 A full-stack note-taking application with authentication, featuring a hierarchical structure of notes, pages, and blocks.
 
 ## Features
