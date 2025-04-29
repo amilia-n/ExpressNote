@@ -3,6 +3,9 @@ import { Responsive, WidthProvider } from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import TextEditor from "./TextEditor";
+import ImgBox from "./ImgBox";
+import Terminal from "./Terminal";
+import CodeEditor from "./CodeEditor";
 import { debounce } from "lodash";
 import "./NoteContainer.css";
 
@@ -56,8 +59,50 @@ export default function NoteContainer() {
   }, []);
 
   const handleTemplateDragStart = (e) => {
-    e.dataTransfer.setData("text/plain", "new-editor");
+    const editorType = e.target.closest('.editor-template').getAttribute('data-type');
+    e.dataTransfer.setData("text/plain", editorType);
     e.dataTransfer.effectAllowed = "copy";
+  };
+
+  const handleTemplateDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+  };
+
+  const handleTemplateDrop = (layout, layoutItem, event) => {
+    if (event.dataTransfer.getData("text/plain")) {
+      const editorType = event.dataTransfer.getData("text/plain");
+
+      // Initialize content based on editor type
+      let initialContent;
+      if (editorType === "text") {
+        initialContent = initialEditorContent;
+      } else if (editorType === "terminal") {
+        initialContent = "npm i daisyui";
+      } else if (editorType === "code") {
+        initialContent = "npm i daisyui\ninstalling...\nError!";
+      } else {
+        initialContent = "";
+      }
+
+      const newEditor = {
+        id: `${editorType}-${Date.now()}`,
+        noteId: null,
+        blockId: null,
+        type: editorType,
+        layout: {
+          i: `${editorType}-${Date.now()}`,
+          x: layoutItem.x,
+          y: layoutItem.y,
+          w: 6,
+          h: 4,
+        },
+        content: initialContent,
+        title: "Untitled Note",
+      };
+      setEditors((prev) => [...prev, newEditor]);
+      setSaveStatus("unsaved");
+    }
   };
 
   const saveToDatabase = useCallback(
@@ -133,7 +178,6 @@ export default function NoteContainer() {
               }
             );
           } else {
-            // Otherwise create a new block
             const createResponse = await fetch(
               `http://localhost:3000/notes/${noteId}/pages/${pageId}/blocks`,
               {
@@ -194,6 +238,7 @@ export default function NoteContainer() {
           className="editor-template"
           draggable
           onDragStart={handleTemplateDragStart}
+          data-type="text"
         >
           <div className="template-preview">
             <h3>
@@ -220,6 +265,7 @@ export default function NoteContainer() {
           className="editor-template"
           draggable
           onDragStart={handleTemplateDragStart}
+          data-type="image"
         >
           <div className="template-preview">
             <h3>
@@ -246,6 +292,7 @@ export default function NoteContainer() {
           className="editor-template"
           draggable
           onDragStart={handleTemplateDragStart}
+          data-type="terminal"
         >
           <div className="template-preview">
             <h3>
@@ -272,6 +319,7 @@ export default function NoteContainer() {
           className="editor-template"
           draggable
           onDragStart={handleTemplateDragStart}
+          data-type="code"
         >
           <div className="template-preview">
             <h3>
@@ -380,38 +428,38 @@ export default function NoteContainer() {
           );
           setSaveStatus("unsaved");
         }}
-        onDrop={(layout, layoutItem, event) => {
-          if (event.dataTransfer.getData("text/plain") === "new-editor") {
-            const newEditor = {
-              id: `text-${Date.now()}`,
-              noteId: null,
-              blockId: null,
-              type: "text",
-              layout: {
-                i: `text-${Date.now()}`,
-                x: layoutItem.x,
-                y: layoutItem.y,
-                w: 6,
-                h: 4,
-              },
-              content: initialEditorContent,
-              title: "Untitled Note",
-            };
-            setEditors((prev) => [...prev, newEditor]);
-            setSaveStatus("unsaved");
-          }
-        }}
+        onDragOver={handleTemplateDragOver}
+        onDrop={handleTemplateDrop}
         isDroppable={true}
       >
         {editors.map((editor) => (
           <div key={editor.id}>
-            <TextEditor
-              content={editor.content}
-              onChange={(content) => handleContentChange(editor.id, content)}
-              onClose={() => handleCloseEditor(editor.id)}
-              title={editor.title}
-              onTitleChange={(title) => handleTitleChange(editor.id, title)}
-            />
+            {editor.type === "text" && (
+              <TextEditor
+                content={editor.content}
+                onChange={(content) => handleContentChange(editor.id, content)}
+                onClose={() => handleCloseEditor(editor.id)}
+                title={editor.title}
+                onTitleChange={(title) => handleTitleChange(editor.id, title)}
+              />
+            )}
+            {editor.type === "image" && (
+              <ImgBox onClose={() => handleCloseEditor(editor.id)} />
+            )}
+            {editor.type === "terminal" && (
+              <Terminal
+                content={editor.content}
+                onChange={(content) => handleContentChange(editor.id, content)}
+                onClose={() => handleCloseEditor(editor.id)}
+              />
+            )}
+            {editor.type === "code" && (
+              <CodeEditor
+                content={editor.content}
+                onChange={(content) => handleContentChange(editor.id, content)}
+                onClose={() => handleCloseEditor(editor.id)}
+              />
+            )}
           </div>
         ))}
       </ResponsiveGridLayout>
@@ -445,7 +493,7 @@ export default function NoteContainer() {
             strokeWidth={1.5}
             stroke="currentColor"
             className="size-6"
-            style={{ transform: 'rotate(180deg)' }}
+            style={{ transform: "rotate(180deg)" }}
           >
             <path
               strokeLinecap="round"
@@ -455,26 +503,6 @@ export default function NoteContainer() {
           </svg>
         </button>
         <span></span>
-
-        <button className="btn btn-soft add-editor-button">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="size-6"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M6 6.878V6a2.25 2.25 0 0 1 2.25-2.25h7.5A2.25 2.25 0 0 1 18 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 0 0 4.5 9v.878m13.5-3A2.25 2.25 0 0 1 19.5 9v.878m0 0a2.246 2.246 0 0 0-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0 1 21 12v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18v-6c0-.98.626-1.813 1.5-2.122"
-            />
-          </svg>
-          Back to All Notes
-        </button>
-        <span></span>
-
         <button className="btn btn-soft btn-info">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -487,7 +515,7 @@ export default function NoteContainer() {
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
-              d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25"
+              d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"
             />
           </svg>
           Add a New Page
@@ -510,7 +538,24 @@ export default function NoteContainer() {
           </svg>
           Download PDF
         </button>
-
+        <span></span>
+        <button className="btn btn-soft add-editor-button">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="size-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M6 6.878V6a2.25 2.25 0 0 1 2.25-2.25h7.5A2.25 2.25 0 0 1 18 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 0 0 4.5 9v.878m13.5-3A2.25 2.25 0 0 1 19.5 9v.878m0 0a2.246 2.246 0 0 0-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0 1 21 12v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18v-6c0-.98.626-1.813 1.5-2.122"
+            />
+          </svg>
+          Back to All Notes
+        </button>
         <span></span>
         <span></span>
         <button className="btn btn-soft btn-error">

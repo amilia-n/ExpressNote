@@ -11,11 +11,7 @@
   justify-items: center;
   overflow: scroll;
 }
-.note-container-btns{
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-}
+
 .layout {
   min-width: 8.5in;
   max-width: 8.5in;
@@ -142,12 +138,7 @@
   color:#ffffff;
   margin-left: 2px;
 }
-.inline-btn{
-  display: flex;
-  flex-direction: row;
-  scale: .9;
-  margin-left: -15px;
-}
+
 .page-ct{
   width: 40px;
   height: 30px;
