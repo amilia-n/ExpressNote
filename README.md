@@ -3,8 +3,7 @@
 ![ExpressNote User Login](client/src/assets/Login.png)
 ![ExpressNote Interface](client/src/assets/NoteContainer.png)
 
-A full-stack PERN app: fully customizable note-taking application with rich text, code, and images.
-
+Say goodbye to static note chaos—ExpressNote transforms your developer workflow by blending code, text, and images into dynamic, customizable pages.
 ## Features
 
 - Authentication (Local & Google OAuth)
