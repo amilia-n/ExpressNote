@@ -56,9 +56,7 @@ app.get("/logout", (req, res) => {
 });
 
 app.get("/profile", (req, res) => {
-  if (!req.user) return res.redirect("/");
-  console.log('User object:', req.user);
-  res.send(`Welcome ${req.user.display_name}`);
+  if (!req.user) return res.redirect("/notes");
 });
 
 if (process.env.NODE_ENV !== 'test') {

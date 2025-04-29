@@ -1,12 +1,14 @@
 import React from "react";
-import TextEditor from "../components/TextEditor";
 import NoteContainer from "../components/NoteContainer";
 
 const Home = () => {
   return (
-    <NoteContainer>
-      <TextEditor />
-    </NoteContainer>
+    <div className="flex">
+      {/* NoteList will go here later */}
+      <div className="flex-1">
+        <NoteContainer />
+      </div>
+    </div>
   );
 };
 

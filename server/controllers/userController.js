@@ -78,8 +78,8 @@ export const googleAuth = passport.authenticate('google', {
 
 // Google Auth Callback
 export const googleCallback = passport.authenticate('google', {
-  failureRedirect: '/login',
-  successRedirect: '/home'
+  failureRedirect: 'http://localhost:5173/login',
+  successRedirect: 'http://localhost:5173/notes'
 });
 
 // Logout

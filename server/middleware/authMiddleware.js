@@ -16,5 +16,13 @@ const authenticateToken = (req, res, next) => {
     return res.status(401).json({ error: 'Invalid token' });
   }
 };
+// alt:
+// const authenticateToken = (req, res, next) => {
 
+//   if (req.isAuthenticated()) {
+//     return next();
+//   }
+
+//   return res.status(401).json({ error: 'Not authenticated' });
+// };
 export default authenticateToken;

@@ -33,7 +33,7 @@ const Landing = () => {
         // Store token in localStorage or a secure cookie
         localStorage.setItem("token", data.token);
         // Use React Router navigation instead of window.location
-        navigate("/home");
+        navigate("/");
       } else {
         if (data.error === "Invalid credentials" && !isRegistering) {
           setError("Email not associated with an account. Please register to continue.");

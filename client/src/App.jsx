@@ -16,7 +16,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<Landing />} />
           <Route 
-            path="/" 
+            path="/notes" 
             element={
               <>
                 <Navbar />

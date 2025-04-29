@@ -39,6 +39,7 @@ export default function NoteContainer() {
   ]);
   const [saveStatus, setSaveStatus] = useState("saved");
   const [currentPageId, setCurrentPageId] = useState(null);
+  const token = localStorage.getItem("token");
 
   const handleContentChange = useCallback((editorId, newContent) => {
     setEditors((prev) =>
@@ -59,7 +60,9 @@ export default function NoteContainer() {
   }, []);
 
   const handleTemplateDragStart = (e) => {
-    const editorType = e.target.closest('.editor-template').getAttribute('data-type');
+    const editorType = e.target
+      .closest(".editor-template")
+      .getAttribute("data-type");
     e.dataTransfer.setData("text/plain", editorType);
     e.dataTransfer.effectAllowed = "copy";
   };
@@ -105,6 +108,333 @@ export default function NoteContainer() {
     }
   };
 
+  // New Page Handler
+  const handleAddNewPage = async () => {
+    try {
+      // Get the current note ID from the first editor
+      const noteId = editors[0].noteId;
+
+      if (!noteId) {
+        console.error("No note ID found");
+        return;
+      }
+
+      // Get the current pages to determine the next position
+      const pagesResponse = await fetch(
+        `http://localhost:3000/api/pages?note_id=${noteId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          credentials: "include",
+        }
+      );
+
+      if (!pagesResponse.ok) {
+        throw new Error("Failed to get pages");
+      }
+
+      const pages = await pagesResponse.json();
+      const nextPosition = pages.length; // Position for the new page
+
+      // Create a new page
+      const pageResponse = await fetch(
+        `http://localhost:3000/api/pages?note_id=${noteId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { "Authorization": `Bearer ${token}` } : {})
+          },
+          credentials: "include",
+          body: JSON.stringify({ position: nextPosition }),
+        }
+      );
+
+      if (!pageResponse.ok) {
+        throw new Error("Failed to create page");
+      }
+
+      const newPage = await pageResponse.json();
+
+      // Update the current page ID to the new page
+      setCurrentPageId(newPage.page_id);
+
+      // Clear the editors for the new page
+      setEditors([
+        {
+          id: "text-1",
+          noteId: noteId,
+          blockId: null,
+          type: "text",
+          layout: { i: "text-1", x: 0, y: 0, w: 3, h: 2 },
+          content: initialEditorContent,
+          title: "Untitled Note",
+        },
+      ]);
+
+      // Update the page counter in the UI
+      const pageCounter = document.querySelector(".page-ct");
+      if (pageCounter) {
+        pageCounter.value = nextPosition + 1;
+      }
+
+      setSaveStatus("saved");
+    } catch (error) {
+      console.error("Error adding new page:", error);
+      setSaveStatus("error");
+    }
+  };
+  // Page Navigation Handler
+  const handlePageNavigation = async (direction) => {
+    try {
+      // Get the current note ID from the first editor
+      const noteId = editors[0].noteId;
+
+      if (!noteId) {
+        console.error("No note ID found");
+        return;
+      }
+
+      // Get all pages for the note
+      const pagesResponse = await fetch(
+        `http://localhost:3000/api/pages?note_id=${noteId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { "Authorization": `Bearer ${token}` } : {})
+          },
+          credentials: "include",
+        }
+      );
+
+      if (!pagesResponse.ok) {
+        throw new Error("Failed to get pages");
+      }
+
+      const pages = await pagesResponse.json();
+
+      if (pages.length <= 1) {
+        // Only one page, no navigation needed
+        return;
+      }
+
+      // Find the current page index
+      const currentPageIndex = pages.findIndex(
+        (page) => page.page_id === currentPageId
+      );
+
+      // Calculate the new page index
+      let newPageIndex;
+      if (direction === "next") {
+        newPageIndex = (currentPageIndex + 1) % pages.length;
+      } else {
+        newPageIndex = (currentPageIndex - 1 + pages.length) % pages.length;
+      }
+
+      // Get the new page ID
+      const newPageId = pages[newPageIndex].page_id;
+
+      // Update the current page ID
+      setCurrentPageId(newPageId);
+
+      // Load the blocks for the new page
+      const blocksResponse = await fetch(
+        `http://localhost:3000/api/blocks?page_id=${newPageId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { "Authorization": `Bearer ${token}` } : {})
+          },
+          credentials: "include",
+        }
+      );
+
+      if (!blocksResponse.ok) {
+        throw new Error("Failed to get blocks");
+      }
+
+      const blocks = await blocksResponse.json();
+
+      // Convert blocks to editors
+      const newEditors = blocks.map((block) => ({
+        id: `${block.block_type}-${block.block_id}`,
+        noteId: noteId,
+        blockId: block.block_id,
+        type: block.block_type,
+        layout: {
+          i: `${block.block_type}-${block.block_id}`,
+          x: block.x,
+          y: block.y,
+          w: 3,
+          h: 2,
+        },
+        content: JSON.parse(block.content),
+        title: "Untitled Note",
+      }));
+
+      // If no blocks, add a default text editor
+      if (newEditors.length === 0) {
+        newEditors.push({
+          id: "text-1",
+          noteId: noteId,
+          blockId: null,
+          type: "text",
+          layout: { i: "text-1", x: 0, y: 0, w: 3, h: 2 },
+          content: initialEditorContent,
+          title: "Untitled Note",
+        });
+      }
+
+      setEditors(newEditors);
+
+      // Update the page counter in the UI
+      const pageCounter = document.querySelector(".page-ct");
+      if (pageCounter) {
+        pageCounter.value = newPageIndex + 1;
+      }
+
+      setSaveStatus("saved");
+    } catch (error) {
+      console.error("Error navigating pages:", error);
+      setSaveStatus("error");
+    }
+  };
+  // Page Delete Handler
+  const handleDeletePage = async () => {
+    try {
+      // Get the current note ID from the first editor
+      const noteId = editors[0].noteId;
+
+      if (!noteId) {
+        console.error("No note ID found");
+        return;
+      }
+
+      // Get all pages for the note
+      const pagesResponse = await fetch(
+        `http://localhost:3000/notes/${noteId}/pages`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { "Authorization": `Bearer ${token}` } : {})
+          },
+          credentials: "include",
+        }
+      );
+
+      if (!pagesResponse.ok) {
+        throw new Error("Failed to get pages");
+      }
+
+      const pages = await pagesResponse.json();
+
+      if (pages.length <= 1) {
+        // Only one page, can't delete
+        alert("Cannot delete the only page in a note");
+        return;
+      }
+
+      // Confirm deletion
+      if (!confirm("Are you sure you want to delete this page?")) {
+        return;
+      }
+
+      // Delete the current page
+      const deleteResponse = await fetch(
+        `http://localhost:3000/api/pages/${currentPageId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { "Authorization": `Bearer ${token}` } : {})
+          },
+          credentials: "include",
+        }
+      );
+
+      if (!deleteResponse.ok) {
+        throw new Error("Failed to delete page");
+      }
+
+      // Find the next page to navigate to
+      const currentPageIndex = pages.findIndex(
+        (page) => page.page_id === currentPageId
+      );
+      const nextPageIndex = (currentPageIndex + 1) % pages.length;
+      const nextPageId = pages[nextPageIndex].page_id;
+
+      // Update the current page ID
+      setCurrentPageId(nextPageId);
+
+      // Load the blocks for the next page
+      const blocksResponse = await fetch(
+        `http://localhost:3000/notes/${noteId}/pages/${nextPageId}/blocks`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { "Authorization": `Bearer ${token}` } : {})
+          },
+          credentials: "include",
+        }
+      );
+
+      if (!blocksResponse.ok) {
+        throw new Error("Failed to get blocks");
+      }
+
+      const blocks = await blocksResponse.json();
+
+      // Convert blocks to editors
+      const newEditors = blocks.map((block) => ({
+        id: `${block.block_type}-${block.block_id}`,
+        noteId: noteId,
+        blockId: block.block_id,
+        type: block.block_type,
+        layout: {
+          i: `${block.block_type}-${block.block_id}`,
+          x: block.x,
+          y: block.y,
+          w: 3,
+          h: 2,
+        },
+        content: JSON.parse(block.content),
+        title: "Untitled Note",
+      }));
+
+      // If no blocks, add a default text editor
+      if (newEditors.length === 0) {
+        newEditors.push({
+          id: "text-1",
+          noteId: noteId,
+          blockId: null,
+          type: "text",
+          layout: { i: "text-1", x: 0, y: 0, w: 3, h: 2 },
+          content: initialEditorContent,
+          title: "Untitled Note",
+        });
+      }
+
+      setEditors(newEditors);
+
+      // Update the page counter in the UI
+      const pageCounter = document.querySelector(".page-ct");
+      if (pageCounter) {
+        pageCounter.value = nextPageIndex + 1;
+      }
+
+      setSaveStatus("saved");
+    } catch (error) {
+      console.error("Error deleting page:", error);
+      setSaveStatus("error");
+    }
+  };
   const saveToDatabase = useCallback(
     async (data) => {
       try {
@@ -112,10 +442,12 @@ export default function NoteContainer() {
         let pageId = currentPageId;
 
         if (!noteId) {
-          const noteResponse = await fetch("http://localhost:3000/notes", {
+
+          const noteResponse = await fetch("http://localhost:3000/api/notes", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
+              ...(token ? { "Authorization": `Bearer ${token}` } : {})
             },
             credentials: "include",
             body: JSON.stringify({ title: data.title }),
@@ -128,17 +460,15 @@ export default function NoteContainer() {
           const savedNote = await noteResponse.json();
           noteId = savedNote.note_id;
 
-          const pageResponse = await fetch(
-            `http://localhost:3000/notes/${noteId}/pages`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              credentials: "include",
-              body: JSON.stringify({ position: 0 }),
-            }
-          );
+          const pageResponse = await fetch(`http://localhost:3000/api/pages`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              ...(token ? { "Authorization": `Bearer ${token}` } : {})
+            },
+            credentials: "include",
+            body: JSON.stringify({ note_id: noteId, position: 0 }),
+          });
 
           if (!pageResponse.ok) {
             throw new Error("Failed to create page");
@@ -166,24 +496,23 @@ export default function NoteContainer() {
           };
 
           if (editor.blockId) {
-            await fetch(
-              `http://localhost:3000/notes/${noteId}/pages/${pageId}/blocks/${editor.blockId}`,
-              {
-                method: "PUT",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                credentials: "include",
-                body: JSON.stringify(blockData),
-              }
-            );
+            await fetch(`http://localhost:3000/api/blocks/${editor.blockId}`, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                ...(token ? { "Authorization": `Bearer ${token}` } : {})
+              },
+              credentials: "include",
+              body: JSON.stringify(blockData),
+            });
           } else {
             const createResponse = await fetch(
-              `http://localhost:3000/notes/${noteId}/pages/${pageId}/blocks`,
+              `http://localhost:3000/api/blocks`,
               {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
+                  ...(token ? { "Authorization": `Bearer ${token}` } : {})
                 },
                 credentials: "include",
                 body: JSON.stringify(blockData),
@@ -209,7 +538,7 @@ export default function NoteContainer() {
         setSaveStatus("error");
       }
     },
-    [editors, currentPageId]
+    [editors, currentPageId, token]
   );
 
   // AUTO SAVE
@@ -345,7 +674,10 @@ export default function NoteContainer() {
       </div>
 
       <div className="note-container-header">
-        <button className="page-nav">
+        <button
+          className="page-nav"
+          onClick={() => handlePageNavigation("prev")}
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -361,7 +693,10 @@ export default function NoteContainer() {
             />
           </svg>
         </button>
-        <button className="page-nav">
+        <button
+          className="page-nav"
+          onClick={() => handlePageNavigation("next")}
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -470,7 +805,10 @@ export default function NoteContainer() {
           className="input note-title"
         />
         <div className="last-saved">Last saved:</div>
-        <button className="btn btn-soft btn-success">
+        <button
+          className="btn btn-soft btn-success"
+          onClick={() => saveToDatabase(editors[0])}
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -503,7 +841,7 @@ export default function NoteContainer() {
           </svg>
         </button>
         <span></span>
-        <button className="btn btn-soft btn-info">
+        <button className="btn btn-soft btn-info" onClick={handleAddNewPage}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -558,7 +896,7 @@ export default function NoteContainer() {
         </button>
         <span></span>
         <span></span>
-        <button className="btn btn-soft btn-error">
+        <button className="btn btn-soft btn-error" onClick={handleDeletePage}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
