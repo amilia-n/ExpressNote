@@ -1,8 +1,8 @@
 import React from "react";
-import NoteContainer from "./components/NoteContainer";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 // import ReactDOM from "react-dom/client";
-// import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 import Landing from "./pages/Landing";
 import Home from "./pages/Home";
 // import UserProfile from "./pages/UserProfile";
@@ -11,15 +11,24 @@ import Home from "./pages/Home";
 
 function App() {
   return (
-    <div className="App">
-      {/* <Navbar />
-      <main className="flex-grow">
-        <NoteContainer />
-
-        <Home />
-      </main> */}
-    <Landing />
-    </div>
+    <BrowserRouter>
+      <div className="App">
+        <Routes>
+          <Route path="/login" element={<Landing />} />
+          <Route 
+            path="/" 
+            element={
+              <>
+                <Navbar />
+                <main className="flex-grow">
+                  <Home />
+                </main>
+              </>
+            } 
+          />
+        </Routes>
+      </div>
+    </BrowserRouter>
   );
 }
 

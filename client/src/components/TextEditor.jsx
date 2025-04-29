@@ -9,7 +9,7 @@ const initialValue = [
     children: [{ text: "" }],
   },
 ];
-export default function TextEditor({ content, onChange, position, onClose }) {
+export default function TextEditor({ content, onChange, onClose }) {
   const [editor] = useState(() => withReact(createEditor()));
   const editorValue = content || initialValue;
   const [isCollapsed, setIsCollapsed] = useState(false);

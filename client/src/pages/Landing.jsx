@@ -1,15 +1,20 @@
+// In your Landing.jsx file
+
 import React, { useState } from "react";
-// import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
 import "./Landing.css";
 
 const Landing = () => {
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isRegistering, setIsRegistering] = useState(false);
+  const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setError("");
 
     try {
       const response = await fetch("http://localhost:3000/auth/login", {
@@ -18,19 +23,56 @@ const Landing = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
-        credentials: "include", // Need for cookies
+        credentials: "include", 
       });
 
       const data = await response.json();
 
       if (response.ok) {
         console.log("Login successful:", data);
-        // Add React Router's navigation
+        // Store token in localStorage or a secure cookie
+        localStorage.setItem("token", data.token);
+        // Use React Router navigation instead of window.location
+        navigate("/home");
       } else {
-        console.error("Login failed:", data.message);
+        if (data.error === "Invalid credentials" && !isRegistering) {
+          setError("Email not associated with an account. Please register to continue.");
+          setIsRegistering(true);
+        } else {
+          setError(data.error || "Login failed. Please try again.");
+        }
       }
     } catch (error) {
       console.error("Error during login:", error);
+      setError("An error occurred. Please try again later.");
+    }
+  };
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    try {
+      const response = await fetch("http://localhost:3000/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("Registration successful:", data);
+        setError("Registration successful! Please login.");
+        setIsRegistering(false);
+      } else {
+        setError(data.error || "Registration failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error during registration:", error);
+      setError("An error occurred. Please try again later.");
     }
   };
 
@@ -54,6 +96,13 @@ const Landing = () => {
       <div className="flex bg-white shadow-lg max-w-sm lg:max-w w-full landing-container">
         <div className="w-full p-8">
           <p className="text-xl text-gray-600 text-center">Get Started</p>
+          
+          {error && (
+            <div className="mt-2 p-2 bg-red-100 text-red-700 rounded text-sm">
+              {error}
+            </div>
+          )}
+          
           <div className="mt-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
               Email Address
@@ -88,13 +137,13 @@ const Landing = () => {
           <div className="inline-btn">
             <button
               className="signup-button text-white py-2 px-4 w-full"
-              onClick={handleSubmit}
+              onClick={handleRegister}
             >
               Register
             </button>
             <button
               className="login-button text-white py-2 px-4 w-full"
-              onClick={handleSubmit}
+              onClick={handleLogin}
             >
               Login
             </button>

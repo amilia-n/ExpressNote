@@ -1,3 +1,21 @@
+.note-container-header{
+  display: inline-flex;
+  align-self: center;
+  gap: 15px;
+  margin-top: 5px;
+  margin-bottom: -50px;
+}
+.note-page-container{
+  display: flex;
+  flex-direction: column;
+  justify-items: center;
+  overflow: scroll;
+}
+.note-container-btns{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
 .layout {
   min-width: 8.5in;
   max-width: 8.5in;
@@ -9,14 +27,31 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   border-radius: 4px;
   padding: 5px;
+  align-self: center;
   position: relative;
 }
-#side-col {
+#left-side-col {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
   width: 300px; 
   height: 300px;
-  position: fixed;
+  position: absolute;
   left: 50;
-  top: 50;
+  margin: 80px 0 0 30px;
+  padding: 20px;
+  overflow: none;
+  z-index: 1000;
+}
+#right-side-col {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  width: 300px; 
+  height: 300px;
+  position: absolute;
+  right:0;
+  margin: 80px 30px 0 0;
   padding: 20px;
   overflow: none;
   z-index: 1000;
@@ -38,6 +73,7 @@
 
 .template-preview {
   text-align: center;
+  margin-bottom: 10px;
 }
 
 .template-preview h3 {
@@ -77,4 +113,57 @@
   -ms-user-select: none;
   -o-user-select: none;
   user-select: none;
+}
+
+.img-icon{
+  justify-self: center;
+  color: #595959;
+}
+.term-icon{
+  justify-self: center;
+  color: #595959;
+}
+.code-icon{
+  justify-self: center;
+  color: #595959;
+}
+.text-icon{
+  justify-self: center;
+  color: #595959;
+}
+
+.note-title{
+  color:#282828;
+  min-height: 50px;
+  margin-bottom: -15px;
+}
+.last-saved{
+  font-size: .8rem;
+  color:#ffffff;
+  margin-left: 2px;
+}
+.inline-btn{
+  display: flex;
+  flex-direction: row;
+  scale: .9;
+  margin-left: -15px;
+}
+.page-ct{
+  width: 40px;
+  height: 30px;
+  background-color: #ffffff;
+  padding: 10px;
+  border-radius: 10px;
+  justify-self: center;
+  text-align: center;
+}
+.btn{
+  width: 200px;
+  align-self: center;
+  border-radius: 15px !important;
+  padding: 20px;
+}
+.page-nav{
+  color: rgb(255, 255, 255);
+
 }

@@ -27,6 +27,7 @@ export default function NoteContainer() {
     {
       id: "text-1",
       noteId: null,
+      blockId: null,
       type: "text",
       layout: { i: "text-1", x: 0, y: 0, w: 3, h: 2 },
       content: initialEditorContent,
@@ -34,7 +35,7 @@ export default function NoteContainer() {
     },
   ]);
   const [saveStatus, setSaveStatus] = useState("saved");
-
+  const [currentPageId, setCurrentPageId] = useState(null);
 
   const handleContentChange = useCallback((editorId, newContent) => {
     setEditors((prev) =>
@@ -54,63 +55,119 @@ export default function NoteContainer() {
     setSaveStatus("unsaved");
   }, []);
 
-
-
   const handleTemplateDragStart = (e) => {
     e.dataTransfer.setData("text/plain", "new-editor");
     e.dataTransfer.effectAllowed = "copy";
   };
 
-  const saveToDatabase = async (data) => {
-    try {
-      const noteData = {
-        title: data.title,
-        content: JSON.stringify(data.content),
-      };
+  const saveToDatabase = useCallback(
+    async (data) => {
+      try {
+        let noteId = data.noteId;
+        let pageId = currentPageId;
 
-      let response;
-      if (data.noteId) {
-        response = await fetch(`http://localhost:3000/notes/${data.noteId}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify(noteData),
-        });
-      } else {
-        response = await fetch("http://localhost:3000/notes", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify(noteData),
-        });
-      }
-      if (!response.ok) {
-        throw new Error("Failed to save note");
-      }
+        if (!noteId) {
+          const noteResponse = await fetch("http://localhost:3000/notes", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+            body: JSON.stringify({ title: data.title }),
+          });
 
-      const savedNote = await response.json();
-      if (!data.noteId) {
-        setEditors((prev) =>
-          prev.map((editor) =>
-            editor.id === data.id
-              ? { ...editor, noteId: savedNote.note_id }
-              : editor
-          )
-        );
+          if (!noteResponse.ok) {
+            throw new Error("Failed to create note");
+          }
+
+          const savedNote = await noteResponse.json();
+          noteId = savedNote.note_id;
+
+          const pageResponse = await fetch(
+            `http://localhost:3000/notes/${noteId}/pages`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              credentials: "include",
+              body: JSON.stringify({ position: 0 }),
+            }
+          );
+
+          if (!pageResponse.ok) {
+            throw new Error("Failed to create page");
+          }
+
+          const savedPage = await pageResponse.json();
+          pageId = savedPage.page_id;
+          setCurrentPageId(pageId);
+
+          setEditors((prev) =>
+            prev.map((editor) =>
+              editor.id === data.id ? { ...editor, noteId: noteId } : editor
+            )
+          );
+        }
+
+        for (const editor of editors) {
+          const blockData = {
+            page_id: pageId,
+            block_type: editor.type,
+            content: JSON.stringify(editor.content),
+            position: 0,
+            x: editor.layout.x,
+            y: editor.layout.y,
+          };
+
+          if (editor.blockId) {
+            await fetch(
+              `http://localhost:3000/notes/${noteId}/pages/${pageId}/blocks/${editor.blockId}`,
+              {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                credentials: "include",
+                body: JSON.stringify(blockData),
+              }
+            );
+          } else {
+            // Otherwise create a new block
+            const createResponse = await fetch(
+              `http://localhost:3000/notes/${noteId}/pages/${pageId}/blocks`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                credentials: "include",
+                body: JSON.stringify(blockData),
+              }
+            );
+
+            if (createResponse.ok) {
+              const savedBlock = await createResponse.json();
+              setEditors((prev) =>
+                prev.map((e) =>
+                  e.id === editor.id
+                    ? { ...e, blockId: savedBlock.block_id }
+                    : e
+                )
+              );
+            }
+          }
+        }
+
+        setSaveStatus("saved");
+      } catch (error) {
+        console.error("Error saving:", error);
+        setSaveStatus("error");
       }
-      setSaveStatus("saved");
-    } catch (error) {
-      console.error("Error saving:", error);
-      setSaveStatus("error");
-      setError(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [editors, currentPageId]
+  );
+
   // AUTO SAVE
   useEffect(() => {
     const debouncedSave = debounce((data) => {
@@ -124,53 +181,188 @@ export default function NoteContainer() {
     return () => {
       debouncedSave.cancel();
     };
-  }, [editors, saveStatus]);
-
-  const handleSave = () => {
-    editors.forEach((editor) => {
-      saveToDatabase(editor);
-    });
-  };
+  }, [editors, saveStatus, saveToDatabase]);
 
   const handleCloseEditor = (editorId) => {
     setEditors((prev) => prev.filter((editor) => editor.id !== editorId));
   };
 
   return (
-    <div className="">
-      <div id="side-col">
+    <div className="note-page-container">
+      <div id="left-side-col">
         <div
           className="editor-template"
           draggable
           onDragStart={handleTemplateDragStart}
         >
           <div className="template-preview">
-            <h3>Text Editor</h3>
+            <h3>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="size-6 text-icon"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
+                />
+              </svg>
+              Text Editor
+            </h3>
             <p>Drag to add a new text editor</p>
           </div>
         </div>
-      </div>
-      {/* <div
-          className="flex gap-2 p-2 rounded-lg"
-          style={{ margin: "50px 0 -60px 0" }}
+        <div
+          className="editor-template"
+          draggable
+          onDragStart={handleTemplateDragStart}
         >
-          <button
-            className="btn btn-soft add-editor-button"
-            onClick={handleAddEditor}
+          <div className="template-preview">
+            <h3>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="size-6 img-icon"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
+                />
+              </svg>
+              Add New Image
+            </h3>
+            <p>Drag to add a container</p>
+          </div>
+        </div>
+        <div
+          className="editor-template"
+          draggable
+          onDragStart={handleTemplateDragStart}
+        >
+          <div className="template-preview">
+            <h3>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="size-6 term-icon"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="m6.75 7.5 3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0 0 21 18V6a2.25 2.25 0 0 0-2.25-2.25H5.25A2.25 2.25 0 0 0 3 6v12a2.25 2.25 0 0 0 2.25 2.25Z"
+                />
+              </svg>
+              Terminal
+            </h3>
+            <p>Drag to add a new terminal</p>
+          </div>
+        </div>
+        <div
+          className="editor-template"
+          draggable
+          onDragStart={handleTemplateDragStart}
+        >
+          <div className="template-preview">
+            <h3>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="size-6 code-icon"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M14.25 9.75 16.5 12l-2.25 2.25m-4.5 0L7.5 12l2.25-2.25M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z"
+                />
+              </svg>
+              Code Editor
+            </h3>
+            <p>Drag to add a new code editor</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="note-container-header">
+        <button className="page-nav">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="size-6"
           >
-            Add Text Box
-          </button>
-          <button className="btn btn-soft btn-info">Add Code Box</button>
-          <button className="btn btn-soft btn-warning">
-            Generate Flashcards
-          </button>
-          <button className="btn btn-soft btn-primary">Add IMG</button>
-          <button className="btn btn-soft btn-error">Text Styling</button>
-          <button className="btn btn-soft btn-secondary">Fonts</button>
-          <button className="btn btn-soft btn-success" onClick={handleSave}>
-            Save
-          </button>
-        </div> */}
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="m18.75 4.5-7.5 7.5 7.5 7.5m-6-15L5.25 12l7.5 7.5"
+            />
+          </svg>
+        </button>
+        <button className="page-nav">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="size-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15.75 19.5 8.25 12l7.5-7.5"
+            />
+          </svg>
+        </button>
+        <input type="text" placeholder="1" className="page-ct" />
+        <button className="page-nav">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="size-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="m8.25 4.5 7.5 7.5-7.5 7.5"
+            />
+          </svg>
+        </button>
+        <button className="page-nav">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="size-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5"
+            />
+          </svg>
+        </button>
+      </div>
 
       <ResponsiveGridLayout
         className="layout"
@@ -186,12 +378,14 @@ export default function NoteContainer() {
               layout: layout.find((l) => l.i === editor.id) || editor.layout,
             }))
           );
+          setSaveStatus("unsaved");
         }}
         onDrop={(layout, layoutItem, event) => {
           if (event.dataTransfer.getData("text/plain") === "new-editor") {
             const newEditor = {
               id: `text-${Date.now()}`,
               noteId: null,
+              blockId: null,
               type: "text",
               layout: {
                 i: `text-${Date.now()}`,
@@ -204,6 +398,7 @@ export default function NoteContainer() {
               title: "Untitled Note",
             };
             setEditors((prev) => [...prev, newEditor]);
+            setSaveStatus("unsaved");
           }
         }}
         isDroppable={true}
@@ -220,6 +415,122 @@ export default function NoteContainer() {
           </div>
         ))}
       </ResponsiveGridLayout>
+      <div id="right-side-col">
+        <input
+          type="text"
+          placeholder="Document Title"
+          className="input note-title"
+        />
+        <div className="last-saved">Last saved:</div>
+        <button className="btn btn-soft btn-success">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="size-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z"
+            />
+          </svg>
+          Save
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="size-6"
+            style={{ transform: 'rotate(180deg)' }}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z"
+            />
+          </svg>
+        </button>
+        <span></span>
+
+        <button className="btn btn-soft add-editor-button">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="size-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M6 6.878V6a2.25 2.25 0 0 1 2.25-2.25h7.5A2.25 2.25 0 0 1 18 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 0 0 4.5 9v.878m13.5-3A2.25 2.25 0 0 1 19.5 9v.878m0 0a2.246 2.246 0 0 0-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0 1 21 12v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18v-6c0-.98.626-1.813 1.5-2.122"
+            />
+          </svg>
+          Back to All Notes
+        </button>
+        <span></span>
+
+        <button className="btn btn-soft btn-info">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="size-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15M9 12l3 3m0 0 3-3m-3 3V2.25"
+            />
+          </svg>
+          Add a New Page
+        </button>
+        <span></span>
+        <button className="btn btn-soft btn-warning">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="size-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M7.5 7.5h-.75A2.25 2.25 0 0 0 4.5 9.75v7.5a2.25 2.25 0 0 0 2.25 2.25h7.5a2.25 2.25 0 0 0 2.25-2.25v-7.5a2.25 2.25 0 0 0-2.25-2.25h-.75m-6 3.75 3 3m0 0 3-3m-3 3V1.5m6 9h.75a2.25 2.25 0 0 1 2.25 2.25v7.5a2.25 2.25 0 0 1-2.25 2.25h-7.5a2.25 2.25 0 0 1-2.25-2.25v-.75"
+            />
+          </svg>
+          Download PDF
+        </button>
+
+        <span></span>
+        <span></span>
+        <button className="btn btn-soft btn-error">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="size-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
+            />
+          </svg>
+          Delete Page
+        </button>
+      </div>
     </div>
   );
 }
