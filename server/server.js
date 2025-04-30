@@ -33,7 +33,7 @@ app.use(express.static('public'));
 // }));
 app.use(cors({
   // origin: process.env.CLIENT_URL || 'http://localhost:5173',
-  origin: process.env.CLIENT_UR || 'https://frontend-ffqt.onrender.com' || 'http://localhost:5173',
+  origin: process.env.CLIENT_URL || 'https://frontend-ffqt.onrender.com' || 'http://localhost:5173',
   credentials: true, 
 }));
 
