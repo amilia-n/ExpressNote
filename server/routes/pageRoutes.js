@@ -8,7 +8,6 @@ router.post('/', authenticateToken, pageController.createPage);
 router.get('/', authenticateToken, pageController.getPagesByNoteId);
 router.get('/:pageId', authenticateToken, pageController.getPageById);
 router.put('/:pageId/position', authenticateToken, pageController.updatePagePosition);
-router.put('/:pageId', authenticateToken, pageController.updatePagePosition);
 router.delete('/:pageId', authenticateToken, pageController.deletePage);
 
 export default router;
