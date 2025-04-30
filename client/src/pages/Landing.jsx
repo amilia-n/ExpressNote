@@ -12,11 +12,15 @@ const Landing = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
+  const API_URL = import.meta.env.MODE === 'production' 
+    ? ''  // Empty string because it's the same domain
+    : 'http://localhost:3000';
+
   // Keep your existing handlers
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:3000/auth/login", {
+      const response = await fetch("${API_URL}/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -43,7 +47,7 @@ const Landing = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:3000/auth/register", {
+      const response = await fetch("${API_URL}/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -58,7 +62,7 @@ const Landing = () => {
       const data = await response.json();
       if (response.ok) {
         // After successful registration, automatically log in
-        const loginResponse = await fetch("http://localhost:3000/auth/login", {
+        const loginResponse = await fetch(`${API_URL}/auth/login`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -86,7 +90,7 @@ const Landing = () => {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:3000/auth/google";
+    window.location.href = "${API_URL}/auth/google";
   };
 
   // Keep your existing return JSX exactly as is

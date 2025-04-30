@@ -24,6 +24,9 @@ const initialEditorContent = [
     children: [{ text: "" }],
   },
 ];
+const API_URL = import.meta.env.MODE === 'production' 
+? ''  // Empty string because it's the same domain
+: 'http://localhost:3000';
 
 export default function NoteContainer() {
   const [editors, setEditors] = useState([
@@ -121,7 +124,7 @@ export default function NoteContainer() {
 
       // Get the current pages to determine the next position
       const pagesResponse = await fetch(
-        `http://localhost:3000/api/pages?note_id=${noteId}`,
+        `${API_URL}/api/pages?note_id=${noteId}`,
         {
           method: "GET",
           headers: {
@@ -141,7 +144,7 @@ export default function NoteContainer() {
 
       // Create a new page
       const pageResponse = await fetch(
-        `http://localhost:3000/api/pages?note_id=${noteId}`,
+        `${API_URL}/api/pages?note_id=${noteId}`,
         {
           method: "POST",
           headers: {
@@ -200,7 +203,7 @@ export default function NoteContainer() {
 
       // Get all pages for the note
       const pagesResponse = await fetch(
-        `http://localhost:3000/api/pages?note_id=${noteId}`,
+        `${API_URL}/api/pages?note_id=${noteId}`,
         {
           method: "GET",
           headers: {
@@ -243,7 +246,7 @@ export default function NoteContainer() {
 
       // Load the blocks for the new page
       const blocksResponse = await fetch(
-        `http://localhost:3000/api/blocks?page_id=${newPageId}`,
+        `${API_URL}/api/blocks?page_id=${newPageId}`,
         {
           method: "GET",
           headers: {
@@ -317,7 +320,7 @@ export default function NoteContainer() {
 
       // Get all pages for the note
       const pagesResponse = await fetch(
-        `http://localhost:3000/notes/${noteId}/pages`,
+        `${API_URL}/notes/${noteId}/pages`,
         {
           method: "GET",
           headers: {
@@ -347,7 +350,7 @@ export default function NoteContainer() {
 
       // Delete the current page
       const deleteResponse = await fetch(
-        `http://localhost:3000/api/pages/${currentPageId}`,
+        `${API_URL}/api/pages/${currentPageId}`,
         {
           method: "DELETE",
           headers: {
@@ -374,7 +377,7 @@ export default function NoteContainer() {
 
       // Load the blocks for the next page
       const blocksResponse = await fetch(
-        `http://localhost:3000/notes/${noteId}/pages/${nextPageId}/blocks`,
+        `${API_URL}0/notes/${noteId}/pages/${nextPageId}/blocks`,
         {
           method: "GET",
           headers: {
@@ -443,7 +446,7 @@ export default function NoteContainer() {
 
         if (!noteId) {
 
-          const noteResponse = await fetch("http://localhost:3000/api/notes", {
+          const noteResponse = await fetch("${API_URL}/api/notes", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -460,7 +463,7 @@ export default function NoteContainer() {
           const savedNote = await noteResponse.json();
           noteId = savedNote.note_id;
 
-          const pageResponse = await fetch(`http://localhost:3000/api/pages`, {
+          const pageResponse = await fetch(`${API_URL}/api/pages`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -496,7 +499,7 @@ export default function NoteContainer() {
           };
 
           if (editor.blockId) {
-            await fetch(`http://localhost:3000/api/blocks/${editor.blockId}`, {
+            await fetch(`${API_URL}/api/blocks/${editor.blockId}`, {
               method: "PUT",
               headers: {
                 "Content-Type": "application/json",
@@ -507,7 +510,7 @@ export default function NoteContainer() {
             });
           } else {
             const createResponse = await fetch(
-              `http://localhost:3000/api/blocks`,
+              `${API_URL}/api/blocks`,
               {
                 method: "POST",
                 headers: {
