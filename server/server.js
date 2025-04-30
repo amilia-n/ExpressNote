@@ -16,8 +16,8 @@ import { fileURLToPath } from 'url';
 import pgSession from 'connect-pg-simple';
 
 const app = express();
-const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
-const __dirname = path.dirname(__filename); // get the name of the directory
+const __filename = fileURLToPath(import.meta.url); 
+const __dirname = path.dirname(__filename); 
 
 // Middleware setup
 app.use(express.json());
@@ -62,6 +62,13 @@ app.use('/api/notes', noteRoutes);
 app.use('/api/pages', pageRoutes);
 app.use('/api/blocks', blockRoutes);
 
+if (process.env.NODE_ENV !== 'test') {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+}
+
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, 'public')));
   
@@ -74,20 +81,4 @@ if (process.env.NODE_ENV === 'production') {
     credentials: true
   }));
 }
-
-app.get("/logout", (req, res) => {
-  req.logout(() => res.redirect("/"));
-});
-
-app.get("/profile", (req, res) => {
-  if (!req.user) return res.redirect("/notes");
-});
-
-if (process.env.NODE_ENV !== 'test') {
-  const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
-}
-
 export default app;

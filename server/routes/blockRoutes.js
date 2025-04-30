@@ -2,7 +2,7 @@ import express from 'express';
 import authenticateToken from '../middleware/authMiddleware.js';
 import * as blockController from '../controllers/blockController.js';
 
-const router = express.Router({ mergeParams: true });
+const router = express.Router();
 
 router.post('/', authenticateToken, blockController.createBlock);
 router.get('/', authenticateToken, blockController.getBlocksByPage);
