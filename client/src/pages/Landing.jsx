@@ -13,7 +13,7 @@ const Landing = () => {
   const [error, setError] = useState("");
 
   const API_URL = import.meta.env.MODE === 'production' 
-    ? ''  // Empty string because it's the same domain
+    ? '' 
     : 'http://localhost:3000';
 
   // Keep your existing handlers
