@@ -52,6 +52,11 @@ services:
         value: sameorigin
 
 databases:
-  - name: db
-    plan: free
-    ipAllowList: []
+- name: ExpressNote
+  databaseName: db_ujdo
+  user: db_ujdo_user
+  plan: free
+  region: oregon
+  ipAllowList: []
+  postgresMajorVersion: "16"
+version: "1"
