@@ -4,8 +4,8 @@ services:
     name: server
     runtime: node
     repo: https://github.com/amilia-n/ExpressNote
-    buildCommand: cd server && npm install
-    startCommand: cd server && npm start
+    buildCommand: cd client && npm install && npm run build && cd ../server && npm install
+    startCommand: cd server && node server.js
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -33,22 +33,22 @@ services:
         sync: false
 
   # Frontend service
-  - type: web
-    name: frontend
-    runtime: static
-    buildCommand: cd client && npm install && npm run build
-    staticPublishPath: ./client/dist
-    previews:
-      generation: automatic
-    buildFilter:
-      paths:
-        - src/**/*.js
-      ignoredPaths:
-        - src/**/*.test.js
-    headers:
-      - path: /*
-        name: X-Frame-Options
-        value: sameorigin
+  # - type: web
+  #   name: frontend
+  #   runtime: static
+  #   buildCommand: cd client && npm install && npm run build
+  #   staticPublishPath: ./client/dist
+  #   previews:
+  #     generation: automatic
+  #   buildFilter:
+  #     paths:
+  #       - src/**/*.js
+  #     ignoredPaths:
+  #       - src/**/*.test.js
+  #   headers:
+  #     - path: /*
+  #       name: X-Frame-Options
+  #       value: sameorigin
 
 databases:
   - name: db
