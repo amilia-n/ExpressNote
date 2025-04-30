@@ -25,10 +25,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
 // CORS middleware
+// app.use(cors({
+//   origin: process.env.NODE_ENV === 'production' 
+//     ? 'https://frontend-ffqt.onrender.com'
+//     : 'http://localhost:5173',
+//   credentials: true, 
+// }));
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? 'https://frontend-ffqt.onrender.com' 
-    : 'http://localhost:5173',
+  origin: process.env.CLIENT_URL || 'http://localhost:5173',
   credentials: true, 
 }));
 
@@ -56,12 +60,15 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 
-
 // Routes
 app.use('/auth', authRoutes);
 app.use('/api/notes', noteRoutes);
 app.use('/api/pages', pageRoutes);
 app.use('/api/blocks', blockRoutes);
+
+app.get("/", (req, res) => {
+  res.redirect(process.env.CLIENT_URL || "http://localhost:5173");
+});
 
 
 app.get("/logout", (req, res) => {
