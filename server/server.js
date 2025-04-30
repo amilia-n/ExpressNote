@@ -13,29 +13,23 @@ import pageRoutes from './routes/pageRoutes.js';
 import blockRoutes from './routes/blockRoutes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
-const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
-const __dirname = path.dirname(__filename); // get the name of the directory
 import pgSession from 'connect-pg-simple';
 
 const app = express();
+const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
+const __dirname = path.dirname(__filename); // get the name of the directory
 
 // Middleware setup
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, './client/dist')));
 
 // CORS middleware
-// app.use(cors({
-  // origin: process.env.NODE_ENV === 'production' 
-  // ? 'https://frontend-ffqt.onrender.com'
-  // : 'http://localhost:5173',
-//   credentials: true, 
-// }));
-app.use(cors({
-  // origin: process.env.CLIENT_URL || 'http://localhost:5173',
-  origin: process.env.CLIENT_URL || 'https://frontend-ffqt.onrender.com' || 'http://localhost:5173',
-  credentials: true, 
-}));
+const corsOptions = {
+  origin: '*',
+  methods: 'GET,HEAD,PUT,PATCH,POST,OPTIONS, DELETE'
+}
+app.use(cors(corsOptions));
 
 // Session middleware
 const PostgresStore = pgSession(session);
@@ -67,10 +61,9 @@ app.use('/api/notes', noteRoutes);
 app.use('/api/pages', pageRoutes);
 app.use('/api/blocks', blockRoutes);
 
-app.get("/", (req, res) => {
-  res.redirect(process.env.CLIENT_URL || 'https://frontend-ffqt.onrender.com' || 'http://localhost:5173');
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, './client/dist', 'index.html'));
 });
-
 
 app.get("/logout", (req, res) => {
   req.logout(() => res.redirect("/"));

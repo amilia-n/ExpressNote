@@ -4,9 +4,8 @@ services:
     name: server
     runtime: node
     repo: https://github.com/amilia-n/ExpressNote
-    rootDir: server 
-    buildCommand: npm install
-    startCommand: node ./server.js
+    buildCommand: cd client && npm install && npm run build && cd .. cd server && npm install && npm start
+    startCommand: cd server && node server.js
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -26,26 +25,25 @@ services:
         sync: false
       - key: JWT_SECRET
         sync: false
-      - key: CLIENT_URL
-        value: https://frontend-ffqt.onrender.com
+
 
   # Frontend service
-  - type: web
-    name: frontend
-    runtime: static
-    buildCommand: cd client && npm install && npm run build
-    staticPublishPath: ./client/dist
-    previews:
-      generation: automatic
-    buildFilter:
-      paths:
-        - src/**/*.js
-      ignoredPaths:
-        - src/**/*.test.js
-    headers:
-      - path: /*
-        name: X-Frame-Options
-        value: sameorigin
+  # - type: web
+  #   name: frontend
+  #   runtime: static
+  #   buildCommand: cd client && npm install && npm run build
+  #   staticPublishPath: ./client/dist
+  #   previews:
+  #     generation: automatic
+  #   buildFilter:
+  #     paths:
+  #       - src/**/*.js
+  #     ignoredPaths:
+  #       - src/**/*.test.js
+  #   headers:
+  #     - path: /*
+  #       name: X-Frame-Options
+  #       value: sameorigin
 
 databases:
 - name: ExpressNote
