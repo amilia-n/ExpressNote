@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "nodemon server.js",
+    "build": "vite build",
     "dev": "nodemon server.js",
     "test": "vitest run",
     "test:watch": "vitest",
