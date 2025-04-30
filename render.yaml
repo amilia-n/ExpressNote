@@ -1,0 +1,62 @@
+services:
+  - name: server
+    plan: free
+    type: web
+    env: node
+    repo: https://github.com/amilia-n/ExpressNote
+    buildCommand: cd server && npm install
+    startCommand: cd server && node server.js
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: db
+          property: connectionString
+      - key: DB_USER
+        value: "postgres"
+      - key: DB_HOST
+        value: "localhost"
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_PORT
+        value: 5432
+      - key: PORT
+        value: 3000
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: SESSION_SECRET
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+
+  - type: web
+    name: frontend
+    runtime: static
+    buildCommand: cd client && vite build
+    staticPublishPath: ./client/dist
+    previews:
+      generation: automatic # Enable service previews
+    buildFilter:
+      paths:
+        - src/**/*.js
+      ignoredPaths:
+        - src/**/*.test.js
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: sameorigin
+    routes:
+      - type: redirect
+        source: /old
+        destination: /new
+      - type: rewrite
+        source: /a/*
+        destination: /a
+
+databases:
+  - name: db
+    plan: free
+    ipAllowList: []

@@ -4,10 +4,7 @@ vi.mock('../../db/connect', () => ({
   }
 }));
 
-// Mock validators
-vi.mock('../../middleware/validators', () => ({
-  validatePageBelongsToNote: vi.fn()
-}));
+
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TEST_USER, TEST_NOTE, TEST_PAGE } from '../setup';

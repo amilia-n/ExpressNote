@@ -1,4 +1,5 @@
 import express from 'express';
+import passport from "passport";
 import {
     googleAuth,
     googleCallback,
@@ -12,7 +13,10 @@ const router = express.Router();
 
 router.get('/google', googleAuth);
 
-router.get('/google/callback', googleCallback);
+router.get('/google/callback', 
+  passport.authenticate('google', { failureRedirect: 'http://localhost:5173/login' }),
+  googleCallback
+);
 
 router.get('/logout', logout);
 

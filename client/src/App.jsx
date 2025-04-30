@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 // import ReactDOM from "react-dom/client";
-
+import { Navigate } from "react-router-dom";
 import Landing from "./pages/Landing";
 import Home from "./pages/Home";
 // import UserProfile from "./pages/UserProfile";
@@ -14,6 +14,7 @@ function App() {
     <BrowserRouter>
       <div className="App">
         <Routes>
+          <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Landing />} />
           <Route 
             path="/notes" 

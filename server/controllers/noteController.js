@@ -5,7 +5,7 @@ import { noteQueries } from '../db/queries.js';
 export const createNote = async (req, res) => {
   try {
     const { title } = req.body;
-    const userId = req.user.user_id;
+    const userId = req.user.user_id || req.user.id;  // Handle both JWT and session auth
     const result = await pool.query(noteQueries.createNote, [userId, title]);
     res.status(201).json(result.rows[0]);
   } catch (error) {
@@ -30,7 +30,7 @@ export const getNoteById = async (req, res) => {
 // Retrieve All Notes
 export const getAllNotes = async (req, res) => {
   try {
-    const userId = req.user.user_id;
+    const userId = req.user.user_id || req.user.id;  // Handle both JWT and session auth
     const result = await pool.query(noteQueries.getAllNotes, [userId]);
     res.json(result.rows);
   } catch (error) {

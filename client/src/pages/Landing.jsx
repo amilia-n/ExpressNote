@@ -1,86 +1,97 @@
-// In your Landing.jsx file
-
+// client/src/pages/Landing.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
 import "./Landing.css";
 
 const Landing = () => {
+  const navigate = useNavigate();
+  
+  // Keep your existing state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [isRegistering, setIsRegistering] = useState(false);
-  const navigate = useNavigate();
 
+  // Keep your existing handlers
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError("");
-
     try {
       const response = await fetch("http://localhost:3000/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password }),
-        credentials: "include", 
+        credentials: "include",
+        body: JSON.stringify({
+          email: email,
+          password: password,
+        }),
       });
 
       const data = await response.json();
-
       if (response.ok) {
-        console.log("Login successful:", data);
-        // Store token in localStorage or a secure cookie
         localStorage.setItem("token", data.token);
-        // Use React Router navigation instead of window.location
-        navigate("/");
+        navigate("/notes");
       } else {
-        if (data.error === "Invalid credentials" && !isRegistering) {
-          setError("Email not associated with an account. Please register to continue.");
-          setIsRegistering(true);
-        } else {
-          setError(data.error || "Login failed. Please try again.");
-        }
+        setError(data.error);
       }
-    } catch (error) {
-      console.error("Error during login:", error);
-      setError("An error occurred. Please try again later.");
+    } catch (err) {
+      setError("An error occurred during login");
     }
   };
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    setError("");
-
     try {
       const response = await fetch("http://localhost:3000/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password }),
+        credentials: "include",
+        body: JSON.stringify({
+          email: email,
+          password: password,
+        }),
       });
 
       const data = await response.json();
-
       if (response.ok) {
-        console.log("Registration successful:", data);
-        setError("Registration successful! Please login.");
-        setIsRegistering(false);
+        // After successful registration, automatically log in
+        const loginResponse = await fetch("http://localhost:3000/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            email: email,
+            password: password,
+          }),
+        });
+
+        const loginData = await loginResponse.json();
+        if (loginResponse.ok) {
+          localStorage.setItem("token", loginData.token);
+          navigate("/notes");
+        } else {
+          setError(loginData.error);
+        }
       } else {
-        setError(data.error || "Registration failed. Please try again.");
+        setError(data.error);
       }
-    } catch (error) {
-      console.error("Error during registration:", error);
-      setError("An error occurred. Please try again later.");
+    } catch (err) {
+      setError("An error occurred during registration");
     }
   };
 
-  const handleGoogleSignIn = () => {
+  const handleGoogleLogin = () => {
     window.location.href = "http://localhost:3000/auth/google";
   };
 
+  // Keep your existing return JSX exactly as is
   return (
+    
     <div className="flex items-center justify-center h-screen w-full px-5 sm:px-0 landing">
       <div>
         <img
@@ -151,7 +162,7 @@ const Landing = () => {
           <a
             href="#"
             className="flex items-center justify-center mt-4 text-white shadow-md google-btn"
-            onClick={handleGoogleSignIn}
+            onClick={handleGoogleLogin}
           >
             <div className="flex px-5 justify-center w-full py-3">
               <div className="min-w-[30px]">
@@ -184,5 +195,4 @@ const Landing = () => {
     </div>
   );
 };
-
 export default Landing;

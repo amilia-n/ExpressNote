@@ -60,7 +60,7 @@ export const loginUser = async (req, res) => {
 
     // Create JWT token
     const token = jwt.sign(
-      { id: user.id, email: user.email },
+      { user_id: user.id, email: user.email },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
@@ -77,10 +77,33 @@ export const googleAuth = passport.authenticate('google', {
 });
 
 // Google Auth Callback
-export const googleCallback = passport.authenticate('google', {
-  failureRedirect: 'http://localhost:5173/login',
-  successRedirect: 'http://localhost:5173/notes'
-});
+export const googleCallback = async (req, res) => {
+  try {
+    const token = jwt.sign(
+      { user_id: req.user.user_id, email: req.user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+    
+    // Render the HTML with the token
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Redirecting...</title>
+      </head>
+      <body>
+        <script>
+          localStorage.setItem('token', '${token}');
+          window.location.href = 'http://localhost:5173/notes';
+        </script>
+      </body>
+      </html>
+    `);
+  } catch (err) {
+    res.redirect('http://localhost:5173/login?error=auth_failed');
+  }
+};
 
 // Logout
 export const logout = (req, res) => {
