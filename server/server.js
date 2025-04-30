@@ -15,7 +15,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 const __dirname = path.dirname(__filename); // get the name of the directory
-
+import pgSession from 'connect-pg-simple';
 
 const app = express();
 
@@ -24,23 +24,31 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
-// CORS middleware - must be before routes
+// CORS middleware
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: process.env.NODE_ENV === 'production' 
+    ? 'https://your-frontend-domain.onrender.com' 
+    : 'http://localhost:5173',
   credentials: true, 
 }));
 
 // Session middleware
+const PostgresStore = pgSession(session);
 app.use(session({
+  store: new PostgresStore({
+    pool,
+    tableName: 'user_sessions',
+    createTableIfMissing: true
+  }),
   secret: process.env.SESSION_SECRET,
-  resave: true,
+  resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false, // false only for development. process.env.NODE_ENV === 'production'
+    secure: process.env.NODE_ENV === 'production',
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    httpOnly: false //true to hide cookie
-  },
-  rolling: true 
+    httpOnly: true,
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+  }
 }));
 
 // Passport middleware

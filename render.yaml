@@ -10,16 +10,10 @@ services:
     envVars:
       - key: DATABASE_URL
         fromDatabase:
-          name: db
+          name: ExpressNote
           property: connectionString
-      - key: DB_USER
-        value: "postgres"
-      - key: DB_HOST
-        value: "localhost"
-      - key: DB_PASSWORD
-        sync: false
-      - key: DB_PORT
-        value: 5432
+      - key: NODE_ENV
+        value: production
       - key: PORT
         value: 3000
       - key: GOOGLE_CLIENT_ID
@@ -32,6 +26,8 @@ services:
         sync: false
       - key: JWT_SECRET
         sync: false
+      - key: CLIENT_URL
+        value: https://frontend-ffqt.onrender.com
 
   # Frontend service
   - type: web
