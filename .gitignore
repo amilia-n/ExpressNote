@@ -6,9 +6,6 @@ server/node_modules/
 # Ignore environment variables
 .env
 
-# Ignore build files (if applicable)
-client/build/
-server/build/
 
 # Ignore IDE-specific files
 .vscode/
