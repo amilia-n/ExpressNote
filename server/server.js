@@ -22,7 +22,7 @@ const __dirname = path.dirname(__filename); // get the name of the directory
 // Middleware setup
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, './client/dist')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // CORS middleware
 const corsOptions = {
@@ -62,7 +62,7 @@ app.use('/api/pages', pageRoutes);
 app.use('/api/blocks', blockRoutes);
 
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, './client/dist', 'index.html'));
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.get("/logout", (req, res) => {
