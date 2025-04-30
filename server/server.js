@@ -27,7 +27,7 @@ app.use(express.static('public'));
 // CORS middleware
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? 'https://your-frontend-domain.onrender.com' 
+    ? 'https://frontend-ffqt.onrender.com' 
     : 'http://localhost:5173',
   credentials: true, 
 }));
