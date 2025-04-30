@@ -134,9 +134,11 @@ npm run test
 - pg-mem: Mock PostgreSQL database
 
 ### Frontend Development
-- CodeMirror: Code editor component
 - Slate: Rich text editor
-- DaisyUI: UI components
+- DaisyUI: for UI and Components
+   - Mock Code Editor Component
+   - Image Import Compoment
+   - Mock Terminal Component
 - React Grid Layout: Grid system
 - html2pdf.js: PDF export functionality
 

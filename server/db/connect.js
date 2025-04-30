@@ -5,6 +5,9 @@ dotenv.config();
 
 const { Pool } = pg;
 
+console.log("NODE_ENV:", process.env.NODE_ENV);
+console.log("DATABASE_URL available:", !!process.env.DATABASE_URL);
+
 const pool = new Pool(
   process.env.DATABASE_URL
     ? {
