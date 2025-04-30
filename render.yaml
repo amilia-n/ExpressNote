@@ -5,7 +5,7 @@ services:
     runtime: node
     repo: https://github.com/amilia-n/ExpressNote
     buildCommand: cd server && npm install
-    startCommand: cd server && node server.js
+    startCommand: cd server && npm start
     envVars:
       - key: DATABASE_URL
         fromDatabase:
