@@ -2,7 +2,7 @@ import express from 'express';
 import authenticateToken from '../middleware/authMiddleware.js';
 import * as pageController from '../controllers/pageController.js';
 
-const router = express.Router({ mergeParams: true }); 
+const router = express.Router(); 
 
 router.post('/', authenticateToken, pageController.createPage);
 router.get('/', authenticateToken, pageController.getPagesByNoteId);
