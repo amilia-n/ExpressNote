@@ -1,11 +1,19 @@
 services:
-  # Backend service
+  # Combined service (backend + frontend)
   - type: web
-    name: server
+    name: expressnote
     runtime: node
     repo: https://github.com/amilia-n/ExpressNote
-    buildCommand: cd client && npm install && npm run build && cd .. cd server && npm install && npm start
-    startCommand: cd server && node server.js
+    rootDir: server  # Start in server directory
+    buildCommand: |
+      # Install backend dependencies
+      npm install
+      # Install frontend dependencies and build
+      cd ../client && npm install && npm run build
+      # Copy frontend build to server's public directory
+      mkdir -p ../server/public
+      cp -r dist/* ../server/public/
+    startCommand: node ./server.js
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -25,32 +33,15 @@ services:
         sync: false
       - key: JWT_SECRET
         sync: false
-
-
-  # Frontend service
-  # - type: web
-  #   name: frontend
-  #   runtime: static
-  #   buildCommand: cd client && npm install && npm run build
-  #   staticPublishPath: ./client/dist
-  #   previews:
-  #     generation: automatic
-  #   buildFilter:
-  #     paths:
-  #       - src/**/*.js
-  #     ignoredPaths:
-  #       - src/**/*.test.js
-  #   headers:
-  #     - path: /*
-  #       name: X-Frame-Options
-  #       value: sameorigin
+      - key: CLIENT_URL
+        value: https://expressnote.onrender.com
 
 databases:
-- name: ExpressNote
-  databaseName: db_ujdo
-  user: db_ujdo_user
-  plan: free
-  region: oregon
-  ipAllowList: []
-  postgresMajorVersion: "16"
+  - name: ExpressNote
+    databaseName: db_ujdo
+    user: db_ujdo_user
+    plan: free
+    region: oregon
+    ipAllowList: []
+    postgresMajorVersion: "16"
 version: "1"
