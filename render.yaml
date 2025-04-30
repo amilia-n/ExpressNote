@@ -4,7 +4,7 @@ services:
     type: web
     env: node
     repo: https://github.com/amilia-n/ExpressNote
-    buildCommand: cd server && npm install
+    buildCommand: cd client && npm install && vite build
     startCommand: cd server && node server.js
     envVars:
       - key: DATABASE_URL
@@ -38,7 +38,7 @@ services:
     buildCommand: cd client && vite build
     staticPublishPath: ./client/dist
     previews:
-      generation: automatic # Enable service previews
+      generation: automatic 
     buildFilter:
       paths:
         - src/**/*.js
