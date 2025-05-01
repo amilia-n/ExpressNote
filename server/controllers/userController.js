@@ -4,8 +4,13 @@ import passport from 'passport';
 import pool from '../db/connect.js';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
 const SALT_ROUNDS = 10;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Register new user
 export const registerUser = async (req, res) => {
@@ -93,7 +98,11 @@ export const googleCallback = async (req, res) => {
     
     // Read the template file
     const template = await fs.promises.readFile(path.join(__dirname, '..', 'googleCallback.html'), 'utf8');
-    
+    //alt to^
+    // const template = await fs.promises.readFile(
+    //   new URL('../googleCallback.html', import.meta.url),
+    //   'utf8'
+    // );
     // Replace placeholders
     const html = template
       .replace('{{token}}', token)

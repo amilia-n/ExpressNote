@@ -1,4 +1,4 @@
-# Express Notes
+# ExpressNote
 
 ![ExpressNote User Login](client/src/assets/Login.png)
 ![ExpressNote Interface](client/src/assets/NoteContainer.png)
@@ -43,7 +43,7 @@ Say goodbye to static note chaos—ExpressNote transforms your developer workflo
    # Database
    DB_HOST=localhost
    DB_PORT=5432
-   DB_NAME=express_notes
+   DB_NAME=express_note
    DB_USER=your_username
    DB_PASSWORD=your_password
 
