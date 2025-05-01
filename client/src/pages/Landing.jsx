@@ -13,8 +13,8 @@ const Landing = () => {
   const [error, setError] = useState("");
 
   const API_URL = import.meta.env.MODE === 'production' 
-    ? '' 
-    : 'http://localhost:3000';
+  ? 'https://expressnote.onrender.com'  
+  : 'http://localhost:3000';
 
   // Keep your existing handlers
   const handleLogin = async (e) => {
