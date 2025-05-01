@@ -85,6 +85,10 @@ export const googleCallback = async (req, res) => {
       { expiresIn: '24h' }
     );
     
+    const redirectUrl = process.env.NODE_ENV === 'production' 
+      ? process.env.CLIENT_URL 
+      : 'http://localhost:5173';
+    
     // Render the HTML with the token
     res.send(`
       <!DOCTYPE html>
@@ -95,13 +99,13 @@ export const googleCallback = async (req, res) => {
       <body>
         <script>
           localStorage.setItem('token', '${token}');
-          window.location.href = 'http://localhost:5173/notes';
+          window.location.href = '${redirectUrl}/notes';
         </script>
       </body>
       </html>
     `);
   } catch (err) {
-    res.redirect('http://localhost:5173/login?error=auth_failed');
+    res.status(500).json({ error: err.message });
   }
 };
 
