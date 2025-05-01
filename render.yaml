@@ -1,16 +1,14 @@
 services:
-  # Combined service (backend + frontend)
   - type: web
     name: expressnote
     runtime: node
     repo: https://github.com/amilia-n/ExpressNote
-    rootDir: server  # Start in server directory
     buildCommand: |
-      npm install
+      cd server && npm install
       cd ../client && npm install && npm run build
       mkdir -p ../server/public
       cp -r dist/* ../server/public/
-    startCommand: node ./server.js
+    startCommand: cd server && node server.js
     envVars:
       - key: DATABASE_URL
         fromDatabase:
