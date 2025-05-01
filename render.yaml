@@ -5,9 +5,9 @@ services:
     repo: https://github.com/amilia-n/ExpressNote
     buildCommand: |
       cd server && npm install
-      cd ../client && npm install && npm run build
-      mkdir -p ../server/public
-      cp -r dist/* ../server/public/
+      cd client && npm install && npm run build
+      mkdir ./server/public
+      cp -r ./client/dist/* ./server/public/
     startCommand: cd server && node server.js
     envVars:
       - key: DATABASE_URL
