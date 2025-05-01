@@ -87,9 +87,13 @@ app.get("/profile", (req, res) => {
 });
 
 
-app.get('*', (req, res) => {
+app.get('/notes', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
+
+// app.get('/', (req, res) => {
+//   res.sendFile(path.join(__dirname, 'public', 'index.html'));
+// });
 
 if (process.env.NODE_ENV !== 'test') {
   const PORT = process.env.PORT || 3000;
