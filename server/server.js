@@ -44,11 +44,17 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    secure: true, 
+    sameSite: 'none',
     httpOnly: true,
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+    maxAge: 24 * 60 * 60 * 1000
   }
+  // cookie: {
+  //   secure: process.env.NODE_ENV === 'production',
+  //   maxAge: 24 * 60 * 60 * 1000,
+  //   httpOnly: true,
+  //   sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+  // }
 }));
 
 // Passport middleware
