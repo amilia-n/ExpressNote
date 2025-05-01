@@ -15,10 +15,17 @@ router.get('/google', googleAuth);
 
 router.get('/google/callback', 
   passport.authenticate('google', { 
-    failureRedirect: '/login'
-  }),
-  googleCallback
+    failureRedirect: '/login',
+    session: true
+  }), 
+  (req, res) => {
+    console.log('Logged in user:', req.user);
+    res.redirect(`${process.env.CLIENT_URL}/notes`); 
+  }
 );
+//   }),
+//   googleCallback
+// );
 
 router.get('/logout', logout);
 
