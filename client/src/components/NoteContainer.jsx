@@ -25,7 +25,7 @@ const initialEditorContent = [
   },
 ];
 const API_URL = import.meta.env.MODE === 'production' 
-? ''  // Empty string because it's the same domain
+? 'https://expressnote.onrender.com'  // Full domain in production
 : 'http://localhost:3000';
 
 const createAuthHeaders = () => {
