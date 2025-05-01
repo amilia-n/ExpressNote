@@ -20,7 +20,7 @@ const Landing = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("${API_URL}/auth/login", {
+      const response = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -47,7 +47,7 @@ const Landing = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("${API_URL}/auth/register", {
+      const response = await fetch(`${API_URL}/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

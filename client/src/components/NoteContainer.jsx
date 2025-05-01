@@ -460,7 +460,7 @@ export default function NoteContainer() {
 
         if (!noteId) {
 
-          const noteResponse = await fetch("${API_URL}/api/notes", {
+          const noteResponse = await fetch(`${API_URL}/api/notes`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
