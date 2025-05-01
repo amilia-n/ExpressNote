@@ -5,7 +5,7 @@ import * as noteController from '../controllers/noteController.js';
 const router = express.Router();
 
 router.post('/', authenticateToken, noteController.createNote);
-router.get('/', authenticateToken, noteController.getAllNotes);
+router.get('/notes', authenticateToken, noteController.getAllNotes);
 router.get('/:noteId', authenticateToken, noteController.getNoteById);
 router.put('/:noteId', authenticateToken, noteController.updateNoteTitle);
 router.delete('/:noteId', authenticateToken, noteController.deleteNote);
