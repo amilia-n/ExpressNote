@@ -24,23 +24,10 @@ const initialEditorContent = [
     children: [{ text: "" }],
   },
 ];
+
 const API_URL = import.meta.env.MODE === 'production' 
 ? 'https://expressnote.onrender.com'  // Full domain in production
 : 'http://localhost:3000';
-
-const createAuthHeaders = () => {
-  const token = localStorage.getItem("token");
-  const headers = {
-    'Content-Type': 'application/json'
-  };
-  
-  // If JWT token exists (email/password login), use it
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
-  
-  return headers;
-};
 
 export default function NoteContainer() {
   const [editors, setEditors] = useState([
@@ -56,6 +43,8 @@ export default function NoteContainer() {
   ]);
   const [saveStatus, setSaveStatus] = useState("saved");
   const [currentPageId, setCurrentPageId] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const token = localStorage.getItem("token");
 
   const handleContentChange = useCallback((editorId, newContent) => {
@@ -127,13 +116,12 @@ export default function NoteContainer() {
 
   // New Page Handler
   const handleAddNewPage = async () => {
+    setIsLoading(true);
+    setError(null);
     try {
-      // Get the current note ID from the first editor
       const noteId = editors[0].noteId;
-
       if (!noteId) {
-        console.error("No note ID found");
-        return;
+        throw new Error("No note ID found");
       }
 
       // Get the current pages to determine the next position
@@ -192,27 +180,23 @@ export default function NoteContainer() {
         },
       ]);
 
-      // Update the page counter in the UI
-      const pageCounter = document.querySelector(".page-ct");
-      if (pageCounter) {
-        pageCounter.value = nextPosition + 1;
-      }
-
       setSaveStatus("saved");
     } catch (error) {
-      console.error("Error adding new page:", error);
+      setError(error.message);
       setSaveStatus("error");
+    } finally {
+      setIsLoading(false);
     }
   };
+
   // Page Navigation Handler
   const handlePageNavigation = async (direction) => {
+    setIsLoading(true);
+    setError(null);
     try {
-      // Get the current note ID from the first editor
       const noteId = editors[0].noteId;
-
       if (!noteId) {
-        console.error("No note ID found");
-        return;
+        throw new Error("No note ID found");
       }
 
       // Get all pages for the note
@@ -245,17 +229,11 @@ export default function NoteContainer() {
       );
 
       // Calculate the new page index
-      let newPageIndex;
-      if (direction === "next") {
-        newPageIndex = (currentPageIndex + 1) % pages.length;
-      } else {
-        newPageIndex = (currentPageIndex - 1 + pages.length) % pages.length;
-      }
+      const newPageIndex = direction === "next"
+        ? (currentPageIndex + 1) % pages.length
+        : (currentPageIndex - 1 + pages.length) % pages.length;
 
-      // Get the new page ID
       const newPageId = pages[newPageIndex].page_id;
-
-      // Update the current page ID
       setCurrentPageId(newPageId);
 
       // Load the blocks for the new page
@@ -308,21 +286,17 @@ export default function NoteContainer() {
       }
 
       setEditors(newEditors);
-
-      // Update the page counter in the UI
-      const pageCounter = document.querySelector(".page-ct");
-      if (pageCounter) {
-        pageCounter.value = newPageIndex + 1;
-      }
-
       setSaveStatus("saved");
     } catch (error) {
       console.error("Error navigating pages:", error);
       setSaveStatus("error");
     }
   };
+
   // Page Delete Handler
   const handleDeletePage = async () => {
+    setIsLoading(true);
+    setError(null);
     try {
       // Get the current note ID from the first editor
       const noteId = editors[0].noteId;
@@ -334,16 +308,17 @@ export default function NoteContainer() {
 
       // Get all pages for the note
       const pagesResponse = await fetch(
-        `${API_URL}/notes/${noteId}/pages`,
+        `${API_URL}/api/pages?note_id=${noteId}`,
         {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            ...(token ? { "Authorization": `Bearer ${token}` } : {})
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
           credentials: "include",
         }
       );
+
 
       if (!pagesResponse.ok) {
         throw new Error("Failed to get pages");
@@ -352,13 +327,10 @@ export default function NoteContainer() {
       const pages = await pagesResponse.json();
 
       if (pages.length <= 1) {
-        // Only one page, can't delete
-        alert("Cannot delete the only page in a note");
-        return;
+        throw new Error("Cannot delete the only page in a note");
       }
 
-      // Confirm deletion
-      if (!confirm("Are you sure you want to delete this page?")) {
+      if (!window.confirm("Are you sure you want to delete this page?")) {
         return;
       }
 
@@ -385,13 +357,11 @@ export default function NoteContainer() {
       );
       const nextPageIndex = (currentPageIndex + 1) % pages.length;
       const nextPageId = pages[nextPageIndex].page_id;
-
-      // Update the current page ID
       setCurrentPageId(nextPageId);
 
       // Load the blocks for the next page
       const blocksResponse = await fetch(
-        `${API_URL}0/notes/${noteId}/pages/${nextPageId}/blocks`,
+        `${API_URL}/api/blocks?page_id=${nextPageId}`,
         {
           method: "GET",
           headers: {
@@ -439,21 +409,19 @@ export default function NoteContainer() {
       }
 
       setEditors(newEditors);
-
-      // Update the page counter in the UI
-      const pageCounter = document.querySelector(".page-ct");
-      if (pageCounter) {
-        pageCounter.value = nextPageIndex + 1;
-      }
-
       setSaveStatus("saved");
     } catch (error) {
-      console.error("Error deleting page:", error);
+      setError(error.message);
       setSaveStatus("error");
+    } finally {
+      setIsLoading(false);
     }
   };
+
   const saveToDatabase = useCallback(
     async (data) => {
+      setIsLoading(true);
+      setError(null);
       try {
         let noteId = data.noteId;
         let pageId = currentPageId;
@@ -551,8 +519,10 @@ export default function NoteContainer() {
 
         setSaveStatus("saved");
       } catch (error) {
-        console.error("Error saving:", error);
+        setError(error.message);
         setSaveStatus("error");
+      } finally {
+        setIsLoading(false);
       }
     },
     [editors, currentPageId, token]
@@ -694,6 +664,7 @@ export default function NoteContainer() {
         <button
           className="page-nav"
           onClick={() => handlePageNavigation("prev")}
+          disabled={isLoading}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -816,15 +787,21 @@ export default function NoteContainer() {
         ))}
       </ResponsiveGridLayout>
       <div id="right-side-col">
-        <input
+      <input
           type="text"
           placeholder="Document Title"
           className="input note-title"
+          value={editors[0]?.title || ""}
+          onChange={(e) => handleTitleChange(editors[0].id, e.target.value)}
         />
-        <div className="last-saved">Last saved:</div>
+        <div className="last-saved">
+        {isLoading ? "Saving..." : saveStatus === "saved" ? "Saved" : "Unsaved"}
+        </div>
+        {error && <div className="error-message">{error}</div>}
         <button
           className="btn btn-soft btn-success"
           onClick={() => saveToDatabase(editors[0])}
+          disabled={isLoading}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -858,7 +835,11 @@ export default function NoteContainer() {
           </svg>
         </button>
         <span></span>
-        <button className="btn btn-soft btn-info" onClick={handleAddNewPage}>
+        <button 
+        className="btn btn-soft btn-info" 
+        onClick={handleAddNewPage}
+        disabled={isLoading}
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -876,7 +857,10 @@ export default function NoteContainer() {
           Add a New Page
         </button>
         <span></span>
-        <button className="btn btn-soft btn-warning">
+        <button 
+        className="btn btn-soft btn-warning"
+
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -913,7 +897,11 @@ export default function NoteContainer() {
         </button>
         <span></span>
         <span></span>
-        <button className="btn btn-soft btn-error" onClick={handleDeletePage}>
+        <button 
+        className="btn btn-soft btn-error" 
+        onClick={handleDeletePage}
+        disabled={isLoading}
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
