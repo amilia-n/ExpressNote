@@ -6,8 +6,9 @@
 <body>
   <script>
     const token = '{{token}}';
+    const redirectUrl = '{{redirectUrl}}';
     localStorage.setItem('token', token);
-    window.location.href = 'http://localhost:5173/notes';
+    window.location.href = `${redirectUrl}/notes`;
   </script>
 </body>
 </html>
