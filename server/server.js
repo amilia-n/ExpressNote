@@ -43,17 +43,17 @@ app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  cookie: {
-    secure: true, 
-    sameSite: 'none',
+    cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 24 * 60 * 60 * 1000,
     httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
   }
   // cookie: {
-  //   secure: process.env.NODE_ENV === 'production',
-  //   maxAge: 24 * 60 * 60 * 1000,
+  //   secure: true, 
+  //   sameSite: 'none',
   //   httpOnly: true,
-  //   sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+  //   maxAge: 24 * 60 * 60 * 1000
   // }
 }));
 
