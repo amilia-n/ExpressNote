@@ -15,9 +15,7 @@ router.get('/google', googleAuth);
 
 router.get('/google/callback', 
   passport.authenticate('google', { 
-    failureRedirect: process.env.NODE_ENV === 'production' 
-      ? `${process.env.CLIENT_URL}/login/`
-      : 'http://localhost:5173/login/'
+    failureRedirect: '/login'
   }),
   googleCallback
 );
