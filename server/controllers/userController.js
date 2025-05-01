@@ -2,6 +2,8 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import passport from 'passport';
 import pool from '../db/connect.js';
+import fs from 'fs';
+import path from 'path';
 
 const SALT_ROUNDS = 10;
 
@@ -89,23 +91,18 @@ export const googleCallback = async (req, res) => {
       ? process.env.CLIENT_URL 
       : 'http://localhost:5173';
     
-    // Render the HTML with the token
-    res.send(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>Redirecting...</title>
-      </head>
-      <body>
-        <script>
-          localStorage.setItem('token', '${token}');
-          window.location.href = '${redirectUrl}/notes';
-        </script>
-      </body>
-      </html>
-    `);
+    // Read the template file
+    const template = await fs.promises.readFile(path.join(__dirname, '..', 'googleCallback.html'), 'utf8');
+    
+    // Replace placeholders
+    const html = template
+      .replace('{{token}}', token)
+      .replace('{{redirectUrl}}', redirectUrl);
+    
+    res.send(html);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Google callback error:', err);
+    res.status(500).send('Authentication failed. Please try again.');
   }
 };
 
