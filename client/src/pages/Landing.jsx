@@ -90,10 +90,9 @@ const Landing = () => {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = "${API_URL}/auth/google";
+    window.location.href = `${API_URL}/auth/google`;
   };
 
-  // Keep your existing return JSX exactly as is
   return (
     
     <div className="flex items-center justify-center h-screen w-full px-5 sm:px-0 landing">
