@@ -20,7 +20,7 @@ router.get('/google/callback',
   }), 
   (req, res) => {
     console.log('Logged in user:', req.user);
-    res.redirect(`${process.env.CLIENT_URL}/`); 
+    res.redirect(`${process.env.CLIENT_URL}/notes`); 
   }
 );
 //   }),
