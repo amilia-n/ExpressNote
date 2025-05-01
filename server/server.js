@@ -71,13 +71,13 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-app.get("/logout", (req, res) => {
-  req.logout(() => res.redirect("/"));
-});
+// app.get("/logout", (req, res) => {
+//   req.logout(() => res.redirect("/"));
+// });
 
-app.get("/profile", (req, res) => {
-  if (!req.user) return res.redirect("/notes");
-});
+// app.get("/profile", (req, res) => {
+//   if (!req.user) return res.redirect("/notes");
+// });
 
 if (process.env.NODE_ENV !== 'test') {
   const PORT = process.env.PORT || 3000;
@@ -85,5 +85,14 @@ if (process.env.NODE_ENV !== 'test') {
     console.log(`Server running on port ${PORT}`);
   });
 }
+
+console.log('\n► Registered routes:');
+app._router.stack
+  .filter(layer => layer.route)
+  .forEach(layer => {
+    const methods = Object.keys(layer.route.methods).join(',').toUpperCase();
+    console.log(`  ${methods.padEnd(6)} ${layer.route.path}`);
+  });
+console.log('');  
 
 export default app;
