@@ -6,11 +6,8 @@ services:
     repo: https://github.com/amilia-n/ExpressNote
     rootDir: server  # Start in server directory
     buildCommand: |
-      # Install backend dependencies
       npm install
-      # Install frontend dependencies and build
       cd ../client && npm install && npm run build
-      # Copy frontend build to server's public directory
       mkdir -p ../server/public
       cp -r dist/* ../server/public/
     startCommand: node ./server.js
