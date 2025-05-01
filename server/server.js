@@ -55,11 +55,26 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+if (process.env.NODE_ENV === 'production') {
+  app.use((req, res, next) => {
+    console.log(`${req.method} ${req.url}`);
+    next();
+  });
+}
+
 // API Routes
 app.use('/auth', authRoutes);
 app.use('/api/notes', noteRoutes);
 app.use('/api/pages', pageRoutes);
 app.use('/api/blocks', blockRoutes);
+
+app.get("/logout", (req, res) => {
+  req.logout(() => res.redirect("/"));
+});
+
+app.get("/profile", (req, res) => {
+  if (!req.user) return res.redirect("/notes");
+});
 
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
@@ -71,13 +86,7 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-// app.get("/logout", (req, res) => {
-//   req.logout(() => res.redirect("/"));
-// });
 
-// app.get("/profile", (req, res) => {
-//   if (!req.user) return res.redirect("/notes");
-// });
 
 if (process.env.NODE_ENV !== 'test') {
   const PORT = process.env.PORT || 3000;
