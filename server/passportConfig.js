@@ -5,11 +5,8 @@ import pool from './db/connect.js';
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: process.env.NODE_ENV === 'production' 
-  ? `${process.env.CLIENT_URL}/auth/google/callback`
-  : 'http://localhost:3000/auth/google/callback',
-  proxy: true 
-},
+  callbackURL: process.env.GOOGLE_CALLBACK_URL
+}, 
   async (accessToken, refreshToken, profile, done) => {
     try {
       const result = await pool.query(
