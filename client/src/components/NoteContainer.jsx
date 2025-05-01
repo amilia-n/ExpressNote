@@ -28,6 +28,20 @@ const API_URL = import.meta.env.MODE === 'production'
 ? ''  // Empty string because it's the same domain
 : 'http://localhost:3000';
 
+const createAuthHeaders = () => {
+  const token = localStorage.getItem("token");
+  const headers = {
+    'Content-Type': 'application/json'
+  };
+  
+  // If JWT token exists (email/password login), use it
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  
+  return headers;
+};
+
 export default function NoteContainer() {
   const [editors, setEditors] = useState([
     {

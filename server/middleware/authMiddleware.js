@@ -1,4 +1,3 @@
-// server/middleware/authMiddleware.js
 import jwt from 'jsonwebtoken';
 
 const authenticateToken = (req, res, next) => {
