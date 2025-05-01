@@ -62,6 +62,12 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
+app.use(express.static(path.join(__dirname, 'public')));
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+
 // API Routes
 app.use('/auth', authRoutes);
 app.use('/api/notes', noteRoutes);
@@ -76,18 +82,8 @@ app.get("/profile", (req, res) => {
   if (!req.user) return res.redirect("/notes");
 });
 
-// Serve static files in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, 'public')));
+
   
-  // Handle client-side routing
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-  });
-}
-
-
-
 if (process.env.NODE_ENV !== 'test') {
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {
@@ -95,13 +91,5 @@ if (process.env.NODE_ENV !== 'test') {
   });
 }
 
-console.log('\n► Registered routes:');
-app._router.stack
-  .filter(layer => layer.route)
-  .forEach(layer => {
-    const methods = Object.keys(layer.route.methods).join(',').toUpperCase();
-    console.log(`  ${methods.padEnd(6)} ${layer.route.path}`);
-  });
-console.log('');  
 
 export default app;
