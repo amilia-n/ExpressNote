@@ -12,8 +12,8 @@ const Landing = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const API_URL = import.meta.env.MODE === 'production' 
-    ? '' 
+  const API_URL = process.env.REACT_APP_NODE_ENV === 'production' || process.env.NODE_ENV === 'production'
+    ? 'https://expressnote.onrender.com' 
     : 'http://localhost:3000';
 
   // Keep your existing handlers
