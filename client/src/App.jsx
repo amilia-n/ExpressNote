@@ -7,7 +7,7 @@ import NewNotes from "./pages/NewNotes";
 import UserProfile from "./pages/UserProfile";
 import NoPage from "./pages/NoPage";
 import NoteContainer from "./components/NoteContainer";
-
+ 
 function App() {
   return (
     <BrowserRouter>

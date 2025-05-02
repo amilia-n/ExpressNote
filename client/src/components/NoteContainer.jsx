@@ -1,14 +1,15 @@
 import React, { useState, useCallback } from "react";
 import { useParams } from 'react-router-dom';
 import { Responsive, WidthProvider } from "react-grid-layout";
+import { useNavigate } from "react-router-dom";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import TextEditor from "./TextEditor";
 import ImgBox from "./ImgBox";
 import Terminal from "./Terminal";
 import CodeEditor from "./CodeEditor";
-// import { debounce } from "lodash";
 import "./NoteContainer.css";
+
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -33,6 +34,7 @@ const API_URL =
 
     
 export default function NoteContainer() {
+  const navigate = useNavigate();
   const [editors, setEditors] = useState([
     {
       id: "text-1",
@@ -62,7 +64,6 @@ export default function NoteContainer() {
         const updatedEditors = prev.map((editor) =>
           editor.id === editorId ? { ...editor, content: newContent } : editor
         );
-        // Update the blocks for current page
         setPageBlocks((prev) => ({
           ...prev,
           [currentPage]: updatedEditors,
@@ -100,7 +101,6 @@ export default function NoteContainer() {
     if (event.dataTransfer.getData("text/plain")) {
       const editorType = event.dataTransfer.getData("text/plain");
 
-      // Initialize content based on editor type
       let initialContent;
       if (editorType === "text") {
         initialContent = initialEditorContent;
@@ -666,7 +666,10 @@ export default function NoteContainer() {
           Download PDF
         </button>
         <span></span>
-        <button className="btn btn-soft add-editor-button">
+        <button 
+        className="btn btn-soft add-editor-button" 
+        onClick={() => navigate('/profile')}
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"

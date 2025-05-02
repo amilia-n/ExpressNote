@@ -6,17 +6,16 @@ import "./Landing.css";
 
 const Landing = () => {
   const navigate = useNavigate();
-  
-  // Keep your existing state
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const API_URL = import.meta.env.MODE === 'production' 
-  ? 'https://expressnote.onrender.com'  
-  : 'http://localhost:3000';
+  const API_URL =
+    import.meta.env.MODE === "production"
+      ? "https://expressnote.onrender.com"
+      : "http://localhost:3000";
 
-  // Keep your existing handlers
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
@@ -94,7 +93,6 @@ const Landing = () => {
   };
 
   return (
-    
     <div className="flex items-center justify-center h-screen w-full px-5 sm:px-0 landing">
       <div>
         <img
@@ -110,13 +108,13 @@ const Landing = () => {
       <div className="flex bg-white shadow-lg max-w-sm lg:max-w w-full landing-container">
         <div className="w-full p-8">
           <p className="text-xl text-gray-600 text-center">Get Started</p>
-          
+
           {error && (
             <div className="mt-2 p-2 bg-red-100 text-red-700 rounded text-sm">
               {error}
             </div>
           )}
-          
+
           <div className="mt-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
               Email Address

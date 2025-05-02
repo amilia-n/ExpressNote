@@ -11,20 +11,16 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     try {
-      // Clear the token from localStorage
       localStorage.removeItem('token');
       
-      // Make the logout request to the server
       await fetch(`${API_URL}/auth/logout`, {
         method: 'GET',
         credentials: 'include'
       });
       
-      // Navigate to login page
       navigate('/login');
     } catch (error) {
       console.error('Logout error:', error);
-      // Still navigate to login even if there's an error
       navigate('/login');
     }
   };
