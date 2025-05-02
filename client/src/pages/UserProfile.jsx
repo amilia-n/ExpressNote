@@ -62,15 +62,16 @@ const UserProfile = () => {
                   <p className="text-gray-700">Email</p>
                   <p className="text-gray-700">Date Joined</p>
                   <div className="mt-6 flex flex-wrap gap-4 justify-center">
-                    <a href="#" className="py-2 px-4 rounded edit-profile">
+                    <a href="#" className="py-2 px-4 edit-profile">
                       Edit Profile
                     </a>
                   </div>
                 </div>
               </div>
+              <button className="btn btn-wide creation-btn">CREATE A NEW NOTE</button>
             </div>
 
-            <div className="col-span-4 sm:col-span-9">
+            <div className="col-span-4 sm:col-span-9 all-notes-container">
               <div className="bg-white shadow rounded-lg p-6">
                 <div className="flex justify-center items-center min-h-screen">
                   <div className="max-w-[720px] mx-auto">

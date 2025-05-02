@@ -1,6 +1,7 @@
 .profile-container{
     height: 100vh;
     width: 100vw;
+    line-height: 30px;
 }
 .all-notes-card {
     background-color: aquamarine;
@@ -10,4 +11,11 @@
 }
 .edit-profile{
     background-color: rgba(255, 228, 196, 0.307);
+    border-radius: 20px;
+}
+.edit-profile:hover{
+    background-color: rgba(165, 116, 56, 0.124);
+}
+.creation-btn {
+    margin-top: 20px;
 }
