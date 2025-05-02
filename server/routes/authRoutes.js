@@ -14,20 +14,16 @@ const router = express.Router();
 
 router.get("/google", googleAuth);
 
-router.get(
-  "/google/callback",
-  passport.authenticate("google", {
-    failureRedirect: "/login",
-    session: true,
+router.get('/google/callback', 
+  passport.authenticate('google', {
+    failureRedirect: '/login',
+    session: true
   }),
   (req, res) => {
-    console.log("Logged in user:", req.user);
-    res.redirect(`${process.env.CLIENT_URL}/notes`);
+    console.log('Google callback successful');
+    res.redirect(`${process.env.CLIENT_URL}/profile`);
   }
 );
-//   }),
-//   googleCallback
-// );
 
 router.get("/logout", logout);
 
@@ -35,32 +31,32 @@ router.post("/register", registerUser);
 
 router.post("/login", loginUser);
 
-router.get('/profile', authenticateToken, async (req, res) => {
+router.get("/profile", authenticateToken, async (req, res) => {
   try {
     const userId = req.user.user_id;
-    console.log('Fetching profile for user ID:', userId);
-    
+    console.log("Fetching profile for user ID:", userId);
+
     const userResult = await pool.query(
-      'SELECT user_id, email, display_name, created_at FROM users WHERE user_id = $1',
+      "SELECT user_id, email, display_name, created_at FROM users WHERE user_id = $1",
       [userId]
     );
-    console.log('User query result:', userResult.rows);
+    console.log("User query result:", userResult.rows);
 
     const notesResult = await pool.query(
-      'SELECT note_id, title, created_at FROM notes WHERE user_id = $1 ORDER BY created_at DESC',
+      "SELECT note_id, title, created_at FROM notes WHERE user_id = $1 ORDER BY created_at DESC",
       [userId]
     );
-    console.log('Notes query result:', notesResult.rows);
+    console.log("Notes query result:", notesResult.rows);
 
     const responseData = {
       user: userResult.rows[0],
-      notes: notesResult.rows
+      notes: notesResult.rows,
     };
-    console.log('Sending response:', responseData);
+    console.log("Sending response:", responseData);
 
     res.json(responseData);
   } catch (error) {
-    console.error('Profile error:', error);
+    console.error("Profile error:", error);
     res.status(500).json({ error: error.message });
   }
 });

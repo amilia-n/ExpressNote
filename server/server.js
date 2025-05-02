@@ -34,6 +34,7 @@ app.use(cors({
 
 // Session middleware
 const PostgresStore = pgSession(session);
+
 app.use(session({
   store: new PostgresStore({
     pool,
@@ -43,18 +44,18 @@ app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-    cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 24 * 60 * 60 * 1000,
+  cookie: {
+    secure: false, // Set to false for local development
+    sameSite: 'lax',
     httpOnly: true,
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+    maxAge: 24 * 60 * 60 * 1000
   }
+  // PROD SETTING
   // cookie: {
-  //   secure: true, 
-  //   sameSite: 'none',
+  //   secure: process.env.NODE_ENV === 'production',
+  //   maxAge: 24 * 60 * 60 * 1000,
   //   httpOnly: true,
-  //   maxAge: 24 * 60 * 60 * 1000
-  // }
+  //   sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
 }));
 
 // Passport middleware

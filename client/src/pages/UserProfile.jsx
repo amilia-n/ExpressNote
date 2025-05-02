@@ -103,14 +103,34 @@ const UserProfile = () => {
     navigate(`/notes/${noteId}`);
   };
 
+  const handleDeleteNote = async (noteId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_URL}/api/notes/${noteId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      if (response.ok) {
+        // Update the notes state by filtering out the deleted note
+        setNotes(prevNotes => prevNotes.filter(note => note.note_id !== noteId));
+      } else {
+        throw new Error("Failed to delete note");
+      }
+    } catch (err) {
+      setError(err.message);
+    }
+  };
   return (
     <div>
       <Navbar />
-      <div className="profile-container">
+      <div className="flex-wrap profile-container">
         <div className="container mx-auto py-8">
           <div className="grid grid-cols-4 sm:grid-cols-12 gap-6 px-4">
-            <div className="col-span-4 sm:col-span-3">
-              <div className="bg-white shadow rounded-lg p-6">
+            <div className="col-span-4 sm:col-span-3 place-items-center">
+              <div className="bg-white shadow rounded-lg p-6 profile-box">
                 <div className="flex flex-col items-center">
                   <div className="avatar">
                     <div className="w-24 rounded-full">
@@ -127,7 +147,7 @@ const UserProfile = () => {
                       ? new Date(profile.created_at).toLocaleDateString()
                       : ""}
                   </p>
-                  <div className="mt-6 flex flex-wrap gap-4 justify-center">
+                  <div className="mt-6 flex flex-wrap gap-4">
                     <a
                       href="#"
                       className="py-2 px-4 edit-profile"
@@ -139,15 +159,15 @@ const UserProfile = () => {
                 </div>
               </div>
               <button
-                className="btn btn-wide creation-btn"
+                className="btn creation-btn place-items-center"
                 onClick={handleCreateNote}
               >
                 CREATE A NEW NOTE
               </button>
             </div>
 
-            <div className="col-span-4 sm:col-span-9 all-notes-container">
-              <div className="bg-white shadow rounded-lg p-6">
+            <div className="col-span-4 sm:col-span-9 ">
+              <div className="absolute bg-white shadow rounded-lg p-6 flex-wrap all-notes-container">
                 {console.log("Rendering notes:", notes)}
                 {isLoading ? (
                   <div className="text-center py-8">
@@ -164,7 +184,7 @@ const UserProfile = () => {
                     </p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="relative grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {notes.map((note, index) => {
                       console.log(`Rendering note ${index}:`, note);
                       return (
@@ -186,13 +206,20 @@ const UserProfile = () => {
                               </p>
                             </div>
                           </div>
-                          <div className="p-6 pt-0">
+                          <div className="flex flex-col items-center gap-2">
                             <button
                               onClick={() => handleEnterNote(note.note_id)}
-                              className="align-middle select-none font-sans font-bold text-center uppercase transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none text-xs py-3 px-6 rounded-lg shadow-gray-900/10 hover:shadow-gray-900/20 focus:opacity-[0.85] active:opacity-[0.85] active:shadow-none block w-full bg-blue-gray-900/10 text-blue-gray-900 shadow-none hover:scale-105 hover:shadow-none focus:scale-105 focus:shadow-none active:scale-100"
+                              className="enter-btn align-middle select-none font-sans font-bold text-center uppercase transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none text-xs py-3 px-6 shadow-gray-900/10 hover:shadow-gray-900/20 focus:opacity-[0.85] active:opacity-[0.85] active:shadow-none block w-full bg-blue-gray-900/10 text-blue-gray-900 shadow-none hover:scale-105 hover:shadow-none focus:scale-105 focus:shadow-none active:scale-100"
                               type="button"
                             >
-                              Enter This Note
+                              Enter Note
+                            </button>
+                            <button
+                              onClick={() => handleDeleteNote(note.note_id)}
+                              className="delete-btn justify-center select-none font-sans font-bold text-center uppercase transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none text-xs py-3 px-6 shadow-gray-900/10 hover:shadow-gray-900/20 focus:opacity-[0.85] active:opacity-[0.85] active:shadow-none block shadow-none hover:scale-105 hover:shadow-none focus:scale-105 focus:shadow-none active:scale-100"
+                              type="button"
+                            >
+                              Delete Note
                             </button>
                           </div>
                         </div>

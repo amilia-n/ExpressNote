@@ -65,10 +65,14 @@ export const updateNoteTitle = async (req, res) => {
 export const deleteNote = async (req, res) => {
   try {
     const { noteId } = req.params;
-    await pool.query(noteQueries.deleteNote, [noteId]);
-    res.status(204).send();
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    const userId = req.user.user_id;
+    
+    // Delete the note and all associated data
+    await pool.query('DELETE FROM notes WHERE note_id = $1 AND user_id = $2', [noteId, userId]);
+    
+    res.status(200).json({ message: 'Note deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting note:', err);
+    res.status(500).json({ error: 'Failed to delete note' });
   }
 };
-

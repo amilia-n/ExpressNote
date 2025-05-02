@@ -188,6 +188,3 @@
   -webkit-appearance: none;
   margin: 0;
 }
-.page-input[type=number] {
-  -moz-appearance: textfield;
-}

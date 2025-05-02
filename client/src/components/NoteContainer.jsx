@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from "react";
+import { useParams } from 'react-router-dom';
 import { Responsive, WidthProvider } from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
@@ -30,6 +31,7 @@ const API_URL =
     ? "https://expressnote.onrender.com" // Full domain in production
     : "http://localhost:3000";
 
+    
 export default function NoteContainer() {
   const [editors, setEditors] = useState([
     {
@@ -52,7 +54,8 @@ export default function NoteContainer() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const token = localStorage.getItem("token");
-
+  const { noteId } = useParams();
+  console.log('NoteContainer received noteId:', noteId);
   const handleContentChange = useCallback(
     (editorId, newContent) => {
       setEditors((prev) => {
@@ -147,7 +150,18 @@ export default function NoteContainer() {
       setEditors(pageBlocks[newPage] || []);
     }
   };
-
+  const reorderPageNumbers = (pageBlocks) => {
+    const orderedPages = Object.keys(pageBlocks)
+      .map(Number)
+      .sort((a, b) => a - b);
+    
+    const newPageBlocks = {};
+    orderedPages.forEach((oldPageNum, index) => {
+      newPageBlocks[index + 1] = pageBlocks[oldPageNum];
+    });
+    
+    return newPageBlocks;
+  };
   // Page Delete Handler
   const handleDeletePage = () => {
     if (totalPages <= 1) {
@@ -155,7 +169,7 @@ export default function NoteContainer() {
       return;
     }
 
-    if (!window.confirm("Are you sure you want to delete this page?")) {
+    if (!window.confirm("Are you sure you want to delete this page? You cannot undo this action")) {
       return;
     }
 
@@ -163,15 +177,15 @@ export default function NoteContainer() {
     setPageBlocks((prev) => {
       const newPageBlocks = { ...prev };
       delete newPageBlocks[currentPage];
-      return newPageBlocks;
+      const reorderedBlocks = reorderPageNumbers(newPageBlocks);
+      const newCurrentPage = currentPage === 1 ? 1 : currentPage - 1;
+      setCurrentPage(newCurrentPage);
+    // Update total pages
+      setTotalPages(Object.keys(reorderedBlocks).length);
+      setEditors(reorderedBlocks[newCurrentPage] || []);
+      return reorderedBlocks;
     });
 
-    // Navigate to the previous page
-    const newPage = currentPage - 1;
-    setCurrentPage(newPage);
-    setTotalPages((prev) => prev - 1);
-    // Load blocks from memory for the previous page
-    setEditors(pageBlocks[newPage] || []);
   };
 
   const saveToDatabase = useCallback(

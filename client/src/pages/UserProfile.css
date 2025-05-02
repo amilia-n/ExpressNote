@@ -1,13 +1,25 @@
 .profile-container{
-    height: 100vh;
-    width: 100vw;
-    line-height: 30px;
+    height:100%;
+    width: 100%;
+    padding: 30px;
+    display: inline-block;
+    overflow: hidden;
 }
 .all-notes-card {
-    background-color: aquamarine;
-    display: flex;
+    min-width: fit-content;
+    display: block;
     flex-direction: column;
     height: fit-content;
+    justify-content: center;
+    justify-self: center;
+    justify-items: center;
+    align-items: center;
+    align-self: center;
+    align-content: center;
+    scale: .8;
+    margin: 10px;
+    padding: 10px;
+    overflow: hidden;
 }
 .edit-profile{
     background-color: rgba(255, 228, 196, 0.307);
@@ -18,4 +30,34 @@
 }
 .creation-btn {
     margin-top: 20px;
+}
+.profile-box, .creation-btn{
+    max-width: 500px;
+    min-width: 300px;
+}
+.all-notes-container{
+    display: inline-block;
+    min-width: fit-content;
+    margin: 0 30px 50px 0;
+    overflow: hidden;
+}
+.delete-btn {
+    color: brown;
+    background-color: rgba(255, 0, 0, 0.18);
+    height: auto;
+    border-radius: 50px;
+}
+.delete-btn:hover {
+    color: rgb(255, 0, 0);
+    background-color: rgba(255, 0, 0, 0.18);
+    height: auto;
+    border-radius: 50px;
+}
+.enter-btn {
+    color: rgb(0, 0, 0);
+    width: 200px;
+    background-color: rgba(164, 255, 178, 0.622);
+    height: auto;
+    border-radius: 50px;
+    margin-bottom: 20px;
 }
