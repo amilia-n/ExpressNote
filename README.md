@@ -24,7 +24,6 @@ Say goodbye to static note chaos—ExpressNote transforms your developer workflo
 
 ### Frontend
 - React
-- CodeMirror (Code Editor)
 - Slate (Rich Text Editor)
 - DaisyUI
 - React Grid Layout

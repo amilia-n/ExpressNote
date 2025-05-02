@@ -30,10 +30,18 @@ export const getNoteById = async (req, res) => {
 // Retrieve All Notes
 export const getAllNotes = async (req, res) => {
   try {
-    const userId = req.user.user_id || req.user.id;  // Handle both JWT and session auth
-    const result = await pool.query(noteQueries.getAllNotes, [userId]);
-    res.json(result.rows);
+    const userId = req.user.user_id;
+    
+    const result = await pool.query(
+      'SELECT note_id, title, created_at FROM notes WHERE user_id = $1 ORDER BY created_at DESC',
+      [userId]
+    );
+
+    res.json({
+      notes: result.rows
+    });
   } catch (error) {
+    console.error('Get all notes error:', error);
     res.status(500).json({ error: error.message });
   }
 };
