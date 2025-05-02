@@ -32,7 +32,7 @@ export const registerUser = async (req, res) => {
 
     // Create new user
     const result = await pool.query(
-      'INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id, email',
+      'INSERT INTO users (email, password) VALUES ($1, $2) RETURNING user_id, email',
       [email, hashedPassword]
     );
 
@@ -120,4 +120,51 @@ export const logout = (req, res) => {
   req.logout(() => {
     res.redirect('/login');
   });
+};
+
+
+export const getProfile = async (req, res) => {
+  try {
+    const userId = req.user.user_id;
+    
+    // Get user info
+    const userResult = await pool.query(
+      'SELECT email, display_name, created_at FROM users WHERE user_id = $1',
+      [userId]
+    );
+    
+    // Get user's notes with their first page content
+    const notesResult = await pool.query(`
+      SELECT n.note_id, n.title, n.created_at, n.updated_at,
+             p.page_id, b.content
+      FROM notes n
+      LEFT JOIN pages p ON n.note_id = p.note_id
+      LEFT JOIN blocks b ON p.page_id = b.page_id
+      WHERE n.user_id = $1
+      ORDER BY n.updated_at DESC
+    `, [userId]);
+    
+    res.json({
+      user: userResult.rows[0],
+      notes: notesResult.rows
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+export const updateDisplayName = async (req, res) => {
+  try {
+    const { display_name } = req.body;
+    const userId = req.user.user_id;
+    
+    const result = await pool.query(
+      'UPDATE users SET display_name = $1 WHERE user_id = $2 RETURNING display_name',
+      [display_name, userId]
+    );
+    
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };

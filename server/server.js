@@ -79,7 +79,7 @@ app.use('/api/pages', pageRoutes);
 app.use('/api/blocks', blockRoutes);
 
 app.get("/logout", (req, res) => {
-  req.logout(() => res.redirect("/"));
+  req.logout(() => res.redirect("/login"));
 });
 
 app.get("/profile", (req, res) => {

@@ -10,4 +10,9 @@ router.get('/:noteId', authenticateToken, noteController.getNoteById);
 router.put('/:noteId', authenticateToken, noteController.updateNoteTitle);
 router.delete('/:noteId', authenticateToken, noteController.deleteNote);
 
+router.use((err, req, res, next) => {
+    console.error('Note route error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  });
+  
 export default router;

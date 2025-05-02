@@ -1,5 +1,6 @@
 .note-container-header{
   display: inline-flex;
+  align-items: center;
   align-self: center;
   gap: 15px;
   margin-top: 5px;
@@ -154,7 +155,39 @@
   border-radius: 15px !important;
   padding: 20px;
 }
-.page-nav{
-  color: rgb(255, 255, 255);
+.page-input{
+  background-color: rgb(255, 255, 255);
+  min-width: 25px;
+  max-width: fit-content;
+  padding: 0 5px;
+  border-radius: 5px;
 
+}
+.total-pages {
+  font-weight: 250;
+  color: #ffffff;
+  font-size: 20px;
+  word-spacing: 5px;
+}
+.page-nav {
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  /* background: white; */
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  color: #ffffff;
+}
+.page-nav:hover {
+  color: #ccc;
+  cursor: pointer;
+
+}
+.page-input::-webkit-outer-spin-button,
+.page-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.page-input[type=number] {
+  -moz-appearance: textfield;
 }
