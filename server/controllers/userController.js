@@ -32,7 +32,7 @@ export const registerUser = async (req, res) => {
 
     // Create new user
     const result = await pool.query(
-      'INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id, email',
+      'INSERT INTO users (email, password) VALUES ($1, $2) RETURNING user_id, email',
       [email, hashedPassword]
     );
 

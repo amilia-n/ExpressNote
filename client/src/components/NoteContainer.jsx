@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
@@ -6,7 +6,7 @@ import TextEditor from "./TextEditor";
 import ImgBox from "./ImgBox";
 import Terminal from "./Terminal";
 import CodeEditor from "./CodeEditor";
-import { debounce } from "lodash";
+// import { debounce } from "lodash";
 import "./NoteContainer.css";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
@@ -25,9 +25,10 @@ const initialEditorContent = [
   },
 ];
 
-const API_URL = import.meta.env.MODE === 'production' 
-? 'https://expressnote.onrender.com'  // Full domain in production
-: 'http://localhost:3000';
+const API_URL =
+  import.meta.env.MODE === "production"
+    ? "https://expressnote.onrender.com" // Full domain in production
+    : "http://localhost:3000";
 
 export default function NoteContainer() {
   const [editors, setEditors] = useState([
@@ -43,18 +44,32 @@ export default function NoteContainer() {
   ]);
   const [saveStatus, setSaveStatus] = useState("saved");
   const [currentPageId, setCurrentPageId] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [pageBlocks, setPageBlocks] = useState({
+    1: [],
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const token = localStorage.getItem("token");
 
-  const handleContentChange = useCallback((editorId, newContent) => {
-    setEditors((prev) =>
-      prev.map((editor) =>
-        editor.id === editorId ? { ...editor, content: newContent } : editor
-      )
-    );
-    setSaveStatus("unsaved");
-  }, []);
+  const handleContentChange = useCallback(
+    (editorId, newContent) => {
+      setEditors((prev) => {
+        const updatedEditors = prev.map((editor) =>
+          editor.id === editorId ? { ...editor, content: newContent } : editor
+        );
+        // Update the blocks for current page
+        setPageBlocks((prev) => ({
+          ...prev,
+          [currentPage]: updatedEditors,
+        }));
+        return updatedEditors;
+      });
+      setSaveStatus("unsaved");
+    },
+    [currentPage]
+  );
 
   const handleTitleChange = useCallback((editorId, newTitle) => {
     setEditors((prev) =>
@@ -115,307 +130,48 @@ export default function NoteContainer() {
   };
 
   // New Page Handler
-  const handleAddNewPage = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const noteId = editors[0].noteId;
-      if (!noteId) {
-        throw new Error("No note ID found");
-      }
-
-      // Get the current pages to determine the next position
-      const pagesResponse = await fetch(
-        `${API_URL}/api/pages?note_id=${noteId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-          credentials: "include",
-        }
-      );
-
-      if (!pagesResponse.ok) {
-        throw new Error("Failed to get pages");
-      }
-
-      const pages = await pagesResponse.json();
-      const nextPosition = pages.length; // Position for the new page
-
-      // Create a new page
-      const pageResponse = await fetch(
-        `${API_URL}/api/pages?note_id=${noteId}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            ...(token ? { "Authorization": `Bearer ${token}` } : {})
-          },
-          credentials: "include",
-          body: JSON.stringify({ position: nextPosition }),
-        }
-      );
-
-      if (!pageResponse.ok) {
-        throw new Error("Failed to create page");
-      }
-
-      const newPage = await pageResponse.json();
-
-      // Update the current page ID to the new page
-      setCurrentPageId(newPage.page_id);
-
-      // Clear the editors for the new page
-      setEditors([
-        {
-          id: "text-1",
-          noteId: noteId,
-          blockId: null,
-          type: "text",
-          layout: { i: "text-1", x: 0, y: 0, w: 3, h: 2 },
-          content: initialEditorContent,
-          title: "Untitled Note",
-        },
-      ]);
-
-      setSaveStatus("saved");
-    } catch (error) {
-      setError(error.message);
-      setSaveStatus("error");
-    } finally {
-      setIsLoading(false);
-    }
+  const handleAddNewPage = () => {
+    const newPageNumber = totalPages + 1;
+    setTotalPages(newPageNumber);
+    setCurrentPage(newPageNumber);
+    setPageBlocks((prev) => ({
+      ...prev,
+      [newPageNumber]: [],
+    }));
+    setEditors([]);
   };
 
-  // Page Navigation Handler
-  const handlePageNavigation = async (direction) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const noteId = editors[0].noteId;
-      if (!noteId) {
-        throw new Error("No note ID found");
-      }
-
-      // Get all pages for the note
-      const pagesResponse = await fetch(
-        `${API_URL}/api/pages?note_id=${noteId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            ...(token ? { "Authorization": `Bearer ${token}` } : {})
-          },
-          credentials: "include",
-        }
-      );
-
-      if (!pagesResponse.ok) {
-        throw new Error("Failed to get pages");
-      }
-
-      const pages = await pagesResponse.json();
-
-      if (pages.length <= 1) {
-        // Only one page, no navigation needed
-        return;
-      }
-
-      // Find the current page index
-      const currentPageIndex = pages.findIndex(
-        (page) => page.page_id === currentPageId
-      );
-
-      // Calculate the new page index
-      const newPageIndex = direction === "next"
-        ? (currentPageIndex + 1) % pages.length
-        : (currentPageIndex - 1 + pages.length) % pages.length;
-
-      const newPageId = pages[newPageIndex].page_id;
-      setCurrentPageId(newPageId);
-
-      // Load the blocks for the new page
-      const blocksResponse = await fetch(
-        `${API_URL}/api/blocks?page_id=${newPageId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            ...(token ? { "Authorization": `Bearer ${token}` } : {})
-          },
-          credentials: "include",
-        }
-      );
-
-      if (!blocksResponse.ok) {
-        throw new Error("Failed to get blocks");
-      }
-
-      const blocks = await blocksResponse.json();
-
-      // Convert blocks to editors
-      const newEditors = blocks.map((block) => ({
-        id: `${block.block_type}-${block.block_id}`,
-        noteId: noteId,
-        blockId: block.block_id,
-        type: block.block_type,
-        layout: {
-          i: `${block.block_type}-${block.block_id}`,
-          x: block.x,
-          y: block.y,
-          w: 3,
-          h: 2,
-        },
-        content: JSON.parse(block.content),
-        title: "Untitled Note",
-      }));
-
-      // If no blocks, add a default text editor
-      if (newEditors.length === 0) {
-        newEditors.push({
-          id: "text-1",
-          noteId: noteId,
-          blockId: null,
-          type: "text",
-          layout: { i: "text-1", x: 0, y: 0, w: 3, h: 2 },
-          content: initialEditorContent,
-          title: "Untitled Note",
-        });
-      }
-
-      setEditors(newEditors);
-      setSaveStatus("saved");
-    } catch (error) {
-      console.error("Error navigating pages:", error);
-      setSaveStatus("error");
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+      setEditors(pageBlocks[newPage] || []);
     }
   };
 
   // Page Delete Handler
-  const handleDeletePage = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      // Get the current note ID from the first editor
-      const noteId = editors[0].noteId;
-
-      if (!noteId) {
-        console.error("No note ID found");
-        return;
-      }
-
-      // Get all pages for the note
-      const pagesResponse = await fetch(
-        `${API_URL}/api/pages?note_id=${noteId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-          credentials: "include",
-        }
-      );
-
-
-      if (!pagesResponse.ok) {
-        throw new Error("Failed to get pages");
-      }
-
-      const pages = await pagesResponse.json();
-
-      if (pages.length <= 1) {
-        throw new Error("Cannot delete the only page in a note");
-      }
-
-      if (!window.confirm("Are you sure you want to delete this page?")) {
-        return;
-      }
-
-      // Delete the current page
-      const deleteResponse = await fetch(
-        `${API_URL}/api/pages/${currentPageId}`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            ...(token ? { "Authorization": `Bearer ${token}` } : {})
-          },
-          credentials: "include",
-        }
-      );
-
-      if (!deleteResponse.ok) {
-        throw new Error("Failed to delete page");
-      }
-
-      // Find the next page to navigate to
-      const currentPageIndex = pages.findIndex(
-        (page) => page.page_id === currentPageId
-      );
-      const nextPageIndex = (currentPageIndex + 1) % pages.length;
-      const nextPageId = pages[nextPageIndex].page_id;
-      setCurrentPageId(nextPageId);
-
-      // Load the blocks for the next page
-      const blocksResponse = await fetch(
-        `${API_URL}/api/blocks?page_id=${nextPageId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            ...(token ? { "Authorization": `Bearer ${token}` } : {})
-          },
-          credentials: "include",
-        }
-      );
-
-      if (!blocksResponse.ok) {
-        throw new Error("Failed to get blocks");
-      }
-
-      const blocks = await blocksResponse.json();
-
-      // Convert blocks to editors
-      const newEditors = blocks.map((block) => ({
-        id: `${block.block_type}-${block.block_id}`,
-        noteId: noteId,
-        blockId: block.block_id,
-        type: block.block_type,
-        layout: {
-          i: `${block.block_type}-${block.block_id}`,
-          x: block.x,
-          y: block.y,
-          w: 3,
-          h: 2,
-        },
-        content: JSON.parse(block.content),
-        title: "Untitled Note",
-      }));
-
-      // If no blocks, add a default text editor
-      if (newEditors.length === 0) {
-        newEditors.push({
-          id: "text-1",
-          noteId: noteId,
-          blockId: null,
-          type: "text",
-          layout: { i: "text-1", x: 0, y: 0, w: 3, h: 2 },
-          content: initialEditorContent,
-          title: "Untitled Note",
-        });
-      }
-
-      setEditors(newEditors);
-      setSaveStatus("saved");
-    } catch (error) {
-      setError(error.message);
-      setSaveStatus("error");
-    } finally {
-      setIsLoading(false);
+  const handleDeletePage = () => {
+    if (totalPages <= 1) {
+      setError("Cannot delete the only page");
+      return;
     }
+
+    if (!window.confirm("Are you sure you want to delete this page?")) {
+      return;
+    }
+
+    // Remove the current page from pageBlocks
+    setPageBlocks((prev) => {
+      const newPageBlocks = { ...prev };
+      delete newPageBlocks[currentPage];
+      return newPageBlocks;
+    });
+
+    // Navigate to the previous page
+    const newPage = currentPage - 1;
+    setCurrentPage(newPage);
+    setTotalPages((prev) => prev - 1);
+    // Load blocks from memory for the previous page
+    setEditors(pageBlocks[newPage] || []);
   };
 
   const saveToDatabase = useCallback(
@@ -427,12 +183,11 @@ export default function NoteContainer() {
         let pageId = currentPageId;
 
         if (!noteId) {
-
           const noteResponse = await fetch(`${API_URL}/api/notes`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              ...(token ? { "Authorization": `Bearer ${token}` } : {})
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
             },
             credentials: "include",
             body: JSON.stringify({ title: data.title }),
@@ -449,7 +204,7 @@ export default function NoteContainer() {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              ...(token ? { "Authorization": `Bearer ${token}` } : {})
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
             },
             credentials: "include",
             body: JSON.stringify({ note_id: noteId, position: 0 }),
@@ -485,24 +240,21 @@ export default function NoteContainer() {
               method: "PUT",
               headers: {
                 "Content-Type": "application/json",
-                ...(token ? { "Authorization": `Bearer ${token}` } : {})
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
               },
               credentials: "include",
               body: JSON.stringify(blockData),
             });
           } else {
-            const createResponse = await fetch(
-              `${API_URL}/api/blocks`,
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  ...(token ? { "Authorization": `Bearer ${token}` } : {})
-                },
-                credentials: "include",
-                body: JSON.stringify(blockData),
-              }
-            );
+            const createResponse = await fetch(`${API_URL}/api/blocks`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+              },
+              credentials: "include",
+              body: JSON.stringify(blockData),
+            });
 
             if (createResponse.ok) {
               const savedBlock = await createResponse.json();
@@ -529,19 +281,19 @@ export default function NoteContainer() {
   );
 
   // AUTO SAVE
-  useEffect(() => {
-    const debouncedSave = debounce((data) => {
-      if (saveStatus === "unsaved") {
-        saveToDatabase(data);
-      }
-    }, 2000);
+  // useEffect(() => {
+  //   const debouncedSave = debounce((data) => {
+  //     if (saveStatus === "unsaved") {
+  //       saveToDatabase(data);
+  //     }
+  //   }, 2000);
 
-    debouncedSave(editors[0]);
+  //   debouncedSave(editors[0]);
 
-    return () => {
-      debouncedSave.cancel();
-    };
-  }, [editors, saveStatus, saveToDatabase]);
+  //   return () => {
+  //     debouncedSave.cancel();
+  //   };
+  // }, [editors, saveStatus, saveToDatabase]);
 
   const handleCloseEditor = (editorId) => {
     setEditors((prev) => prev.filter((editor) => editor.id !== editorId));
@@ -549,6 +301,102 @@ export default function NoteContainer() {
 
   return (
     <div className="note-page-container">
+      <div className="note-container-header">
+        <button
+          className="page-nav"
+          onClick={() => handlePageChange(1)}
+          disabled={currentPage === 1}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="size-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="m18.75 4.5-7.5 7.5 7.5 7.5m-6-15L5.25 12l7.5 7.5"
+            />
+          </svg>
+        </button>
+        <button
+          className="page-nav"
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="size-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15.75 19.5 8.25 12l7.5-7.5"
+            />
+          </svg>
+        </button>
+        <input
+          type="number"
+          value={currentPage}
+          min={1}
+          max={totalPages}
+          onChange={(e) => {
+            const newPage = parseInt(e.target.value);
+            if (!isNaN(newPage) && newPage >= 1 && newPage <= totalPages) {
+              handlePageChange(newPage);
+            }
+          }}
+          className="page-input"
+        />
+        <span className="total-pages">of {totalPages}</span>
+        <button
+          className="page-nav"
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="size-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="m8.25 4.5 7.5 7.5-7.5 7.5"
+            />
+          </svg>
+        </button>
+        <button
+          className="page-nav"
+          onClick={() => handlePageChange(totalPages)}
+          disabled={currentPage === totalPages}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="size-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5"
+            />
+          </svg>
+        </button>
+      </div>
       <div id="left-side-col">
         <div
           className="editor-template"
@@ -660,81 +508,6 @@ export default function NoteContainer() {
         </div>
       </div>
 
-      <div className="note-container-header">
-        <button
-          className="page-nav"
-          onClick={() => handlePageNavigation("prev")}
-          disabled={isLoading}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="size-6"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="m18.75 4.5-7.5 7.5 7.5 7.5m-6-15L5.25 12l7.5 7.5"
-            />
-          </svg>
-        </button>
-        <button
-          className="page-nav"
-          onClick={() => handlePageNavigation("next")}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="size-6"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M15.75 19.5 8.25 12l7.5-7.5"
-            />
-          </svg>
-        </button>
-        <input type="text" placeholder="1" className="page-ct" />
-        <button className="page-nav">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="size-6"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="m8.25 4.5 7.5 7.5-7.5 7.5"
-            />
-          </svg>
-        </button>
-        <button className="page-nav">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="size-6"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5"
-            />
-          </svg>
-        </button>
-      </div>
-
       <ResponsiveGridLayout
         className="layout"
         layouts={{ lg: editors.map((editor) => editor.layout) }}
@@ -787,7 +560,7 @@ export default function NoteContainer() {
         ))}
       </ResponsiveGridLayout>
       <div id="right-side-col">
-      <input
+        <input
           type="text"
           placeholder="Document Title"
           className="input note-title"
@@ -795,7 +568,11 @@ export default function NoteContainer() {
           onChange={(e) => handleTitleChange(editors[0].id, e.target.value)}
         />
         <div className="last-saved">
-        {isLoading ? "Saving..." : saveStatus === "saved" ? "Saved" : "Unsaved"}
+          {isLoading
+            ? "Saving..."
+            : saveStatus === "saved"
+            ? "Saved"
+            : "Unsaved"}
         </div>
         {error && <div className="error-message">{error}</div>}
         <button
@@ -835,10 +612,10 @@ export default function NoteContainer() {
           </svg>
         </button>
         <span></span>
-        <button 
-        className="btn btn-soft btn-info" 
-        onClick={handleAddNewPage}
-        disabled={isLoading}
+        <button
+          className="btn btn-soft btn-info"
+          onClick={handleAddNewPage}
+          disabled={isLoading}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -857,10 +634,7 @@ export default function NoteContainer() {
           Add a New Page
         </button>
         <span></span>
-        <button 
-        className="btn btn-soft btn-warning"
-
-        >
+        <button className="btn btn-soft btn-warning">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -897,10 +671,10 @@ export default function NoteContainer() {
         </button>
         <span></span>
         <span></span>
-        <button 
-        className="btn btn-soft btn-error" 
-        onClick={handleDeletePage}
-        disabled={isLoading}
+        <button
+          className="btn btn-soft btn-error"
+          onClick={handleDeletePage}
+          disabled={isLoading}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
