@@ -1,0 +1,13 @@
+.profile-container{
+    height: 100vh;
+    width: 100vw;
+}
+.all-notes-card {
+    background-color: aquamarine;
+    display: flex;
+    flex-direction: column;
+    height: fit-content;
+}
+.edit-profile{
+    background-color: rgba(255, 228, 196, 0.307);
+}

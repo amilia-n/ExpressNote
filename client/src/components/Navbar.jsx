@@ -1,8 +1,34 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
 import "./Navbar.css";
 
 export default function Navbar() {
+  const navigate = useNavigate();
+  const API_URL = import.meta.env.MODE === 'production' 
+    ? 'https://expressnote.onrender.com'  
+    : 'http://localhost:3000';
+
+  const handleLogout = async () => {
+    try {
+      // Clear the token from localStorage
+      localStorage.removeItem('token');
+      
+      // Make the logout request to the server
+      await fetch(`${API_URL}/auth/logout`, {
+        method: 'GET',
+        credentials: 'include'
+      });
+      
+      // Navigate to login page
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Still navigate to login even if there's an error
+      navigate('/login');
+    }
+  };
+
   return (
     <div
       className="navbar shadow-sm h-20"
@@ -47,15 +73,10 @@ export default function Navbar() {
             className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow"
           >
             <li>
-              <a className="justify-between">
-                Profile
-              </a>
+            <a onClick={() => navigate('/profile')}>Profile</a>
             </li>
             <li>
-              <a>Settings</a>
-            </li>
-            <li>
-              <a>Logout</a>
+            <a onClick={handleLogout}>Logout</a>
             </li>
           </ul>
         </div>

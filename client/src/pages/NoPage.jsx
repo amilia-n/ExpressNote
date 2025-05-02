@@ -1,26 +1,27 @@
+import React from "react";
+import { useNavigate } from "react-router-dom";
+
 export default function NoPage() {
-    return (
-      <>
-        <main className="grid min-h-full place-items-center bg-white px-6 py-24 sm:py-32 lg:px-8">
-          <div className="text-center">
-            <p className="text-base font-semibold text-indigo-600">404</p>
-            <h1 className="mt-4 text-5xl font-semibold tracking-tight text-balance text-gray-900 sm:text-7xl">
-              Page not found
-            </h1>
-            <p className="mt-6 text-lg font-medium text-pretty text-gray-500 sm:text-xl/8">
-              Sorry, we couldn't find the page you're looking for.
-            </p>
-            <div className="mt-10 flex items-center justify-center gap-x-6">
-              <a
-                href="#"
-                className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              >
-                Go back home
-              </a>
-            </div>
-          </div>
-        </main>
-      </>
-    )
-  }
-  
+  const navigate = useNavigate();
+  return (
+    <>
+      <main className="h-screen w-full flex flex-col justify-center items-center bg-[#1A2238]">
+        <h1 className="text-9xl font-extrabold text-white tracking-widest">
+          404
+        </h1>
+        <div className="bg-[#FF6A3D] px-2 text-sm rounded rotate-12 absolute">
+          Page Not Found
+        </div>
+        <button class="mt-5">
+          <a class="relative inline-block text-sm font-medium text-[#FF6A3D] group active:text-orange-500 focus:outline-none focus:ring">
+            <span className="absolute inset-0 transition-transform translate-x-0.5 translate-y-0.5 bg-[#FF6A3D] group-hover:translate-y-0 group-hover:translate-x-0"></span>
+
+            <span class="relative block px-8 py-3 bg-[#1A2238] border border-current">
+              <button onClick={() => navigate("/profile")}>Go Home</button>
+            </span>
+          </a>
+        </button>
+      </main>
+    </>
+  );
+}

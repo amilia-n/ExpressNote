@@ -5,8 +5,8 @@ import Navbar from "./components/Navbar";
 import { Navigate } from "react-router-dom";
 import Landing from "./pages/Landing";
 import Home from "./pages/Home";
-// import UserProfile from "./pages/UserProfile";
-// import NoPage from "./pages/NoPage";
+import UserProfile from "./pages/UserProfile";
+import NoPage from "./pages/NoPage";
 // import "./App.css";
 
 function App() {
@@ -27,6 +27,8 @@ function App() {
               </>
             } 
           />
+          <Route path="/profile" element={<UserProfile />} />
+          <Route path="*" element={<NoPage />} />
         </Routes>
       </div>
     </BrowserRouter>
