@@ -103,5 +103,9 @@ if (process.env.NODE_ENV !== 'test') {
   });
 }
 
+app.use((err, req, res, next) => {
+  console.error('Server error:', err);
+  res.status(500).json({ error: 'Internal server error' });
+});
 
 export default app;

@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from "react";
 import { createEditor } from "slate";
 import { Slate, withReact, Editable } from "slate-react";
+import { View, Text } from '@react-pdf/renderer';
 import "./TextEditor.css";
 
 const initialValue = [
@@ -9,11 +10,11 @@ const initialValue = [
     children: [{ text: "" }],
   },
 ];
-export default function TextEditor({ content, onChange, onClose }) {
+export default function TextEditor({ content, onChange, onClose, isPDF = false }) {
   const [editor] = useState(() => withReact(createEditor()));
   const editorValue = content || initialValue;
   const [isCollapsed, setIsCollapsed] = useState(false);
-
+  
   const handleChange = useCallback(
     (newValue) => {
       onChange(newValue);
@@ -24,6 +25,22 @@ export default function TextEditor({ content, onChange, onClose }) {
   const handleCollapseToggle = () => {
     setIsCollapsed(!isCollapsed);
   };
+  if (isPDF) {
+    return (
+      <View style={{ marginBottom: 10 }}>
+        {content.map((node, i) => {
+          if (node.type === 'paragraph') {
+            return (
+              <Text key={i} style={{ marginBottom: 5 }}>
+                {node.children.map(child => child.text).join('')}
+              </Text>
+            );
+          }
+          return null;
+        })}
+      </View>
+    );
+  }
   return (
     <div className="editor-container">
       <div className={`editor-header ${isCollapsed ? 'collapsed' : ''}`}>

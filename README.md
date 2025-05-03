@@ -89,7 +89,6 @@ Say goodbye to static note chaos—ExpressNote transforms your developer workflo
 | GET | `/notes/:id` | Get a specific note |
 | PUT | `/notes/:id` | Update a note |
 | DELETE | `/notes/:id` | Delete a note |
-
 ### Page Routes (`/api/notes/:noteId/pages`)
 
 | Method | Endpoint | Description |
@@ -139,7 +138,7 @@ npm run test
    - Image Import Compoment
    - Mock Terminal Component
 - React Grid Layout: Grid system
-- html2pdf.js: PDF export functionality
+- react-pdf: PDF export functionality
 
 ## Project Structure
 

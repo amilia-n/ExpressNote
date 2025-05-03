@@ -67,12 +67,29 @@ export const deleteNote = async (req, res) => {
     const { noteId } = req.params;
     const userId = req.user.user_id;
     
-    // Delete the note and all associated data
+    console.log('Delete request - Note ID:', noteId);
+    console.log('Delete request - User ID:', userId);
+    
+    // Verify note exists and belongs to user
+    const noteCheck = await pool.query(
+      'SELECT * FROM notes WHERE note_id = $1 AND user_id = $2',
+      [noteId, userId]
+    );
+    
+    console.log('Note check result:', noteCheck.rows);
+    
+    if (noteCheck.rows.length === 0) {
+      return res.status(404).json({ error: 'Note not found or unauthorized' });
+    }
+
+    // Delete in correct order
+    await pool.query('DELETE FROM blocks WHERE page_id IN (SELECT page_id FROM pages WHERE note_id = $1)', [noteId]);
+    await pool.query('DELETE FROM pages WHERE note_id = $1', [noteId]);
     await pool.query('DELETE FROM notes WHERE note_id = $1 AND user_id = $2', [noteId, userId]);
     
     res.status(200).json({ message: 'Note deleted successfully' });
   } catch (err) {
-    console.error('Error deleting note:', err);
+    console.error('Delete error details:', err);
     res.status(500).json({ error: 'Failed to delete note' });
   }
 };

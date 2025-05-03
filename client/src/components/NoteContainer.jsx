@@ -1,14 +1,15 @@
 import React, { useState, useCallback } from "react";
 import { useParams } from 'react-router-dom';
 import { Responsive, WidthProvider } from "react-grid-layout";
+import { useNavigate } from "react-router-dom";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import TextEditor from "./TextEditor";
 import ImgBox from "./ImgBox";
 import Terminal from "./Terminal";
 import CodeEditor from "./CodeEditor";
-// import { debounce } from "lodash";
 import "./NoteContainer.css";
+
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -31,8 +32,8 @@ const API_URL =
     ? "https://expressnote.onrender.com" // Full domain in production
     : "http://localhost:3000";
 
-    
 export default function NoteContainer() {
+  const navigate = useNavigate();
   const [editors, setEditors] = useState([
     {
       id: "text-1",
@@ -62,7 +63,6 @@ export default function NoteContainer() {
         const updatedEditors = prev.map((editor) =>
           editor.id === editorId ? { ...editor, content: newContent } : editor
         );
-        // Update the blocks for current page
         setPageBlocks((prev) => ({
           ...prev,
           [currentPage]: updatedEditors,
@@ -73,15 +73,30 @@ export default function NoteContainer() {
     },
     [currentPage]
   );
+  
+//GeneratePDF
+const handleGeneratePDF = () => {
+  const currentPageBlocks = pageBlocks[currentPage] || [];
+  
+  // Ensure each block has the required properties
+  const formattedBlocks = currentPageBlocks.map(block => ({
+    id: block.id || `block-${Date.now()}`,
+    type: block.type,
+    content: block.content || '',
+    layout: block.layout || { x: 0, y: 0, w: 12, h: 2 }
+  }));
 
-  const handleTitleChange = useCallback((editorId, newTitle) => {
-    setEditors((prev) =>
-      prev.map((editor) =>
-        editor.id === editorId ? { ...editor, title: newTitle } : editor
-      )
-    );
-    setSaveStatus("unsaved");
-  }, []);
+  const pdfData = {
+    currentPage: currentPage,
+    pageBlocks: {
+      [currentPage]: formattedBlocks
+    }
+  };
+  
+  console.log('Storing PDF data:', pdfData);
+  sessionStorage.setItem('pdfNoteData', JSON.stringify(pdfData));
+  window.open('/pdf', '_blank');
+};
 
   const handleTemplateDragStart = (e) => {
     const editorType = e.target
@@ -100,7 +115,6 @@ export default function NoteContainer() {
     if (event.dataTransfer.getData("text/plain")) {
       const editorType = event.dataTransfer.getData("text/plain");
 
-      // Initialize content based on editor type
       let initialContent;
       if (editorType === "text") {
         initialContent = initialEditorContent;
@@ -312,6 +326,16 @@ export default function NoteContainer() {
   const handleCloseEditor = (editorId) => {
     setEditors((prev) => prev.filter((editor) => editor.id !== editorId));
   };
+
+  const handleTitleChange = (editorId, newTitle) => {
+    setEditors((prev) =>
+        prev.map((editor) =>
+            editor.id === editorId ? { ...editor, title: newTitle } : editor
+        )
+    );
+    setSaveStatus("unsaved");
+};
+
 
   return (
     <div className="note-page-container">
@@ -554,7 +578,10 @@ export default function NoteContainer() {
               />
             )}
             {editor.type === "image" && (
-              <ImgBox onClose={() => handleCloseEditor(editor.id)} />
+                <ImgBox 
+                onClose={() => handleCloseEditor(editor.id)}
+                onChange={(content) => handleContentChange(editor.id, content)}
+              />
             )}
             {editor.type === "terminal" && (
               <Terminal
@@ -648,7 +675,11 @@ export default function NoteContainer() {
           Add a New Page
         </button>
         <span></span>
-        <button className="btn btn-soft btn-warning">
+        <button 
+        className="btn btn-soft btn-warning"
+        onClick={handleGeneratePDF}
+        disabled={isLoading}
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -666,7 +697,10 @@ export default function NoteContainer() {
           Download PDF
         </button>
         <span></span>
-        <button className="btn btn-soft add-editor-button">
+        <button 
+        className="btn btn-soft add-editor-button" 
+        onClick={() => navigate('/profile')}
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"

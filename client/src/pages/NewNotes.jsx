@@ -4,7 +4,6 @@ import NoteContainer from "../components/NoteContainer";
 const Home = () => {
   return (
     <div className="flex">
-      {/* NoteList will go here later */}
       <div className="flex-1">
         <NoteContainer />
       </div>

@@ -61,20 +61,24 @@ router.get("/profile", authenticateToken, async (req, res) => {
   }
 });
 
-// Route for updating display name
-router.put("/profile/display-name", authenticateToken, async (req, res) => {
+router.put('/profile/display-name', authenticateToken, async (req, res) => {
   try {
-    const { display_name } = req.body;
     const userId = req.user.user_id;
+    const { display_name } = req.body;
 
     const result = await pool.query(
-      "UPDATE users SET display_name = $1 WHERE user_id = $2 RETURNING display_name",
+      'UPDATE users SET display_name = $1 WHERE user_id = $2 RETURNING display_name',
       [display_name, userId]
     );
 
-    res.json(result.rows[0]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({ display_name: result.rows[0].display_name });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Update profile error:', err);
+    res.status(500).json({ error: 'Failed to update profile' });
   }
 });
 

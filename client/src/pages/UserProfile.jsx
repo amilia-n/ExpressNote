@@ -47,11 +47,11 @@ const UserProfile = () => {
       }
     };
     fetchProfile();
-  }, []);
+  }, [API_URL, notes]);
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
-  // Add these functions in your UserProfile component
+
   const handleCreateNote = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -61,13 +61,14 @@ const UserProfile = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
+        credentials: 'include',
         body: JSON.stringify({ title: "New Note" }),
       });
 
       if (response.ok) {
         navigate(`/notes/`);
       }
-    } catch (error) {
+    } catch {
       setError("Failed to create note");
     }
   };
@@ -83,9 +84,10 @@ const UserProfile = () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
+          credentials: 'include',
           body: JSON.stringify({ display_name: newDisplayName }),
         });
-
+  
         if (response.ok) {
           const updatedProfile = await response.json();
           setProfile((prev) => ({
@@ -93,7 +95,7 @@ const UserProfile = () => {
             display_name: updatedProfile.display_name,
           }));
         }
-      } catch (error) {
+      } catch {
         setError("Failed to update profile");
       }
     }
@@ -104,25 +106,37 @@ const UserProfile = () => {
   };
 
   const handleDeleteNote = async (noteId) => {
+    if (!window.confirm("Are you sure you want to delete this note? You cannot undo this action")) {
+      return;
+    }
+    
     try {
       const token = localStorage.getItem("token");
+      console.log('Deleting note:', noteId); 
+      console.log('Token:', token); 
+      
       const response = await fetch(`${API_URL}/api/notes/${noteId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        credentials: 'include'
       });
       
-      if (response.ok) {
-        // Update the notes state by filtering out the deleted note
-        setNotes(prevNotes => prevNotes.filter(note => note.note_id !== noteId));
-      } else {
-        throw new Error("Failed to delete note");
+      console.log('Response status:', response.status);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`Failed to delete note: ${errorData.error || response.status}`);
       }
+      
+      setNotes(prevNotes => prevNotes.filter(note => note.note_id !== noteId));
     } catch (err) {
+      console.error('Delete error:', err);
       setError(err.message);
     }
   };
+
   return (
     <div>
       <Navbar />
