@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./ImgBox.css";
 
-const ImgBox = ({ onClose }) => {
+const ImgBox = ({ onClose, onChange  }) => {
   const [image, setImage] = useState(null);
 
   const handleImageUpload = (e) => {
@@ -10,6 +10,7 @@ const ImgBox = ({ onClose }) => {
       const reader = new FileReader();
       reader.onload = (e) => {
         setImage(e.target.result);
+        onChange(e.target.result);  // Send the base64 data to parent
       };
       reader.readAsDataURL(file);
     }

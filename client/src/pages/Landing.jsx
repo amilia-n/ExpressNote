@@ -38,7 +38,7 @@ const Landing = () => {
       } else {
         setError(data.error);
       }
-    } catch (err) {
+    } catch {
       setError("An error occurred during login");
     }
   };
@@ -83,7 +83,7 @@ const Landing = () => {
       } else {
         setError(data.error);
       }
-    } catch (err) {
+    } catch {
       setError("An error occurred during registration");
     }
   };

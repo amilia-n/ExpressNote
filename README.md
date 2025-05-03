@@ -138,7 +138,7 @@ npm run test
    - Image Import Compoment
    - Mock Terminal Component
 - React Grid Layout: Grid system
-- html2pdf.js: PDF export functionality
+- react-pdf: PDF export functionality
 
 ## Project Structure
 

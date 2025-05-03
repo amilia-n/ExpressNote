@@ -7,7 +7,8 @@ import NewNotes from "./pages/NewNotes";
 import UserProfile from "./pages/UserProfile";
 import NoPage from "./pages/NoPage";
 import NoteContainer from "./components/NoteContainer";
- 
+import PDFGenerator from "./components/PDFGenerator";
+
 function App() {
   return (
     <BrowserRouter>
@@ -39,6 +40,7 @@ function App() {
             }
           />
           <Route path="*" element={<NoPage />} />
+          <Route path="/pdf" element={<PDFGenerator />} />
         </Routes>
       </div>
     </BrowserRouter>

@@ -32,7 +32,6 @@ const API_URL =
     ? "https://expressnote.onrender.com" // Full domain in production
     : "http://localhost:3000";
 
-    
 export default function NoteContainer() {
   const navigate = useNavigate();
   const [editors, setEditors] = useState([
@@ -74,15 +73,30 @@ export default function NoteContainer() {
     },
     [currentPage]
   );
+  
+//GeneratePDF
+const handleGeneratePDF = () => {
+  const currentPageBlocks = pageBlocks[currentPage] || [];
+  
+  // Ensure each block has the required properties
+  const formattedBlocks = currentPageBlocks.map(block => ({
+    id: block.id || `block-${Date.now()}`,
+    type: block.type,
+    content: block.content || '',
+    layout: block.layout || { x: 0, y: 0, w: 12, h: 2 }
+  }));
 
-  const handleTitleChange = useCallback((editorId, newTitle) => {
-    setEditors((prev) =>
-      prev.map((editor) =>
-        editor.id === editorId ? { ...editor, title: newTitle } : editor
-      )
-    );
-    setSaveStatus("unsaved");
-  }, []);
+  const pdfData = {
+    currentPage: currentPage,
+    pageBlocks: {
+      [currentPage]: formattedBlocks
+    }
+  };
+  
+  console.log('Storing PDF data:', pdfData);
+  sessionStorage.setItem('pdfNoteData', JSON.stringify(pdfData));
+  window.open('/pdf', '_blank');
+};
 
   const handleTemplateDragStart = (e) => {
     const editorType = e.target
@@ -312,6 +326,16 @@ export default function NoteContainer() {
   const handleCloseEditor = (editorId) => {
     setEditors((prev) => prev.filter((editor) => editor.id !== editorId));
   };
+
+  const handleTitleChange = (editorId, newTitle) => {
+    setEditors((prev) =>
+        prev.map((editor) =>
+            editor.id === editorId ? { ...editor, title: newTitle } : editor
+        )
+    );
+    setSaveStatus("unsaved");
+};
+
 
   return (
     <div className="note-page-container">
@@ -554,7 +578,10 @@ export default function NoteContainer() {
               />
             )}
             {editor.type === "image" && (
-              <ImgBox onClose={() => handleCloseEditor(editor.id)} />
+                <ImgBox 
+                onClose={() => handleCloseEditor(editor.id)}
+                onChange={(content) => handleContentChange(editor.id, content)}
+              />
             )}
             {editor.type === "terminal" && (
               <Terminal
@@ -648,7 +675,11 @@ export default function NoteContainer() {
           Add a New Page
         </button>
         <span></span>
-        <button className="btn btn-soft btn-warning">
+        <button 
+        className="btn btn-soft btn-warning"
+        onClick={handleGeneratePDF}
+        disabled={isLoading}
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"

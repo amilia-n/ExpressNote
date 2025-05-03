@@ -47,7 +47,7 @@ const UserProfile = () => {
       }
     };
     fetchProfile();
-  }, []);
+  }, [API_URL, notes]);
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -68,7 +68,7 @@ const UserProfile = () => {
       if (response.ok) {
         navigate(`/notes/`);
       }
-    } catch (error) {
+    } catch {
       setError("Failed to create note");
     }
   };
@@ -95,7 +95,7 @@ const UserProfile = () => {
             display_name: updatedProfile.display_name,
           }));
         }
-      } catch (error) {
+      } catch {
         setError("Failed to update profile");
       }
     }
