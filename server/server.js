@@ -90,7 +90,7 @@ app.get("/logout", (req, res) => {
 });
 
 app.get("/profile", (req, res) => {
-  if (!req.user) return res.redirect("/notes");
+  res.redirect("/notes");
 });
 
 
