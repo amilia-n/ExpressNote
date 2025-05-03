@@ -45,10 +45,10 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false, // Set to false for local development
-    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 24 * 60 * 60 * 1000,
     httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
   }
   // PROD SETTING
   // cookie: {
@@ -56,6 +56,12 @@ app.use(session({
   //   maxAge: 24 * 60 * 60 * 1000,
   //   httpOnly: true,
   //   sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+  // DEV SETTING
+  // cookie: {
+  //   secure: false, 
+  //   sameSite: 'lax',
+  //   httpOnly: true,
+  //   maxAge: 24 * 60 * 60 * 1000
 }));
 
 // Passport middleware

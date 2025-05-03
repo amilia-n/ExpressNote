@@ -120,7 +120,7 @@ const PDFGenerator = () => {
 
     // Calculate block dimensions based on grid units
     const blockWidth = (layout.w / 12) * availableWidth;
-    const blockHeight = layout.h * rowHeight;
+    const blockHeight = Math.min(layout.h * rowHeight, availableHeight - top);
     const left = (layout.x / 12) * availableWidth + margin;
     const top = layout.y * rowHeight + margin;
 
