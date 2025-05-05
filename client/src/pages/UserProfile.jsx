@@ -34,11 +34,13 @@ const UserProfile = () => {
 
         const data = await response.json();
         console.log("Raw response data:", data);
-        console.log("Notes data:", data.notes);
-
+        
+        // Set profile and notes separately
         setProfile(data.user || {});
-        setNotes(data.notes || []);
-        console.log("Notes state after setting:", notes);
+        if (data.notes) {
+          console.log("Setting notes:", data.notes);
+          setNotes(data.notes);
+        }
       } catch (err) {
         console.error("Profile fetch error:", err);
         setError(err.message);
@@ -47,7 +49,7 @@ const UserProfile = () => {
       }
     };
     fetchProfile();
-  }, [API_URL, notes]);
+  }, [API_URL]); // Remove notes from dependencies
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;

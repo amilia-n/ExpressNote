@@ -14,19 +14,25 @@
 }
 
 .layout {
-  min-width: 8.5in;
-  max-width: 8.5in;
-  min-height: 11in;
-  max-height: 11in;
+  min-width: 210mm; 
+  max-width: 210mm;
+  min-height: 297mm; 
+  max-height: 297mm;
+  padding: 0;
   margin: 80px auto 80px;
   overflow-y: scroll;
   background-color: white;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   border-radius: 4px;
-  padding: 5px;
-  align-self: center;
   position: relative;
+  background-image: 
+    linear-gradient(to right, #ccc 1px, transparent 1px),
+    linear-gradient(to bottom, #ccc 1px, transparent 1px);
+  background-size: 5mm 5mm; 
+  background-position: 0 0;
+  box-sizing: border-box;
 }
+
 #left-side-col {
   display: flex;
   flex-direction: column;
@@ -85,8 +91,9 @@
 }
 
 .react-grid-item {
-  transition: all 200ms ease;
-  transition-property: left, top;
+  position: absolute !important;
+  transition: none !important;
+  will-change: transform;
 }
 
 .react-grid-item.resizing {
@@ -95,7 +102,6 @@
 }
 
 .react-grid-item.react-draggable-dragging {
-  transition: none;
   z-index: 3;
   will-change: transform;
 }
@@ -172,7 +178,6 @@
 .page-nav {
   padding: 0.5rem 1rem;
   border-radius: 4px;
-  /* background: white; */
   cursor: pointer;
   font-weight: 500;
   transition: all 0.2s ease;

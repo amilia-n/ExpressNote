@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from "react";
-import { useParams } from 'react-router-dom';
+import React, { useState, useCallback, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { Responsive, WidthProvider } from "react-grid-layout";
 import { useNavigate } from "react-router-dom";
 import "react-grid-layout/css/styles.css";
@@ -10,14 +10,29 @@ import Terminal from "./Terminal";
 import CodeEditor from "./CodeEditor";
 import "./NoteContainer.css";
 
-
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
 const layoutConfig = {
   breakpoints: { lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 },
-  cols: { lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 },
-  rowHeight: 100,
-  margin: [10, 10],
+  cols: { lg: 42, md: 42, sm: 42, xs: 42, xxs: 42 },
+  rowHeight: 20,
+  margin: [0, 0],
+  containerPadding: [0, 0],
+  isDraggable: true,
+  isResizable: true,
+  useCSSTransforms: true,
+  preventCollision: true,
+  compactType: null,
+  autoSize: false,
+  verticalCompact: false,
+  isBounded: true,
+  allowOverlap: true,
+  transformScale: 1,
+  droppingItem: {
+    i: "__dropping-elem__",
+    h: 4,
+    w: 6,
+  },
 };
 
 const initialEditorContent = [
@@ -54,9 +69,105 @@ export default function NoteContainer() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [noteTitle, setNoteTitle] = useState("");
   const token = localStorage.getItem("token");
   const { noteId } = useParams();
-  console.log('NoteContainer received noteId:', noteId);
+  const [lastSavedTime, setLastSavedTime] = useState(null);
+  // useEffect(() => {
+  //   if (pageBlocks[currentPage]) {
+  //     setEditors(pageBlocks[currentPage]);
+  //   }
+  // }, [currentPage, pageBlocks]);
+  // console.log("NoteContainer received noteId:", noteId);
+  // useEffect(() => {
+  //   if (editors.length > 0 && editors[0].title) {
+  //     setNoteTitle(editors[0].title);
+  //   }
+  // }, [editors]);
+  useEffect(() => {
+    const loadNoteData = async () => {
+      if (noteId) {
+        try {
+          const response = await fetch(`${API_URL}/api/notes/${noteId}`, {
+            headers: {
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+            credentials: "include",
+          });
+  
+          if (response.ok) {
+            const noteData = await response.json();
+            setNoteTitle(noteData.title);
+            
+            const pagesResponse = await fetch(`${API_URL}/api/notes/${noteId}/pages`, {
+              headers: {
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+              },
+              credentials: "include",
+            });
+  
+            if (pagesResponse.ok) {
+              const pagesData = await pagesResponse.json();
+              
+              const blocksByPage = {};
+              pagesData.forEach(page => {
+                blocksByPage[page.position + 1] = page.blocks.map(block => {
+                  // Parse content based on block type
+                  let parsedContent;
+                  try {
+                    parsedContent = block.block_type === 'text' 
+                      ? JSON.parse(block.content)
+                      : block.content;
+                  } catch (e) {
+                    parsedContent = block.content;
+                  }
+  
+                  // Calculate proper dimensions based on saved values
+                  const width = block.width || 12;
+                  const height = block.height || 2;
+                  const x = block.x || 0;
+                  const y = block.y || 0;
+  
+                  return {
+                    id: block.block_id,
+                    noteId: noteId,
+                    blockId: block.block_id,
+                    type: block.block_type,
+                    layout: {
+                      i: block.block_id,
+                      x: x,
+                      y: y,
+                      w: width,
+                      h: height,
+                      minW: 3,
+                      minH: 2,
+                      maxW: 42,
+                      maxH: 20,
+                    },
+                    content: parsedContent,
+                    title: block.title || "Untitled Block",
+                  };
+                });
+              });
+  
+              // Set all states at once to prevent race conditions
+              setPageBlocks(blocksByPage);
+              setTotalPages(Object.keys(blocksByPage).length);
+              setCurrentPage(1);
+              setEditors(blocksByPage[1] || []);
+              setSaveStatus("saved");
+            }
+          }
+        } catch (error) {
+          setError("Failed to load note data");
+          console.error("Error loading note:", error);
+        }
+      }
+    };
+  
+    loadNoteData();
+  }, [noteId, token]);
+
   const handleContentChange = useCallback(
     (editorId, newContent) => {
       setEditors((prev) => {
@@ -73,30 +184,40 @@ export default function NoteContainer() {
     },
     [currentPage]
   );
-  
-//GeneratePDF
-const handleGeneratePDF = () => {
-  const currentPageBlocks = pageBlocks[currentPage] || [];
-  
-  // Ensure each block has the required properties
-  const formattedBlocks = currentPageBlocks.map(block => ({
-    id: block.id || `block-${Date.now()}`,
-    type: block.type,
-    content: block.content || '',
-    layout: block.layout || { x: 0, y: 0, w: 12, h: 2 }
-  }));
 
-  const pdfData = {
-    currentPage: currentPage,
-    pageBlocks: {
-      [currentPage]: formattedBlocks
-    }
+  //GeneratePDF
+  const handleGeneratePDF = () => {
+    const currentPageBlocks = pageBlocks[currentPage] || [];
+
+    const formattedBlocks = currentPageBlocks.map((block) => ({
+      id: block.id || `block-${Date.now()}`,
+      type: block.type,
+      content: block.content || "",
+      layout: {
+        i: block.layout?.i || `block-${Date.now()}`,
+        x: block.layout?.x || 0,
+        y: block.layout?.y || 0,
+        w: block.layout?.w || 12,
+        h: block.layout?.h || 2,
+      },
+      title: block.title || "Untitled Block",
+      noteId: block.noteId || null,
+      blockId: block.blockId || null,
+    }));
+
+    const pdfData = {
+      currentPage: currentPage,
+      totalPages: totalPages,
+      noteTitle: noteTitle,
+      pageBlocks: {
+        [currentPage]: formattedBlocks,
+      },
+    };
+
+    console.log("Storing PDF data:", pdfData);
+    sessionStorage.setItem("pdfNoteData", JSON.stringify(pdfData));
+    window.open("/pdf", "_blank");
   };
-  
-  console.log('Storing PDF data:', pdfData);
-  sessionStorage.setItem('pdfNoteData', JSON.stringify(pdfData));
-  window.open('/pdf', '_blank');
-};
 
   const handleTemplateDragStart = (e) => {
     const editorType = e.target
@@ -110,10 +231,13 @@ const handleGeneratePDF = () => {
     e.preventDefault();
     e.dataTransfer.dropEffect = "copy";
   };
-
   const handleTemplateDrop = (layout, layoutItem, event) => {
     if (event.dataTransfer.getData("text/plain")) {
       const editorType = event.dataTransfer.getData("text/plain");
+
+      // Use the exact drop position without snapping
+      const dropX = layoutItem.x;
+      const dropY = layoutItem.y;
 
       let initialContent;
       if (editorType === "text") {
@@ -133,10 +257,10 @@ const handleGeneratePDF = () => {
         type: editorType,
         layout: {
           i: `${editorType}-${Date.now()}`,
-          x: layoutItem.x,
-          y: layoutItem.y,
-          w: 6,
-          h: 4,
+          x: dropX,
+          y: dropY,
+          w: 10,
+          h: 10,
         },
         content: initialContent,
         title: "Untitled Note",
@@ -146,37 +270,37 @@ const handleGeneratePDF = () => {
     }
   };
 
-  // New Page Handler
+  // Modify handleAddNewPage to maintain state
   const handleAddNewPage = () => {
     const newPageNumber = totalPages + 1;
-    setTotalPages(newPageNumber);
-    setCurrentPage(newPageNumber);
+
+    // Save current editors to current page before switching
     setPageBlocks((prev) => ({
       ...prev,
+      [currentPage]: editors,
       [newPageNumber]: [],
     }));
+
+    setTotalPages(newPageNumber);
+    setCurrentPage(newPageNumber);
     setEditors([]);
   };
 
+
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
+      // Save current editors to current page before switching
+      setPageBlocks((prev) => ({
+        ...prev,
+        [currentPage]: editors,
+      }));
+
       setCurrentPage(newPage);
+      // Load editors from pageBlocks or empty array if none exist
       setEditors(pageBlocks[newPage] || []);
     }
   };
-  const reorderPageNumbers = (pageBlocks) => {
-    const orderedPages = Object.keys(pageBlocks)
-      .map(Number)
-      .sort((a, b) => a - b);
-    
-    const newPageBlocks = {};
-    orderedPages.forEach((oldPageNum, index) => {
-      newPageBlocks[index + 1] = pageBlocks[oldPageNum];
-    });
-    
-    return newPageBlocks;
-  };
-  // Page Delete Handler
+
   const handleDeletePage = () => {
     if (totalPages <= 1) {
       setError("Cannot delete the only page");
@@ -191,15 +315,21 @@ const handleGeneratePDF = () => {
     setPageBlocks((prev) => {
       const newPageBlocks = { ...prev };
       delete newPageBlocks[currentPage];
-      const reorderedBlocks = reorderPageNumbers(newPageBlocks);
+      
+      // Reorder remaining pages
+      const reorderedBlocks = {};
+      Object.keys(newPageBlocks)
+        .sort((a, b) => parseInt(a) - parseInt(b))
+        .forEach((pageNum, index) => {
+          reorderedBlocks[index + 1] = newPageBlocks[pageNum];
+        });
+
       const newCurrentPage = currentPage === 1 ? 1 : currentPage - 1;
       setCurrentPage(newCurrentPage);
-    // Update total pages
       setTotalPages(Object.keys(reorderedBlocks).length);
       setEditors(reorderedBlocks[newCurrentPage] || []);
       return reorderedBlocks;
     });
-
   };
 
   const saveToDatabase = useCallback(
@@ -207,7 +337,7 @@ const handleGeneratePDF = () => {
       setIsLoading(true);
       setError(null);
       try {
-        let noteId = data.noteId;
+        let noteId = data?.noteId;
         let pageId = currentPageId;
 
         if (!noteId) {
@@ -257,10 +387,14 @@ const handleGeneratePDF = () => {
           const blockData = {
             page_id: pageId,
             block_type: editor.type,
-            content: JSON.stringify(editor.content),
+            content: editor.type === 'text' 
+              ? JSON.stringify(editor.content)
+              : editor.content,
             position: 0,
             x: editor.layout.x,
             y: editor.layout.y,
+            width: editor.layout.w,
+            height: editor.layout.h,
           };
 
           if (editor.blockId) {
@@ -298,6 +432,7 @@ const handleGeneratePDF = () => {
         }
 
         setSaveStatus("saved");
+        setLastSavedTime(new Date());
       } catch (error) {
         setError(error.message);
         setSaveStatus("error");
@@ -329,13 +464,12 @@ const handleGeneratePDF = () => {
 
   const handleTitleChange = (editorId, newTitle) => {
     setEditors((prev) =>
-        prev.map((editor) =>
-            editor.id === editorId ? { ...editor, title: newTitle } : editor
-        )
+      prev.map((editor) =>
+        editor.id === editorId ? { ...editor, title: newTitle } : editor
+      )
     );
     setSaveStatus("unsaved");
-};
-
+  };
 
   return (
     <div className="note-page-container">
@@ -553,6 +687,18 @@ const handleGeneratePDF = () => {
         cols={layoutConfig.cols}
         rowHeight={layoutConfig.rowHeight}
         margin={layoutConfig.margin}
+        containerPadding={layoutConfig.containerPadding}
+        isDraggable={layoutConfig.isDraggable}
+        isResizable={layoutConfig.isResizable}
+        useCSSTransforms={layoutConfig.useCSSTransforms}
+        preventCollision={layoutConfig.preventCollision}
+        compactType={layoutConfig.compactType}
+        autoSize={layoutConfig.autoSize}
+        verticalCompact={layoutConfig.verticalCompact}
+        isBounded={layoutConfig.isBounded}
+        allowOverlap={layoutConfig.allowOverlap}
+        transformScale={layoutConfig.transformScale}
+        droppingItem={layoutConfig.droppingItem}
         onLayoutChange={(layout) => {
           setEditors((prev) =>
             prev.map((editor) => ({
@@ -578,9 +724,10 @@ const handleGeneratePDF = () => {
               />
             )}
             {editor.type === "image" && (
-                <ImgBox 
+              <ImgBox
+                id={editor.id}
                 onClose={() => handleCloseEditor(editor.id)}
-                onChange={(content) => handleContentChange(editor.id, content)}
+                onChange={(id, content) => handleContentChange(id, content)}
               />
             )}
             {editor.type === "terminal" && (
@@ -605,20 +752,31 @@ const handleGeneratePDF = () => {
           type="text"
           placeholder="Document Title"
           className="input note-title"
-          value={editors[0]?.title || ""}
-          onChange={(e) => handleTitleChange(editors[0].id, e.target.value)}
+          value={noteTitle}
+          onChange={(e) => {
+            setNoteTitle(e.target.value);
+            handleTitleChange(editors[0].id, e.target.value);
+          }}
         />
         <div className="last-saved">
           {isLoading
             ? "Saving..."
             : saveStatus === "saved"
-            ? "Saved"
-            : "Unsaved"}
+            ? `Last saved: ${lastSavedTime ? new Date(lastSavedTime).toLocaleTimeString() : "Never"}`
+            : saveStatus === "error"
+            ? "Error saving"
+            : "Unsaved changes"}
         </div>
         {error && <div className="error-message">{error}</div>}
         <button
           className="btn btn-soft btn-success"
-          onClick={() => saveToDatabase(editors[0])}
+          onClick={() =>
+            saveToDatabase({
+              noteId: noteId,
+              title: noteTitle,
+              id: editors[0]?.id,
+            })
+          }
           disabled={isLoading}
         >
           <svg
@@ -675,10 +833,10 @@ const handleGeneratePDF = () => {
           Add a New Page
         </button>
         <span></span>
-        <button 
-        className="btn btn-soft btn-warning"
-        onClick={handleGeneratePDF}
-        disabled={isLoading}
+        <button
+          className="btn btn-soft btn-warning"
+          onClick={handleGeneratePDF}
+          disabled={isLoading}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -697,9 +855,9 @@ const handleGeneratePDF = () => {
           Download PDF
         </button>
         <span></span>
-        <button 
-        className="btn btn-soft add-editor-button" 
-        onClick={() => navigate('/profile')}
+        <button
+          className="btn btn-soft add-editor-button"
+          onClick={() => navigate("/profile")}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
