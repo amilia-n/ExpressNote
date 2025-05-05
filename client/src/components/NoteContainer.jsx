@@ -55,7 +55,7 @@ export default function NoteContainer() {
       noteId: null,
       blockId: null,
       type: "text",
-      layout: { i: "text-1", x: 0, y: 0, w: 3, h: 2 },
+      layout: { i: "text-1", x: 0, y: 0, w: 10, h: 10 },
       content: initialEditorContent,
       title: "Untitled Note",
     },
