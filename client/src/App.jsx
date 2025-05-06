@@ -3,11 +3,11 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import { Navigate } from "react-router-dom";
 import Landing from "./pages/Landing";
-import NewNotes from "./pages/NewNotes";
+import NewNote from "./pages/NewNote";
 import UserProfile from "./pages/UserProfile";
-import NoPage from "./pages/NoPage";
-import NoteContainer from "./components/NoteContainer";
+import Page404 from "./pages/Page404";
 import PDFGenerator from "./components/PDFGenerator";
+import ExistingNote from "./pages/ExistingNote";
 
 function App() {
   return (
@@ -18,12 +18,12 @@ function App() {
           <Route path="/login" element={<Landing />} />
           <Route path="/profile" element={<UserProfile />} />
           <Route
-            path="/notes"
+            path="notes/newnote"
             element={
               <>
                 <Navbar />
                 <main className="flex-grow">
-                  <NewNotes />
+                  <NewNote />
                 </main>
               </>
             }
@@ -34,12 +34,12 @@ function App() {
               <>
                 <Navbar />
                 <main className="flex-grow">
-                  <NoteContainer />
+                  <ExistingNote />
                 </main>
               </>
             }
           />
-          <Route path="*" element={<NoPage />} />
+          <Route path="*" element={<Page404 />} />
           <Route path="/pdf" element={<PDFGenerator />} />
         </Routes>
       </div>

@@ -1,0 +1,142 @@
+.note-container-header{
+  display: inline-flex;
+  align-items: center;
+  align-self: center;
+  gap: 15px;
+  margin-top: 5px;
+  margin-bottom: -50px;
+}
+#left-side-col {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  width: 300px;
+  height: 300px;
+  position: absolute;
+  left: 50;
+  margin: 80px 0 0 30px;
+  padding: 20px;
+  overflow: none;
+  z-index: 1000;
+}
+#right-side-col {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  width: 300px;
+  height: 300px;
+  position: absolute;
+  right: 0;
+  margin: 80px 30px 0 0;
+  padding: 20px;
+  overflow: none;
+  z-index: 1000;
+}
+
+.note-title {
+  color: #282828;
+  min-height: 50px;
+  margin-bottom: -15px;
+}
+.last-saved {
+  font-size: 0.8rem;
+  color: #ffffff;
+  margin-left: 2px;
+}
+.btn {
+  width: 200px;
+  align-self: center;
+  border-radius: 15px !important;
+  padding: 20px;
+}
+
+.img-icon {
+  justify-self: center;
+  color: #595959;
+}
+.term-icon {
+  justify-self: center;
+  color: #595959;
+}
+.code-icon {
+  justify-self: center;
+  color: #595959;
+}
+.text-icon {
+  justify-self: center;
+  color: #595959;
+}
+
+.editor-template {
+  background-color: white;
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  cursor: move;
+  transition: all 0.2s ease;
+}
+
+.editor-template:hover {
+  border-color: #666;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.template-preview {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.template-preview h3 {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+}
+
+.template-preview p {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.page-ct{
+  width: 40px;
+  height: 30px;
+  background-color: #ffffff;
+  padding: 10px;
+  border-radius: 10px;
+  justify-self: center;
+  text-align: center;
+}
+
+.page-input{
+  background-color: rgb(255, 255, 255);
+  min-width: 25px;
+  max-width: fit-content;
+  padding: 0 5px;
+  border-radius: 5px;
+
+}
+.total-pages {
+  font-weight: 250;
+  color: #ffffff;
+  font-size: 20px;
+  word-spacing: 5px;
+}
+.page-nav {
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  color: #ffffff;
+}
+.page-nav:hover {
+  color: #ccc;
+  cursor: pointer;
+
+}
+.page-input::-webkit-outer-spin-button,
+.page-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}

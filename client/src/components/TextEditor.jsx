@@ -207,7 +207,7 @@ export default function TextEditor({ content, onChange, onClose, isPDF = false }
       </div>
       <Slate editor={editor} initialValue={editorValue} onChange={handleChange}>
         <Editable
-          className="editor-content"
+        className={`editor-content ${isCollapsed ? 'collapsed' : ''}`}
           placeholder="I am a Text Editor ☺︎"
         />
       </Slate>

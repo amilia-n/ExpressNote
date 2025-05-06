@@ -45,10 +45,10 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 24 * 60 * 60 * 1000,
+    secure: false, 
+    sameSite: 'lax',
     httpOnly: true,
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+    maxAge: 24 * 60 * 60 * 1000
   }
   // PROD SETTING
   // cookie: {
@@ -56,6 +56,7 @@ app.use(session({
   //   maxAge: 24 * 60 * 60 * 1000,
   //   httpOnly: true,
   //   sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+  // }
   // DEV SETTING
   // cookie: {
   //   secure: false, 
@@ -89,14 +90,17 @@ app.get("/logout", (req, res) => {
   req.logout(() => res.redirect("/login"));
 });
 
+// app.get("/profile", (req, res) => {
+//   res.redirect("/notes");
+// });
 app.get("/profile", (req, res) => {
-  res.redirect("/notes");
+  res.redirect("/profile");
 });
 
-
-app.get('/notes', (req, res) => {
+app.get(['/profile', '/newnote', '/notes/:noteId', '/pdf', '/allnotes'], (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
+
 
 // app.get('/', (req, res) => {
 //   res.sendFile(path.join(__dirname, 'public', 'index.html'));

@@ -21,6 +21,12 @@
   outline: none;
   overflow-y: auto;
 }
+
+.editor-content.collapsed {
+  height: 0;
+  padding: 0;
+  overflow: hidden;
+}
 .toolbar-expand {
   position: absolute;
   top: 5px;

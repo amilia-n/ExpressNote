@@ -8,13 +8,62 @@ import {
   StyleSheet,
   Image,
 } from "@react-pdf/renderer";
+import { GRID_CONFIG } from '../config/gridConfig';
+
+
+const gridConfig = {
+  ...GRID_CONFIG,
+  containerWidth: 595.28, 
+  containerHeight: 841.89,
+  columns: 42, 
+  rowHeight: 20, 
+  margin: [0, 0],
+  padding: [0, 0]
+};
+
+const calculateGridPosition = (layout) => {
+  const { containerWidth, columns, rowHeight } = gridConfig;
+  const gridUnitWidth = containerWidth / columns;
+  
+  return {
+    width: layout.w * gridUnitWidth,
+    height: layout.h * rowHeight,
+    left: layout.x * gridUnitWidth,
+    top: layout.y * rowHeight
+  };
+};
+
+const validateBlockLayout = (block) => {
+  const layout = block.layout || { x: 0, y: 0, w: 12, h: 2 };
+  
+  return {
+    ...layout,
+    x: Math.max(0, Math.min(layout.x, gridConfig.columns - layout.w)),
+    y: Math.max(0, layout.y),
+    w: Math.max(1, Math.min(layout.w, gridConfig.columns)),
+    h: Math.max(1, layout.h)
+  };
+};
+
+const formatPDFData = (data) => {
+  return {
+    ...data,
+    pageBlocks: Object.entries(data.pageBlocks).reduce((acc, [pageNum, blocks]) => {
+      acc[pageNum] = blocks.map(block => ({
+        ...block,
+        layout: validateBlockLayout(block)
+      }));
+      return acc;
+    }, {})
+  };
+};
 
 const styles = StyleSheet.create({
   page: {
     display: "flex",
     backgroundColor: "#ffffff",
-    width: "595.28pt", 
-    height: "841.89pt",
+    width: `${gridConfig.containerWidth}pt`,
+    height: `${gridConfig.containerHeight}pt`,
     position: "relative",
     overflow: "hidden",
   },
@@ -24,9 +73,13 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundImage: "linear-gradient(to right, #ccc 1px, transparent 1px), linear-gradient(to bottom, #ccc 1px, transparent 1px)",
-    backgroundSize: "14.17pt 14.17pt",
+    backgroundImage: `
+      linear-gradient(to right, #ccc 1px, transparent 1px),
+      linear-gradient(to bottom, #ccc 1px, transparent 1px)
+    `,
+    backgroundSize: `${gridConfig.containerWidth / gridConfig.columns}pt ${gridConfig.rowHeight}pt`,
     zIndex: 0,
+    opacity: 0.2
   },
   textBlock: {
     display: "flex",
@@ -69,14 +122,23 @@ const styles = StyleSheet.create({
   emptyPage: {
     display: "flex",
     backgroundColor: "#ffffff",
-    width: "595.28pt",
-    height: "841.89pt",
+    width: `${gridConfig.containerWidth}pt`,
+    height: `${gridConfig.containerHeight}pt`,
     position: "relative",
     overflow: "hidden",
-    backgroundImage:
-      "linear-gradient(to right, #ccc 1px, transparent 1px), linear-gradient(to bottom, #ccc 1px, transparent 1px)",
-    backgroundSize: "14.17pt 14.17pt",
+    backgroundImage: `
+      linear-gradient(to right, #ccc 1px, transparent 1px),
+      linear-gradient(to bottom, #ccc 1px, transparent 1px)
+    `,
+    backgroundSize: `${gridConfig.containerWidth / gridConfig.columns}pt ${gridConfig.rowHeight}pt`,
   },
+  pageNumber: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    fontSize: 10,
+    color: "#666"
+  }
 });
 
 const PDFGenerator = () => {
@@ -89,7 +151,7 @@ const PDFGenerator = () => {
       const storedData = sessionStorage.getItem("pdfNoteData");
       if (storedData) {
         const parsedData = JSON.parse(storedData);
-        setPdfData(parsedData);
+        setPdfData(formatPDFData(parsedData));
       } else {
         setError("No PDF data found");
       }
@@ -126,34 +188,27 @@ const PDFGenerator = () => {
 
   const renderBlock = (block) => {
     if (!block) return null;
-  
-    const layout = block.layout || { x: 0, y: 0, w: 12, h: 2 };
     
-    // Match NoteContainer's grid system
-    const containerWidth = 595.28; // A4 width minus padding
+    const layout = validateBlockLayout(block);
+    const position = calculateGridPosition(layout);
     
-    // Calculate grid units based on NoteContainer's system
-    const gridUnitWidth = containerWidth / 42; // 42 columns
-    const gridUnitHeight = 20; // Same as NoteContainer's rowHeight
-    
-    // Convert grid positions to points
-    const blockWidth = layout.w * gridUnitWidth;
-    const blockHeight = layout.h * gridUnitHeight;
-    const left = layout.x * gridUnitWidth;
-    const top = layout.y * gridUnitHeight;
-  
     const blockStyle = {
-      width: `${blockWidth}pt`,
-      height: `${blockHeight}pt`,
-      left: `${left}pt`,
-      top: `${top}pt`,
-      position: "absolute",
       ...styles[`${block.type}Block`],
+      width: `${position.width}pt`,
+      height: `${position.height}pt`,
+      left: `${position.left}pt`,
+      top: `${position.top}pt`,
+      position: "absolute",
+      zIndex: layout.z || 1
     };
-  
+
     switch (block.type) {
       case "text":
-        return <View style={blockStyle}>{renderTextContent(block.content)}</View>;
+        return (
+          <View style={blockStyle}>
+            {renderTextContent(block.content)}
+          </View>
+        );
       case "code":
         return (
           <View style={blockStyle}>
@@ -180,55 +235,46 @@ const PDFGenerator = () => {
     }
   };
 
-  // const renderPage = (pageNumber) => {
-  //   const pageBlocks = pdfData.pageBlocks[pageNumber] || [];
-  //   const hasContent = pageBlocks.length > 0;
-
-  //   return (
-  //     <Page key={pageNumber} size="A4" style={hasContent ? styles.page : styles.emptyPage}>
-  //       <View style={styles.gridLines} />
-  //       {hasContent ? (
-  //         pageBlocks.map((block) => (
-  //           <View key={block.id || block.blockId}>
-  //             {renderBlock(block)}
-  //           </View>
-  //         ))
-  //       ) : (
-  //         <View>
-  //           <Text style={{ textAlign: "center", marginTop: "50%" }}>
-  //             Page {pageNumber}
-  //           </Text>
-  //         </View>
-  //       )}
-  //     </Page>
-  //   );
-  // };
+  const renderPage = (pageIndex, blocks) => {
+    return (
+      <Page 
+        size="A4" 
+        style={styles.page} 
+        key={pageIndex}
+      >
+        <View style={styles.gridLines} />
+        <Text style={styles.pageNumber}>
+          Page {pageIndex + 1} of {pdfData.totalPages}
+        </Text>
+        {blocks.length > 0 ? (
+          blocks.map((block, i) => (
+            <React.Fragment key={block.id || i}>
+              {renderBlock(block)}
+            </React.Fragment>
+          ))
+        ) : (
+          <View style={styles.emptyPage}>
+            <Text style={{ color: "gray" }}>
+              Empty Page
+            </Text>
+          </View>
+        )}
+      </Page>
+    );
+  };
 
   return (
     <div className="pdf-container">
-        <PDFViewer style={{ width: "100%", height: "100vh" }}>
-            <Document>
-                <Page size="A4" style={styles.page}>
-                    {pdfData.pageBlocks[pdfData.currentPage]
-                        ?.sort((a, b) => {
-                            // First sort by y position
-                            if (a.layout.y !== b.layout.y) {
-                                return a.layout.y - b.layout.y;
-                            }
-                            // If y is the same, sort by x position
-                            return a.layout.x - b.layout.x;
-                        })
-                        .map((block, index) => (
-                            <View key={block.id || index}>
-                                {renderBlock(block)}
-                            </View>
-                        ))}
-                </Page>
-            </Document>
-        </PDFViewer>
+      <PDFViewer>
+        <Document>
+          {Array.from({ length: pdfData.totalPages }).map((_, pageIndex) => {
+            const blocks = pdfData.pageBlocks?.[pageIndex + 1] || [];
+            return renderPage(pageIndex, blocks);
+          })}
+        </Document>
+      </PDFViewer>
     </div>
   );
 };
 
 export default PDFGenerator;
-
