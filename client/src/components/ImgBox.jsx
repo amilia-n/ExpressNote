@@ -16,7 +16,10 @@ const ImgBox = ({ onChange, id, color, opacity }) => {
       reader.readAsDataURL(file);
     }
   };
-
+  const handleButtonClick = (e) => {
+    e.stopPropagation();
+    document.getElementById(`image-upload-${id}`).click();
+  };
 
   return (
     <div className="imgbox-wrapper" style={{ backgroundColor: color, opacity: opacity / 100 }}>
@@ -26,7 +29,7 @@ const ImgBox = ({ onChange, id, color, opacity }) => {
           <img src={image} alt="Uploaded" className="uploaded-image" />
         ) : (
           <div className="drop-area">
-            <button className="add-image" onClick={(e) => e.stopPropagation()}>
+            <button className="add-image" onClick={handleButtonClick}>
               <input 
                 type="file" 
                 accept="image/*" 
