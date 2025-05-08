@@ -4,6 +4,7 @@
 ![ExpressNote Interface](client/src/assets/NoteContainer.png)
 
 Say goodbye to static note chaos—ExpressNote transforms your developer workflow by blending code, text, and images into dynamic, customizable pages.
+
 ## Features
 
 - Authentication (Local & Google OAuth)
@@ -11,7 +12,11 @@ Say goodbye to static note chaos—ExpressNote transforms your developer workflo
   - Text Editor
   - Code Editor
   - Image Viewer
+  - Terminal
 - Grid-based Layout for Formatting
+- Multi-page Notes
+- PDF Export
+- Component Recycling System
 
 ## Tech Stack
 
@@ -23,17 +28,36 @@ Say goodbye to static note chaos—ExpressNote transforms your developer workflo
 - Vitest for Testing
 
 ### Frontend
-- React
-- Slate (Rich Text Editor)
-- DaisyUI
+- React 19
+- Slate & Slate-React (Rich Text Editor)
+- DaisyUI & Tailwind CSS
 - React Grid Layout
-- html2pdf.js
+- React Router DOM
+- React Colorful (Color Picker)
+- React PDF Renderer
+- Heroicons
+- Animated GIF icons from Flaticon
+
+### Development & Testing
+- Vite
+- Vitest
+- React Testing Library
+- Jest DOM
+- JSDOM
+- ESLint
+- PostCSS
+- Autoprefixer
 
 ## Setup Instructions
 
 1. Clone the repository
 2. Install dependencies:
    ```bash
+   # Install backend dependencies
+   npm install
+
+   # Install frontend dependencies
+   cd client
    npm install
    ```
 
@@ -62,64 +86,38 @@ Say goodbye to static note chaos—ExpressNote transforms your developer workflo
    node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
    ```
 
-5. Start the server:
+5. Start the development servers:
    ```bash
+   # Start backend server
    npm start
+
+   # Start frontend server (in client directory)
+   cd client
+   npm run dev
    ```
-
-## API Documentation
-
-### Authentication Routes (`/api/auth`)
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/auth/google` | Initiates Google OAuth |
-| GET | `/auth/google/callback` | Handles Google OAuth callback |
-| POST | `/auth/register` | Local user registration |
-| POST | `/auth/login` | Local user login |
-| POST | `/auth/logout` | Handles user logout |
-| GET | `/auth/profile` | Get user profile |
-
-### Note Routes (`/api/notes`)
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/notes` | Create a new note |
-| GET | `/notes` | Get all notes |
-| GET | `/notes/:id` | Get a specific note |
-| PUT | `/notes/:id` | Update a note |
-| DELETE | `/notes/:id` | Delete a note |
-### Page Routes (`/api/notes/:noteId/pages`)
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/notes/:noteId/pages` | Create a new page |
-| GET | `/notes/:noteId/pages` | Get all pages for a note |
-| GET | `/notes/:noteId/pages/:pageId` | Get a specific page |
-| PUT | `/notes/:noteId/pages/:pageId` | Update a page |
-| DELETE | `/notes/:noteId/pages/:pageId` | Delete a page |
-
-### Block Routes (`/api/notes/:noteId/pages/:pageId/blocks`)
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/blocks` | Create a new block |
-| GET | `/blocks/:pageId` | Get all blocks for a page |
-| GET | `/blocks/:pageId/:blockId` | Get a specific block |
-| PUT | `/blocks/:blockId` | Update a block |
-| DELETE | `/blocks/:blockId` | Delete a block |
 
 ## Testing
 
+### Backend Testing
 The backend uses Vitest for testing with the following test suites:
-
 - **Server Tests**: Integration tests for API endpoints
 - **Auth Tests**: Authentication flow tests
 - **Controller Tests**: Unit tests for note, page, and block controllers
 - **Database Tests**: Database connection and query tests
 
-Run tests with:
+Run backend tests with:
 ```bash
+npm run test
+```
+
+### Frontend Testing
+The frontend uses Vitest and React Testing Library for component testing:
+- **Component Tests**: Basic rendering and interaction tests
+- **Integration Tests**: Component interaction tests
+
+Run frontend tests with:
+```bash
+cd client
 npm run test
 ```
 
@@ -133,12 +131,10 @@ npm run test
 
 ### Frontend Development
 - Slate: Rich text editor
-- DaisyUI: for UI and Components
-   - Mock Code Editor Component
-   - Image Import Compoment
-   - Mock Terminal Component
+- DaisyUI: UI components and styling
 - React Grid Layout: Grid system
 - react-pdf: PDF export functionality
+- Vitest & React Testing Library: Frontend testing
 
 ## Project Structure
 
@@ -152,6 +148,15 @@ server/
 │   ├── unit/      # Unit tests
 │   └── setup.js   # Test setup
 └── server.js       # Entry point
+
+client/
+├── src/
+│   ├── components/ # React components
+│   ├── pages/      # Page components
+│   ├── services/   # API services
+│   └── assets/     # Static assets
+├── __test__/       # Frontend test files
+└── vite.config.js  # Vite configuration
 ```
 
 ## Contributing

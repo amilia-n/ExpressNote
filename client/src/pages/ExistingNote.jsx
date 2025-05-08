@@ -3,7 +3,6 @@ import { useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import NoteContainer from "../components/NoteContainer";
 import { LeftUtilityButtons } from "../components/UtilityButtons";
-// import { noteService } from '../services/noteService';
 
 const ExistingNote = () => {
   const { noteId } = useParams();
