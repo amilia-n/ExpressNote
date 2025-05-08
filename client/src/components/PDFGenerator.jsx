@@ -9,14 +9,14 @@ import {
   Image,
 } from "@react-pdf/renderer";
 
-// Match NoteContainer's grid configuration
+// Match NoteContainer
 const GRID_CONFIG = {
   cols: 42,
   rowHeight: 20,
   margin: [0, 0],
   containerPadding: [0, 0],
-  containerWidth: 595.28, // A4 width in points
-  containerHeight: 841.89, // A4 height in points
+  containerWidth: 595.28, 
+  containerHeight: 841.89, 
 };
 
 const styles = StyleSheet.create({
@@ -35,7 +35,6 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundImage: "linear-gradient(to right, #ccc 1px, transparent 1px), linear-gradient(to bottom, #ccc 1px, transparent 1px)",
-    // backgroundSize: `${GRID_CONFIG.containerWidth / GRID_CONFIG.cols}pt ${GRID_CONFIG.rowHeight}pt`,
     backgroundSize: "14.17pt 14.17pt",
     zIndex: 0,
   },
