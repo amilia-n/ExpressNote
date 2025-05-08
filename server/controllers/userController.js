@@ -12,12 +12,10 @@ const SALT_ROUNDS = 10;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Register new user
 export const registerUser = async (req, res) => {
   try {
     const { email, password } = req.body;
     
-    // Check if user already exists
     const userExists = await pool.query(
       'SELECT * FROM users WHERE email = $1',
       [email]
@@ -27,10 +25,8 @@ export const registerUser = async (req, res) => {
       return res.status(400).json({ error: 'User already exists' });
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
-    // Create new user
     const result = await pool.query(
       'INSERT INTO users (email, password) VALUES ($1, $2) RETURNING user_id, email',
       [email, hashedPassword]
@@ -42,12 +38,9 @@ export const registerUser = async (req, res) => {
   }
 };
 
-// Login user
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
-
-    // Check if user exists
     const result = await pool.query(
       'SELECT * FROM users WHERE email = $1',
       [email]
@@ -59,13 +52,11 @@ export const loginUser = async (req, res) => {
 
     const user = result.rows[0];
 
-    // Check password
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    // Create JWT token
     const token = jwt.sign(
       { user_id: user.id, email: user.email },
       process.env.JWT_SECRET,
@@ -78,12 +69,10 @@ export const loginUser = async (req, res) => {
   }
 };
 
-// Google Auth
 export const googleAuth = passport.authenticate('google', {
   scope: ['profile', 'email']
 });
 
-// Google Auth Callback
 export const googleCallback = async (req, res) => {
   try {
     const token = jwt.sign(
@@ -96,7 +85,6 @@ export const googleCallback = async (req, res) => {
       ? process.env.CLIENT_URL 
       : 'http://localhost:5173';
     
-    // Read the template file
     const template = await fs.promises.readFile(path.join(__dirname, '..', 'googleCallback.html'), 'utf8');
     //alt to^
     // const template = await fs.promises.readFile(
@@ -115,7 +103,6 @@ export const googleCallback = async (req, res) => {
   }
 };
 
-// Logout
 export const logout = (req, res) => {
   req.logout(() => {
     res.redirect('/login');
@@ -127,19 +114,16 @@ export const getProfile = async (req, res) => {
   try {
     const userId = req.user.user_id;
     
-    // Get user info
     const userResult = await pool.query(
       'SELECT email, display_name, created_at FROM users WHERE user_id = $1',
       [userId]
     );
     
-    // Get user's notes with their first page content
     const notesResult = await pool.query(`
       SELECT n.note_id, n.title, n.created_at, n.updated_at,
-             p.page_id, b.content
+             nd.description
       FROM notes n
-      LEFT JOIN pages p ON n.note_id = p.note_id
-      LEFT JOIN blocks b ON p.page_id = b.page_id
+      LEFT JOIN note_descriptions nd ON n.note_id = nd.note_id
       WHERE n.user_id = $1
       ORDER BY n.updated_at DESC
     `, [userId]);

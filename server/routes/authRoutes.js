@@ -43,7 +43,11 @@ router.get("/profile", authenticateToken, async (req, res) => {
     console.log("User query result:", userResult.rows);
 
     const notesResult = await pool.query(
-      "SELECT note_id, title, created_at FROM notes WHERE user_id = $1 ORDER BY created_at DESC",
+      `SELECT n.note_id, n.title, n.created_at, nd.description
+       FROM notes n
+       LEFT JOIN note_descriptions nd ON n.note_id = nd.note_id
+       WHERE n.user_id = $1
+       ORDER BY n.created_at DESC`,
       [userId]
     );
     console.log("Notes query result:", notesResult.rows);

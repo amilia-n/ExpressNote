@@ -33,6 +33,14 @@ CREATE TABLE blocks (
   position INTEGER, 
   x INTEGER, 
   y INTEGER, 
+  color VARCHAR(7) DEFAULT '#ffffff',
+  opacity INTEGER DEFAULT 100,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE note_descriptions (
+    note_id INTEGER REFERENCES notes(note_id),
+    description TEXT,
+    PRIMARY KEY (note_id)
 );

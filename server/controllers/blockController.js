@@ -4,7 +4,7 @@ import { blockQueries } from '../db/queries.js';
 // Create Block
 export const createBlock = async (req, res) => {
   try {
-    const { page_id, block_type, content, position, x, y } = req.body;
+    const { page_id, block_type, content, position, x, y, color, opacity } = req.body;
 
     // Check if page exists
     const pageCheck = await pool.query('SELECT * FROM pages WHERE page_id = $1', [page_id]);
@@ -12,26 +12,25 @@ export const createBlock = async (req, res) => {
       return res.status(404).json({ error: 'Page not found' });
     }
 
-      const result = await pool.query(
-        blockQueries.createBlock,
-      [page_id, block_type, content, position, x, y]
-      );
-      res.status(201).json(result.rows[0]);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
-  };
+    const result = await pool.query(
+      blockQueries.createBlock,
+      [page_id, block_type, content, position, x, y, color, opacity]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
 //Update Block
 export const updateBlock = async (req, res) => {
   try {
-    const { blockId } = req.params;
-    const { content, position, x, y } = req.body;
-
-      const result = await pool.query(
-        blockQueries.updateBlock,
-      [content, position, x, y, blockId]
-      );
+    const { blockId, pageId } = req.params;
+    const { content, position, x, y, color, opacity } = req.body;
+    const result = await pool.query(
+      blockQueries.updateBlock,
+      [content, position, x, y, color, opacity, blockId, pageId]
+    );
 
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Block not found' });

@@ -3,28 +3,35 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import { Navigate } from "react-router-dom";
 import Landing from "./pages/Landing";
-import NewNotes from "./pages/NewNotes";
+import NewNote from "./pages/NewNote";
 import UserProfile from "./pages/UserProfile";
-import NoPage from "./pages/NoPage";
-import NoteContainer from "./components/NoteContainer";
+import Page404 from "./pages/Page404";
 import PDFGenerator from "./components/PDFGenerator";
+import ExistingNote from "./pages/ExistingNote";
 
 function App() {
   return (
+    <div className="App">
     <BrowserRouter>
-      <div className="App">
+
         <Routes>
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Landing />} />
-          <Route path="/profile" element={<UserProfile />} />
+          <Route 
+          path="/profile" 
+          element={
+          <> 
+          <Navbar />
+          <UserProfile />
+          </>
+          } 
+          />
           <Route
-            path="/notes"
+            path="notes/newnote"
             element={
               <>
                 <Navbar />
-                <main className="flex-grow">
-                  <NewNotes />
-                </main>
+                  <NewNote />
               </>
             }
           />
@@ -33,17 +40,16 @@ function App() {
             element={
               <>
                 <Navbar />
-                <main className="flex-grow">
-                  <NoteContainer />
-                </main>
+                  <ExistingNote />
               </>
             }
           />
-          <Route path="*" element={<NoPage />} />
+          <Route path="*" element={<Page404 />} />
           <Route path="/pdf" element={<PDFGenerator />} />
         </Routes>
-      </div>
+
     </BrowserRouter>
+    </div>
   );
 }
 

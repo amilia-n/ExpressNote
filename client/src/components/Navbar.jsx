@@ -27,16 +27,15 @@ export default function Navbar() {
 
   return (
     <div
-      className="navbar shadow-sm h-20"
-      style={{ backgroundColor: "#303030" }}
+      className="navbar shadow-sm h-17"
     >
       <img
         src={logo}
         alt="ExpressNote Logo"
         style={{
           height: "280px",
-          clipPath: "inset(60px 0px 100px 10px)",
-          marginLeft: "-25px",
+          clipPath: "inset(60px 0px 120px 10px)",
+          marginLeft: "-15px",
         }}
       />
 
@@ -54,7 +53,7 @@ export default function Navbar() {
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
                 stroke="currentColor"
-                className="size-12"
+                className="size-15"
               >
                 <path
                   strokeLinecap="round"

@@ -9,10 +9,20 @@ import {
   Image,
 } from "@react-pdf/renderer";
 
+// Match NoteContainer's grid configuration
+const GRID_CONFIG = {
+  cols: 42,
+  rowHeight: 20,
+  margin: [0, 0],
+  containerPadding: [0, 0],
+  containerWidth: 595.28, // A4 width in points
+  containerHeight: 841.89, // A4 height in points
+};
+
 const styles = StyleSheet.create({
   page: {
     display: "flex",
-    backgroundColor: "#ffffff",
+    backgroundColor: "rgb(255, 255, 255)",
     width: "595.28pt", 
     height: "841.89pt",
     position: "relative",
@@ -25,12 +35,12 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundImage: "linear-gradient(to right, #ccc 1px, transparent 1px), linear-gradient(to bottom, #ccc 1px, transparent 1px)",
+    // backgroundSize: `${GRID_CONFIG.containerWidth / GRID_CONFIG.cols}pt ${GRID_CONFIG.rowHeight}pt`,
     backgroundSize: "14.17pt 14.17pt",
     zIndex: 0,
   },
   textBlock: {
     display: "flex",
-    backgroundColor: "rgb(255, 255, 255)",
     borderRadius: "25px",
     flexDirection: "column",
     position: "absolute",
@@ -39,7 +49,6 @@ const styles = StyleSheet.create({
   },
   codeBlock: {
     display: "flex",
-    backgroundColor: "rgb(255, 255, 255)",
     borderRadius: "25px",
     overflow: "hidden",
     fontFamily: "Courier",
@@ -60,7 +69,6 @@ const styles = StyleSheet.create({
     padding: "10px",
   },
   imgBox: {
-    backgroundColor: "rgb(255, 255, 255)",
     display: "flex",
     position: "absolute",
     border: "1px solid #ccc",
@@ -68,7 +76,7 @@ const styles = StyleSheet.create({
   },
   emptyPage: {
     display: "flex",
-    backgroundColor: "#ffffff",
+    backgroundColor: "rgb(255, 255, 255)",
     width: "595.28pt",
     height: "841.89pt",
     position: "relative",
@@ -89,6 +97,7 @@ const PDFGenerator = () => {
       const storedData = sessionStorage.getItem("pdfNoteData");
       if (storedData) {
         const parsedData = JSON.parse(storedData);
+        console.log('PDF Data received:', parsedData);
         setPdfData(parsedData);
       } else {
         setError("No PDF data found");
@@ -128,27 +137,25 @@ const PDFGenerator = () => {
     if (!block) return null;
   
     const layout = block.layout || { x: 0, y: 0, w: 12, h: 2 };
-    
-    // Match NoteContainer's grid system
-    const containerWidth = 595.28; // A4 width minus padding
-    
-    // Calculate grid units based on NoteContainer's system
-    const gridUnitWidth = containerWidth / 42; // 42 columns
-    const gridUnitHeight = 20; // Same as NoteContainer's rowHeight
-    
-    // Convert grid positions to points
+    const containerWidth = 595.28; 
+
+    const gridUnitWidth =  containerWidth / 42; 
+    const gridUnitHeight = 20;
+  
     const blockWidth = layout.w * gridUnitWidth;
     const blockHeight = layout.h * gridUnitHeight;
     const left = layout.x * gridUnitWidth;
     const top = layout.y * gridUnitHeight;
   
     const blockStyle = {
+      ...styles[`${block.type}Block`],
       width: `${blockWidth}pt`,
       height: `${blockHeight}pt`,
       left: `${left}pt`,
       top: `${top}pt`,
       position: "absolute",
-      ...styles[`${block.type}Block`],
+      backgroundColor: block.color || '#ffffff',
+      opacity: (block.opacity || 100) / 100,
     };
   
     switch (block.type) {
@@ -180,55 +187,24 @@ const PDFGenerator = () => {
     }
   };
 
-  // const renderPage = (pageNumber) => {
-  //   const pageBlocks = pdfData.pageBlocks[pageNumber] || [];
-  //   const hasContent = pageBlocks.length > 0;
-
-  //   return (
-  //     <Page key={pageNumber} size="A4" style={hasContent ? styles.page : styles.emptyPage}>
-  //       <View style={styles.gridLines} />
-  //       {hasContent ? (
-  //         pageBlocks.map((block) => (
-  //           <View key={block.id || block.blockId}>
-  //             {renderBlock(block)}
-  //           </View>
-  //         ))
-  //       ) : (
-  //         <View>
-  //           <Text style={{ textAlign: "center", marginTop: "50%" }}>
-  //             Page {pageNumber}
-  //           </Text>
-  //         </View>
-  //       )}
-  //     </Page>
-  //   );
-  // };
-
   return (
     <div className="pdf-container">
-        <PDFViewer style={{ width: "100%", height: "100vh" }}>
-            <Document>
-                <Page size="A4" style={styles.page}>
-                    {pdfData.pageBlocks[pdfData.currentPage]
-                        ?.sort((a, b) => {
-                            // First sort by y position
-                            if (a.layout.y !== b.layout.y) {
-                                return a.layout.y - b.layout.y;
-                            }
-                            // If y is the same, sort by x position
-                            return a.layout.x - b.layout.x;
-                        })
-                        .map((block, index) => (
-                            <View key={block.id || index}>
-                                {renderBlock(block)}
-                            </View>
-                        ))}
-                </Page>
-            </Document>
-        </PDFViewer>
+      <PDFViewer style={{ width: "100%", height: "100vh" }}>
+        <Document>
+          {Object.entries(pdfData.pageBlocks).map(([pageNum, blocks]) => (
+            <Page key={pageNum} size="A4" style={styles.page}>
+              <View style={styles.gridLines} />
+              {blocks.map((block, index) => (
+                <View key={block.id || index}>
+                  {renderBlock(block)}
+                </View>
+              ))}
+            </Page>
+          ))}
+        </Document>
+      </PDFViewer>
     </div>
   );
 };
 
 export default PDFGenerator;
-

@@ -7,29 +7,13 @@
   overflow: auto; 
 }
 
-.editor-header {
-  display: flex;
-  justify-content: space-around;
-  padding: 5px;
-  color: rgb(137, 137, 137);
-  position: relative;
-}
 
-.editor-content {
+
+.text-template {
   height: calc(100% - 40px); 
   padding: 5px;
   outline: none;
   overflow-y: auto;
-}
-.toolbar-expand {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 5px;
-  z-index: 10;
 }
 
 .toolbar-expand:hover {

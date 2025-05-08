@@ -2,10 +2,8 @@ import pool from '../db/connect.js';
 
 export const validateNoteOwnership = async (req, res, next) => {
   try {
-    // Get note_id from params, body, or from page_id
     let noteId = req.params.noteId || req.body.note_id;
     
-    // If we have a page_id but no note_id, get the note_id from the page
     if (!noteId && (req.params.pageId || req.body.page_id)) {
       const pageId = req.params.pageId || req.body.page_id;
       const pageResult = await pool.query(
@@ -18,12 +16,11 @@ export const validateNoteOwnership = async (req, res, next) => {
       }
     }
     
-    // If we still don't have a note_id, we can't validate ownership
     if (!noteId) {
       return res.status(400).json({ error: 'Note ID is required' });
     }
     
-    const userId = req.user.user_id || req.user.id;  // Support both user_id and id
+    const userId = req.user.user_id || req.user.id;  
     
     const result = await pool.query(
       'SELECT * FROM notes WHERE note_id = $1 AND user_id = $2',

@@ -1,4 +1,3 @@
-// client/src/pages/Landing.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
@@ -34,7 +33,7 @@ const Landing = () => {
       const data = await response.json();
       if (response.ok) {
         localStorage.setItem("token", data.token);
-        navigate("/notes");
+        navigate("/profile");
       } else {
         setError(data.error);
       }
@@ -60,7 +59,6 @@ const Landing = () => {
 
       const data = await response.json();
       if (response.ok) {
-        // After successful registration, automatically log in
         const loginResponse = await fetch(`${API_URL}/auth/login`, {
           method: "POST",
           headers: {
@@ -76,7 +74,7 @@ const Landing = () => {
         const loginData = await loginResponse.json();
         if (loginResponse.ok) {
           localStorage.setItem("token", loginData.token);
-          navigate("/notes");
+          navigate("/profile");
         } else {
           setError(loginData.error);
         }
