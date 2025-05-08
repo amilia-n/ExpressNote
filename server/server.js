@@ -93,9 +93,9 @@ app.get("/logout", (req, res) => {
   req.logout(() => res.redirect("/login"));
 });
 
-app.get("/profile", (req, res) => {
-  res.redirect("/profile");
-});
+// app.get("/profile", (req, res) => {
+//   res.redirect("/profile");
+// });
 
 app.get(
   ["/profile", "/newnote", "/notes/:noteId", "/pdf", "/allnotes"],

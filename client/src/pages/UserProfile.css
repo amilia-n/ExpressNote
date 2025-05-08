@@ -71,13 +71,13 @@
 }
 
 .save-description-btn.unsaved {
-  color: #fbbf24; /* yellow-400 */
+  color: #fbbf24; 
 }
 
 .save-description-btn.saved {
-  color: rgb(39, 142, 54); /* your existing green */
+  color: rgb(39, 142, 54); 
 }
 
 .save-description-btn.error {
-  color: rgb(220, 38, 38); /* red-600 */
+  color: rgb(220, 38, 38); 
 }
