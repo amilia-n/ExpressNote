@@ -5,7 +5,6 @@ const ImgBox = ({ onChange, id, color, opacity }) => {
   const [image, setImage] = useState(null);
 
   const handleImageUpload = (e) => {
-    e.stopPropagation();
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
@@ -16,28 +15,22 @@ const ImgBox = ({ onChange, id, color, opacity }) => {
       reader.readAsDataURL(file);
     }
   };
-  const handleButtonClick = (e) => {
-    e.stopPropagation();
-    document.getElementById(`image-upload-${id}`).click();
-  };
+
 
   return (
     <div className="imgbox-wrapper" style={{ backgroundColor: color, opacity: opacity / 100 }}>
-      
       <div className="imgbox-content">
         {image ? (
           <img src={image} alt="Uploaded" className="uploaded-image" />
         ) : (
           <div className="drop-area">
-            <button className="add-image" onClick={handleButtonClick}>
+            <button className="add-image">
               <input 
                 type="file" 
                 accept="image/*" 
                 onChange={handleImageUpload} 
                 style={{ display: 'none' }} 
-                id={`image-upload-${id}`} 
               />
-              <label htmlFor={`image-upload-${id}`}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -52,7 +45,6 @@ const ImgBox = ({ onChange, id, color, opacity }) => {
                     d="M12 4.5v15m7.5-7.5h-15"
                   />
                 </svg>
-              </label>
             </button>
           </div>
         )}
