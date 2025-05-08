@@ -24,7 +24,7 @@ app.enable("trust proxy");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// CORS middleware - must be before routes
+// CORS middleware 
 app.use(
   cors({
     origin:

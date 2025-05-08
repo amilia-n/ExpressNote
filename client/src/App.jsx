@@ -13,7 +13,6 @@ function App() {
   return (
     <div className="App">
     <BrowserRouter>
-
         <Routes>
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Landing />} />
@@ -47,7 +46,6 @@ function App() {
           <Route path="*" element={<Page404 />} />
           <Route path="/pdf" element={<PDFGenerator />} />
         </Routes>
-
     </BrowserRouter>
     </div>
   );
