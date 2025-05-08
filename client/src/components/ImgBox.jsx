@@ -10,7 +10,6 @@ const ImgBox = ({ onChange, id, color, opacity }) => {
       const reader = new FileReader();
       reader.onload = (e) => {
         setImage(e.target.result);
-        onChange(id, e.target.result); 
       };
       reader.readAsDataURL(file);
     }
