@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View, Text } from '@react-pdf/renderer';
 import "./CodeEditor.css";
 
-const CodeEditor = ({ onClose, content, onChange, isPDF = false  }) => {
+const CodeEditor = ({  content, onChange, isPDF = false, color, opacity  }) => {
   const [codeContent, setCodeContent] = useState(content || "npm install...");
 
   useEffect(() => {
@@ -25,8 +25,9 @@ const CodeEditor = ({ onClose, content, onChange, isPDF = false  }) => {
   if (isPDF) {
     return (
         <View style={{ 
-            backgroundColor: '#f5f5f5', 
-            padding: 10,
+          backgroundColor: color,
+          opacity: opacity / 100, 
+            padding: 15,
             fontFamily: 'Courier'
         }}>
             <Text>{content}</Text>
@@ -34,8 +35,7 @@ const CodeEditor = ({ onClose, content, onChange, isPDF = false  }) => {
     );
 }
   return (
-    <div className="mockup-code w-full h-full">
-          <button className="code-button close" onClick={onClose}></button>
+    <div className="mockup-code w-full h-full" style={{ backgroundColor: color, opacity: opacity / 100 }}>
       <pre>
         <code>
           <div className="code-editor-lines">

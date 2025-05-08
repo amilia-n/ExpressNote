@@ -4,6 +4,20 @@ import.meta.env.MODE === "production"
   : "http://localhost:3000";
 
 export const noteService = {
+  createNote: async (data) => {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${API_URL}/api/notes/newnote`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      credentials: "include",
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) throw new Error("Failed to create note");
+    return response.json();
+  },
   getNote: async (noteId) => {
     const token = localStorage.getItem("token");
     const response = await fetch(`${API_URL}/api/notes/${noteId}`, {

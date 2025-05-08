@@ -5,10 +5,15 @@
 @plugin "daisyui";
 
 html, body, #root {
-  height: 100%;
+  height: 100vh;
+  width: 100%;
   margin: 0;
   padding: 0;
   background-color: #68A063;
+  overflow-y: scroll;
+  overflow-x: hidden;
 }
+
+
 
 

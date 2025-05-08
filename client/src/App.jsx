@@ -11,20 +11,27 @@ import ExistingNote from "./pages/ExistingNote";
 
 function App() {
   return (
+    <div className="App">
     <BrowserRouter>
-      <div className="App">
+
         <Routes>
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Landing />} />
-          <Route path="/profile" element={<UserProfile />} />
+          <Route 
+          path="/profile" 
+          element={
+          <> 
+          <Navbar />
+          <UserProfile />
+          </>
+          } 
+          />
           <Route
             path="notes/newnote"
             element={
               <>
                 <Navbar />
-                <main className="flex-grow">
                   <NewNote />
-                </main>
               </>
             }
           />
@@ -33,17 +40,16 @@ function App() {
             element={
               <>
                 <Navbar />
-                <main className="flex-grow">
                   <ExistingNote />
-                </main>
               </>
             }
           />
           <Route path="*" element={<Page404 />} />
           <Route path="/pdf" element={<PDFGenerator />} />
         </Routes>
-      </div>
+
     </BrowserRouter>
+    </div>
   );
 }
 

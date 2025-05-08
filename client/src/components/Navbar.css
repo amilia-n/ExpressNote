@@ -1,4 +1,8 @@
 .w-10 {
     color: #68A063;
-    margin-top: 5px;
+    margin-top: 10px;
+    scale: .6;
+}
+.navbar{
+    background-color: #303030;
 }

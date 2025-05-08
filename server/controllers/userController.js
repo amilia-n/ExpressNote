@@ -121,10 +121,9 @@ export const getProfile = async (req, res) => {
     
     const notesResult = await pool.query(`
       SELECT n.note_id, n.title, n.created_at, n.updated_at,
-             p.page_id, b.content
+             nd.description
       FROM notes n
-      LEFT JOIN pages p ON n.note_id = p.note_id
-      LEFT JOIN blocks b ON p.page_id = b.page_id
+      LEFT JOIN note_descriptions nd ON n.note_id = nd.note_id
       WHERE n.user_id = $1
       ORDER BY n.updated_at DESC
     `, [userId]);

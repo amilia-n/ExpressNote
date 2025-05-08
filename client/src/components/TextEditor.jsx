@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from "react";
 import { createEditor } from "slate";
 import { Slate, withReact, Editable } from "slate-react";
-import { View, Text } from '@react-pdf/renderer';
+import { View, Text } from "@react-pdf/renderer";
 import "./TextEditor.css";
 
 const initialValue = [
@@ -10,11 +10,16 @@ const initialValue = [
     children: [{ text: "" }],
   },
 ];
-export default function TextEditor({ content, onChange, onClose, isPDF = false }) {
+export default function TextEditor({
+  content,
+  onChange,
+  isPDF = false,
+  color,
+  opacity,
+}) {
   const [editor] = useState(() => withReact(createEditor()));
   const editorValue = content || initialValue;
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  
+
   const handleChange = useCallback(
     (newValue) => {
       onChange(newValue);
@@ -22,17 +27,20 @@ export default function TextEditor({ content, onChange, onClose, isPDF = false }
     [onChange]
   );
 
-  const handleCollapseToggle = () => {
-    setIsCollapsed(!isCollapsed);
-  };
   if (isPDF) {
     return (
-      <View style={{ marginBottom: 10 }}>
+      <View
+        style={{
+          marginBottom: 10,
+          backgroundColor: color || "#ffffff",
+          opacity: (opacity || 100) / 100,
+        }}
+      >
         {content.map((node, i) => {
-          if (node.type === 'paragraph') {
+          if (node.type === "paragraph") {
             return (
               <Text key={i} style={{ marginBottom: 5 }}>
-                {node.children.map(child => child.text).join('')}
+                {node.children.map((child) => child.text).join("")}
               </Text>
             );
           }
@@ -41,9 +49,13 @@ export default function TextEditor({ content, onChange, onClose, isPDF = false }
       </View>
     );
   }
+
   return (
-    <div className="editor-container">
-      <div className={`editor-header ${isCollapsed ? 'collapsed' : ''}`}>
+    <div
+      className="editor-container"
+      style={{ backgroundColor: color, opacity: opacity / 100 }}
+    >
+      {/* <div className={`editor-header ${isCollapsed ? 'collapsed' : ''}`}>
         <button className="bold">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -204,10 +216,10 @@ export default function TextEditor({ content, onChange, onClose, isPDF = false }
             </button>
           </>
         )}
-      </div>
+      </div> */}
       <Slate editor={editor} initialValue={editorValue} onChange={handleChange}>
         <Editable
-        className={`editor-content ${isCollapsed ? 'collapsed' : ''}`}
+          className="text-template"
           placeholder="I am a Text Editor ☺︎"
         />
       </Slate>
