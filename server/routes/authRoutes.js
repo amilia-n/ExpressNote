@@ -19,13 +19,19 @@ router.get('/google/callback',
     failureRedirect: '/login',
     session: true
   }),
-  (req, res) => {
-    console.log('Google callback successful');
-    res.redirect(`${process.env.CLIENT_URL}/profile`);
-  }
+  googleCallback
+  // (req, res) => {
+  //   console.log('Google callback successful');
+  //   res.redirect(`${process.env.CLIENT_URL}/profile`);
+  // }
 );
 
-router.get("/logout", logout);
+router.get("/logout", (req, res) => {
+  req.logout(() => {
+    res.clearCookie('connect.sid');
+    res.json({ message: 'Logged out successfully' });
+  });
+});
 
 router.post("/register", registerUser);
 
