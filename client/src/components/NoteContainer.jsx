@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout";
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
@@ -189,6 +189,8 @@ export default function NoteContainer() {
         initialContent = "I am a Terminal";
       } else if (editorType === "code") {
         initialContent = "I am a Code Block";
+      } else if (editorType === "image") {
+          initialContent = null;
       } else {
         initialContent = "";
       }
@@ -220,19 +222,22 @@ export default function NoteContainer() {
     setSaveStatus("unsaved");
   };
 
-  const handleContentChange = (editorId, newContent) => {
-    setEditors((prev) => {
-      const updatedEditors = prev.map((editor) =>
+  const handleContentChange = useCallback((editorId, newContent) => {
+    setEditors((prev) => 
+      prev.map((editor) =>
         editor.id === editorId ? { ...editor, content: newContent } : editor
-      );
-      setPageBlocks((prev) => ({
-        ...prev,
-        [currentPage]: updatedEditors,
-      }));
-      return updatedEditors;
-    });
+      )
+    );
+    
+    setPageBlocks((prev) => ({
+      ...prev,
+      [currentPage]: prev[currentPage].map((editor) =>
+        editor.id === editorId ? { ...editor, content: newContent } : editor
+      ),
+    }));
+    
     setSaveStatus("unsaved");
-  };
+  }, [currentPage]);
 
   const handleSave = () => {
     if (!noteId) {
